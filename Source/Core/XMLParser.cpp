@@ -36,6 +36,7 @@
 #include "../../Include/RmlUi/Core/XMLNodeHandler.h"
 #include "ControlledLifetimeResource.h"
 #include "DocumentHeader.h"
+#include "RmlUi/Core/CoreInstance.h"
 
 namespace Rml {
 
@@ -44,14 +45,12 @@ struct XmlParserData {
 	SharedPtr<XMLNodeHandler> default_node_handler;
 };
 
-static ControlledLifetimeResource<XmlParserData> xml_parser_data;
-
-XMLParser::XMLParser(Element* root)
+XMLParser::XMLParser(CoreInstance& core_instance, Element* root) : core_instance(core_instance)
 {
 	RegisterCDATATag("script");
 	RegisterCDATATag("style");
 
-	for (const String& name : Factory::GetStructuralDataViewAttributeNames())
+	for (const String& name : core_instance.factory.GetStructuralDataViewAttributeNames())
 		RegisterInnerXMLAttribute(name);
 
 	// Add the first frame.
@@ -61,42 +60,42 @@ XMLParser::XMLParser(Element* root)
 
 	active_handler = nullptr;
 
-	header = MakeUnique<DocumentHeader>();
+	header = MakeUnique<DocumentHeader>(core_instance);
 }
 
 XMLParser::~XMLParser() {}
 
-XMLNodeHandler* XMLParser::RegisterNodeHandler(const String& _tag, SharedPtr<XMLNodeHandler> handler)
+XMLNodeHandler* XMLParser::RegisterNodeHandler(CoreInstance& core_instance, const String& _tag, SharedPtr<XMLNodeHandler> handler)
 {
-	if (!xml_parser_data)
-		xml_parser_data.Initialize();
+	if (!core_instance.xml_parser_data)
+		core_instance.xml_parser_data.Initialize();
 
 	String tag = StringUtilities::ToLower(_tag);
 
 	// Check for a default node registration.
 	if (tag.empty())
 	{
-		xml_parser_data->default_node_handler = std::move(handler);
-		return xml_parser_data->default_node_handler.get();
+		core_instance.xml_parser_data->default_node_handler = std::move(handler);
+		return core_instance.xml_parser_data->default_node_handler.get();
 	}
 
 	XMLNodeHandler* result = handler.get();
-	xml_parser_data->node_handlers[tag] = std::move(handler);
+	core_instance.xml_parser_data->node_handlers[tag] = std::move(handler);
 	return result;
 }
 
-XMLNodeHandler* XMLParser::GetNodeHandler(const String& tag)
+XMLNodeHandler* XMLParser::GetNodeHandler(CoreInstance& core_instance, const String& tag)
 {
-	auto it = xml_parser_data->node_handlers.find(tag);
-	if (it != xml_parser_data->node_handlers.end())
+	auto it = core_instance.xml_parser_data->node_handlers.find(tag);
+	if (it != core_instance.xml_parser_data->node_handlers.end())
 		return it->second.get();
 
 	return nullptr;
 }
 
-void XMLParser::ReleaseHandlers()
+void XMLParser::ReleaseHandlers(CoreInstance& core_instance)
 {
-	xml_parser_data.Shutdown();
+	core_instance.xml_parser_data.Shutdown();
 }
 
 DocumentHeader* XMLParser::GetDocumentHeader()
@@ -106,13 +105,13 @@ DocumentHeader* XMLParser::GetDocumentHeader()
 
 void XMLParser::PushDefaultHandler()
 {
-	active_handler = xml_parser_data->default_node_handler.get();
+	active_handler = core_instance.xml_parser_data->default_node_handler.get();
 }
 
 bool XMLParser::PushHandler(const String& tag)
 {
-	auto it = xml_parser_data->node_handlers.find(StringUtilities::ToLower(tag));
-	if (it == xml_parser_data->node_handlers.end())
+	auto it = core_instance.xml_parser_data->node_handlers.find(StringUtilities::ToLower(tag));
+	if (it == core_instance.xml_parser_data->node_handlers.end())
 		return false;
 
 	active_handler = it->second.get();
@@ -130,14 +129,19 @@ const URL& XMLParser::GetSourceURL() const
 	return *GetSourceURLPtr();
 }
 
+CoreInstance& XMLParser::GetCoreInstance() const
+{
+	return core_instance;
+}
+
 void XMLParser::HandleElementStart(const String& _name, const XMLAttributes& attributes)
 {
 	RMLUI_ZoneScoped;
 	const String name = StringUtilities::ToLower(_name);
 
 	// Check for a specific handler that will override the child handler.
-	auto itr = xml_parser_data->node_handlers.find(name);
-	if (itr != xml_parser_data->node_handlers.end())
+	auto itr = core_instance.xml_parser_data->node_handlers.find(name);
+	if (itr != core_instance.xml_parser_data->node_handlers.end())
 		active_handler = itr->second.get();
 
 	// Store the current active handler, so we can use it through this function (as active handler may change)

@@ -169,7 +169,7 @@ namespace {
 
 } // namespace
 
-ElementDocument::ElementDocument(const String& tag) : Element(tag)
+ElementDocument::ElementDocument(CoreInstance& core_instance, const String& tag) : Element(core_instance, tag)
 {
 	context = nullptr;
 
@@ -195,7 +195,7 @@ void ElementDocument::ProcessHeader(const DocumentHeader* document_header)
 	source_url = document_header->source;
 
 	// Construct a new header and copy the template details across
-	DocumentHeader header;
+	DocumentHeader header(GetCoreInstance());
 	header.MergePaths(header.template_resources, document_header->template_resources, document_header->source);
 
 	// Merge in any templates, note a merge may cause more templates to merge
@@ -329,16 +329,18 @@ void ElementDocument::ReloadStyleSheet()
 	if (!context)
 		return;
 
-	auto stream = MakeUnique<StreamFile>();
+	auto stream = MakeUnique<StreamFile>(GetCoreInstance());
 	if (!stream->Open(source_url))
 	{
 		Log::Message(Log::LT_WARNING, "Failed to open file to reload style sheet in document: %s", source_url.c_str());
 		return;
 	}
 
-	Factory::ClearStyleSheetCache();
-	Factory::ClearTemplateCache();
-	ElementPtr temp_doc = Factory::InstanceDocumentStream(nullptr, stream.get(), context->GetDocumentsBaseTag());
+	
+	GetFactory().ClearStyleSheetCache();
+	GetFactory().ClearTemplateCache();
+
+	ElementPtr temp_doc = GetFactory().InstanceDocumentStream(nullptr, stream.get(), context->GetDocumentsBaseTag());
 	if (!temp_doc)
 	{
 		Log::Message(Log::LT_WARNING, "Failed to reload style sheet, could not instance document: %s", source_url.c_str());
@@ -469,7 +471,7 @@ void ElementDocument::Close()
 
 ElementPtr ElementDocument::CreateElement(const String& name)
 {
-	return Factory::InstanceElement(nullptr, name, name, XMLAttributes());
+	return GetFactory().InstanceElement(nullptr, name, name, XMLAttributes());
 }
 
 ElementPtr ElementDocument::CreateTextNode(const String& text)

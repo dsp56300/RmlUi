@@ -47,7 +47,7 @@ public:
 	/// Constructs a new ElementFormControl. This should not be called directly; use the Factory
 	/// instead.
 	/// @param[in] tag The tag the element was declared as in RML.
-	ElementFormControl(const String& tag);
+	ElementFormControl(CoreInstance& core_instance, const String& tag);
 	virtual ~ElementFormControl();
 
 	/// Returns the name of the form control. This is not guaranteed to be unique, and in the case of some form

@@ -44,7 +44,7 @@ class ElementLabel : public Element, public EventListener {
 public:
 	RMLUI_RTTI_DefineWithParent(ElementLabel, Element)
 
-	ElementLabel(const String& tag);
+	ElementLabel(CoreInstance& core_instance, const String& tag);
 	virtual ~ElementLabel();
 
 protected:

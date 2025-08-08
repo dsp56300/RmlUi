@@ -28,13 +28,12 @@
 
 #include "../../Include/RmlUi/Core/ElementInstancer.h"
 #include "../../Include/RmlUi/Core/ElementText.h"
+#include "../../Include/RmlUi/Core/CoreInstance.h"
 #include "ControlledLifetimeResource.h"
 #include "Pool.h"
 #include "XMLParseTools.h"
 
 namespace Rml {
-
-ElementInstancer::~ElementInstancer() {}
 
 struct ElementInstancerPools {
 	Pool<Element> pool_element{200, true};
@@ -42,55 +41,56 @@ struct ElementInstancerPools {
 
 	bool IsEmpty() const { return pool_element.GetNumAllocatedObjects() == 0 && pool_text_default.GetNumAllocatedObjects() == 0; }
 };
-static ControlledLifetimeResource<ElementInstancerPools> element_instancer_pools;
 
-ElementPtr ElementInstancerElement::InstanceElement(Element* /*parent*/, const String& tag, const XMLAttributes& /*attributes*/)
+ElementInstancer::~ElementInstancer() {}
+
+ElementPtr ElementInstancerElement::InstanceElement(CoreInstance& instance, Element* /*parent*/, const String& tag, const XMLAttributes& /*attributes*/)
 {
-	Element* ptr = element_instancer_pools->pool_element.AllocateAndConstruct(tag);
+	Element* ptr = instance.element_instancer_pools->pool_element.AllocateAndConstruct(instance, tag);
 	return ElementPtr(ptr);
 }
 
-void ElementInstancerElement::ReleaseElement(Element* element)
+void ElementInstancerElement::ReleaseElement(CoreInstance& instance, Element* element)
 {
-	element_instancer_pools->pool_element.DestroyAndDeallocate(element);
+	instance.element_instancer_pools->pool_element.DestroyAndDeallocate(element);
 }
 
-ElementInstancerElement::~ElementInstancerElement()
+void ElementInstancerElement::CheckPoolsOnShutdown(CoreInstance& core_instance)
 {
-	int num_elements = element_instancer_pools->pool_element.GetNumAllocatedObjects();
+	int num_elements = core_instance.element_instancer_pools->pool_element.GetNumAllocatedObjects();
 	if (num_elements > 0)
 	{
 		Log::Message(Log::LT_WARNING, "--- Found %d leaked element(s) ---", num_elements);
 
-		for (auto it = element_instancer_pools->pool_element.Begin(); it; ++it)
+		for (auto it = core_instance.element_instancer_pools->pool_element.Begin(); it; ++it)
 			Log::Message(Log::LT_WARNING, "    %s", it->GetAddress().c_str());
 
 		Log::Message(Log::LT_WARNING, "------");
 	}
 }
 
-ElementPtr ElementInstancerText::InstanceElement(Element* /*parent*/, const String& tag, const XMLAttributes& /*attributes*/)
+ElementPtr ElementInstancerText::InstanceElement(CoreInstance& instance, Element* /*parent*/, const String& tag, const XMLAttributes& /*attributes*/)
 {
-	ElementText* ptr = element_instancer_pools->pool_text_default.AllocateAndConstruct(tag);
+	ElementText* ptr = instance.element_instancer_pools->pool_text_default.AllocateAndConstruct(instance, tag);
 	return ElementPtr(static_cast<Element*>(ptr));
 }
 
-void ElementInstancerText::ReleaseElement(Element* element)
+void ElementInstancerText::ReleaseElement(CoreInstance& instance, Element* element)
 {
-	element_instancer_pools->pool_text_default.DestroyAndDeallocate(rmlui_static_cast<ElementText*>(element));
+	instance.element_instancer_pools->pool_text_default.DestroyAndDeallocate(rmlui_static_cast<ElementText*>(element));
 }
 
-void Detail::InitializeElementInstancerPools()
+void Detail::InitializeElementInstancerPools(CoreInstance& instance)
 {
-	element_instancer_pools.InitializeIfEmpty();
+	instance.element_instancer_pools.InitializeIfEmpty();
 }
 
-void Detail::ShutdownElementInstancerPools()
+void Detail::ShutdownElementInstancerPools(CoreInstance& instance)
 {
-	if (element_instancer_pools->IsEmpty())
-		element_instancer_pools.Shutdown();
+	if (instance.element_instancer_pools->IsEmpty())
+		instance.element_instancer_pools.Shutdown();
 	else
-		element_instancer_pools.Leak();
+		instance.element_instancer_pools.Leak();
 }
 
 } // namespace Rml

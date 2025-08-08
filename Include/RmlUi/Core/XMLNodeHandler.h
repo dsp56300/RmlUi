@@ -47,6 +47,7 @@ enum class XMLDataType;
 
 class RMLUICORE_API XMLNodeHandler : public NonCopyMoveable {
 public:
+	XMLNodeHandler(Factory& factory) : factory(factory) {}
 	virtual ~XMLNodeHandler();
 
 	/// Called when a new element tag is opened.
@@ -65,6 +66,9 @@ public:
 	/// @param parser The parser executing the parse.
 	/// @param data The element data.
 	virtual bool ElementData(XMLParser* parser, const String& data, XMLDataType type) = 0;
+
+protected:
+	Factory& factory; // The factory used to create elements.
 };
 
 } // namespace Rml

@@ -36,8 +36,9 @@
 #include "Types.h"
 
 namespace Rml {
+	class CoreInstance;
 
-class Element;
+	class Element;
 
 /**
     An element instancer provides a method for allocating
@@ -63,10 +64,10 @@ public:
 	/// @param[in] tag The tag of the element to instance.
 	/// @param[in] attributes Dictionary of attributes.
 	/// @return A unique pointer to the instanced element.
-	virtual ElementPtr InstanceElement(Element* parent, const String& tag, const XMLAttributes& attributes) = 0;
+	virtual ElementPtr InstanceElement(CoreInstance& instance, Element* parent, const String& tag, const XMLAttributes& attributes) = 0;
 	/// Releases an element instanced by this instancer.
 	/// @param[in] element The element to release.
-	virtual void ReleaseElement(Element* element) = 0;
+	virtual void ReleaseElement(CoreInstance& instance, Element* element) = 0;
 };
 
 /**
@@ -77,9 +78,9 @@ public:
 
 class RMLUICORE_API ElementInstancerElement : public ElementInstancer {
 public:
-	ElementPtr InstanceElement(Element* parent, const String& tag, const XMLAttributes& attributes) override;
-	void ReleaseElement(Element* element) override;
-	~ElementInstancerElement();
+	ElementPtr InstanceElement(CoreInstance& instance, Element* parent, const String& tag, const XMLAttributes& attributes) override;
+	void ReleaseElement(CoreInstance& instance, Element* element) override;
+	static void CheckPoolsOnShutdown(CoreInstance& _coreInstance);
 };
 
 /**
@@ -90,8 +91,8 @@ public:
 
 class RMLUICORE_API ElementInstancerText : public ElementInstancer {
 public:
-	ElementPtr InstanceElement(Element* parent, const String& tag, const XMLAttributes& attributes) override;
-	void ReleaseElement(Element* element) override;
+	ElementPtr InstanceElement(CoreInstance& instance, Element* parent, const String& tag, const XMLAttributes& attributes) override;
+	void ReleaseElement(CoreInstance& instance, Element* element) override;
 };
 
 /**
@@ -104,13 +105,13 @@ class ElementInstancerGeneric : public ElementInstancer {
 public:
 	virtual ~ElementInstancerGeneric() {}
 
-	ElementPtr InstanceElement(Element* /*parent*/, const String& tag, const XMLAttributes& /*attributes*/) override
+	ElementPtr InstanceElement(CoreInstance& instance, Element* /*parent*/, const String& tag, const XMLAttributes& /*attributes*/) override
 	{
 		RMLUI_ZoneScopedN("ElementGenericInstance");
 		return ElementPtr(new T(tag));
 	}
 
-	void ReleaseElement(Element* element) override
+	void ReleaseElement(CoreInstance& instance, Element* element) override
 	{
 		RMLUI_ZoneScopedN("ElementGenericRelease");
 		delete element;
@@ -118,8 +119,8 @@ public:
 };
 
 namespace Detail {
-	void InitializeElementInstancerPools();
-	void ShutdownElementInstancerPools();
+	void InitializeElementInstancerPools(CoreInstance& instance);
+	void ShutdownElementInstancerPools(CoreInstance& instance);
 } // namespace Detail
 
 } // namespace Rml

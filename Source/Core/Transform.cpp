@@ -30,6 +30,7 @@
 #include "../../Include/RmlUi/Core/Property.h"
 #include "../../Include/RmlUi/Core/StyleSheetSpecification.h"
 #include "../../Include/RmlUi/Core/TransformPrimitive.h"
+#include "RmlUi/Core/CoreInstance.h"
 
 namespace Rml {
 
@@ -37,10 +38,10 @@ Transform::Transform() {}
 
 Transform::Transform(PrimitiveList primitives) : primitives(std::move(primitives)) {}
 
-Property Transform::MakeProperty(PrimitiveList primitives)
+Property Transform::MakeProperty(CoreInstance& core_instance, PrimitiveList primitives)
 {
 	Property p(MakeShared<Transform>(std::move(primitives)), Unit::TRANSFORM);
-	p.definition = StyleSheetSpecification::GetProperty(PropertyId::Transform);
+	p.definition = core_instance.styleSheetSpecification->GetProperty(PropertyId::Transform);
 	return p;
 }
 

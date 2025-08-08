@@ -39,7 +39,7 @@ namespace Rml {
 
 class XMLNodeHandlerSelect : public XMLNodeHandlerDefault {
 public:
-	XMLNodeHandlerSelect();
+	XMLNodeHandlerSelect(Factory& factory);
 	virtual ~XMLNodeHandlerSelect();
 
 	/// Called when a new element start is opened

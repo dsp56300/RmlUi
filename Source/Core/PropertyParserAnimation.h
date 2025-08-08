@@ -43,7 +43,7 @@ public:
 	enum Type { ANIMATION_PARSER, TRANSITION_PARSER } type;
 
 	/// Constructs the parser for either the animation or the transition type.
-	PropertyParserAnimation(Type type);
+	PropertyParserAnimation(CoreInstance& core_instance, Type type);
 
 	/// Called to parse a RCSS animation or transition declaration.
 	/// @param[out] property The property to set the parsed value on.

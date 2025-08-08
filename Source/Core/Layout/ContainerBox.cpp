@@ -130,7 +130,7 @@ void ContainerBox::SubmitElementLayout()
 }
 
 ContainerBox::ContainerBox(Type type, Element* element, ContainerBox* parent_container) :
-	LayoutBox(type), element(element), parent_container(parent_container)
+	LayoutBox(element->GetCoreInstance(), type), element(element), parent_container(parent_container)
 {
 	if (element)
 	{

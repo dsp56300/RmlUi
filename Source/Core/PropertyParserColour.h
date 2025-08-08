@@ -43,7 +43,7 @@ namespace Rml {
 
 class PropertyParserColour : public PropertyParser {
 public:
-	PropertyParserColour();
+	PropertyParserColour(CoreInstance& core_instance);
 	virtual ~PropertyParserColour();
 
 	/// Called to parse a RCSS colour declaration.

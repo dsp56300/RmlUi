@@ -48,7 +48,7 @@ public:
 
 class ReplacedBox : public LayoutBox {
 public:
-	ReplacedBox(Element* element) : LayoutBox(Type::Replaced), element(element) {}
+	ReplacedBox(Element* element) : LayoutBox(element->GetCoreInstance(), Type::Replaced), element(element) {}
 
 	void Close();
 	Box& GetBox() { return box; }

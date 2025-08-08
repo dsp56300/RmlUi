@@ -36,6 +36,11 @@
 #include "Traits.h"
 #include "Types.h"
 
+namespace Rml
+{
+	class CoreInstance;
+}
+
 namespace Rml {
 
 class Stream;
@@ -59,10 +64,11 @@ enum class EventId : uint16_t;
 class RMLUICORE_API Context : public ScriptInterface {
 public:
 	/// Constructs a new, uninitialised context. This should not be called directly, use CreateContext() instead.
+	/// @param[in] core_instance The instance that this context belongs to.
 	/// @param[in] name The name of the context.
 	/// @param[in] render_manager The render manager used for this context.
 	/// @param[in] text_input_handler The text input handler used for this context.
-	Context(const String& name, RenderManager* render_manager, TextInputHandler* text_input_handler);
+	Context(CoreInstance& core_instance, const String& name, RenderManager* render_manager, TextInputHandler* text_input_handler);
 	/// Destroys a context.
 	virtual ~Context();
 
@@ -296,10 +302,16 @@ public:
 	/// @return Time until the next update is expected.
 	double GetNextUpdateDelay() const;
 
+	/// Returns the core instance that this context belongs to.
+	/// @return The core instance.
+	CoreInstance& GetCoreInstance() const;
+
 protected:
 	void Release() override;
 
 private:
+	CoreInstance& core_instance;
+
 	String name;
 	Vector2i dimensions;
 	float density_independent_pixel_ratio = 1.f;

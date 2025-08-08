@@ -39,7 +39,7 @@ namespace Rml {
 
 class PropertyParserFilter : public PropertyParser {
 public:
-	PropertyParserFilter();
+	PropertyParserFilter(CoreInstance& core_instance);
 	virtual ~PropertyParserFilter();
 
 	/// Called to parse a decorator declaration.

@@ -36,6 +36,7 @@
 #include "BlockContainer.h"
 #include "FloatedBoxSpace.h"
 #include "LayoutDetails.h"
+#include "RmlUi/Core/CoreInstance.h"
 
 namespace Rml {
 
@@ -44,7 +45,7 @@ static void LogUnexpectedFlowElement(Element* element, Style::Display display)
 {
 	RMLUI_ASSERT(element);
 	String value = "*unknown";
-	StyleSheetSpecification::GetPropertySpecification().GetProperty(PropertyId::Display)->GetValue(value, Property(display));
+	element->GetCoreInstance().styleSheetSpecification->GetPropertySpecification().GetProperty(PropertyId::Display)->GetValue(value, Property(display));
 
 	Log::Message(Log::LT_WARNING, "Element has a display type '%s' which cannot be located in normal flow layout. Element will not be formatted: %s",
 		value.c_str(), element->GetAddress().c_str());
@@ -71,7 +72,7 @@ struct DebugDumpLayoutTree {
 		{
 			const String header = ":: " + LayoutDetails::GetDebugElementName(element) + " ::\n";
 			const String layout_tree = header + block_box->DumpLayoutTree();
-			if (SystemInterface* system_interface = GetSystemInterface())
+			if (SystemInterface* system_interface = GetSystemInterface(element->GetCoreInstance()))
 				system_interface->LogMessage(Log::LT_INFO, layout_tree);
 
 			if (is_printing_tree_root)

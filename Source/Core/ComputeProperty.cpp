@@ -30,28 +30,27 @@
 #include "../../Include/RmlUi/Core/ComputedValues.h"
 #include "../../Include/RmlUi/Core/Property.h"
 #include "../../Include/RmlUi/Core/StringUtilities.h"
-#include "ControlledLifetimeResource.h"
+#include "RmlUi/Core/CoreInstance.h"
 
 namespace Rml {
 
-struct ComputedPropertyData {
-	const Style::ComputedValues computed{nullptr};
-};
-static ControlledLifetimeResource<ComputedPropertyData> computed_property_data;
+	struct ComputedPropertyData {
+		const Style::ComputedValues computed{nullptr};
+	};
 
-const Style::ComputedValues& DefaultComputedValues()
+const Style::ComputedValues& DefaultComputedValues(CoreInstance& core_instance)
 {
-	return computed_property_data->computed;
+	return core_instance.computed_property_data->computed;
 }
 
-void InitializeComputeProperty()
+void InitializeComputeProperty(CoreInstance& core_instance)
 {
-	computed_property_data.Initialize();
+	core_instance.computed_property_data.Initialize();
 }
 
-void ShutdownComputeProperty()
+void ShutdownComputeProperty(CoreInstance& core_instance)
 {
-	computed_property_data.Shutdown();
+	core_instance.computed_property_data.Shutdown();
 }
 
 static constexpr float PixelsPerInch = 96.0f;
@@ -112,7 +111,7 @@ float ComputeAngle(NumericValue value)
 	return 0.0f;
 }
 
-float ComputeFontsize(NumericValue value, const Style::ComputedValues& values, const Style::ComputedValues* parent_values,
+float ComputeFontsize(CoreInstance& core_instance, NumericValue value, const Style::ComputedValues& values, const Style::ComputedValues* parent_values,
 	const Style::ComputedValues* document_values, float dp_ratio, Vector2f vp_dimensions)
 {
 	if (Any(value.unit & (Unit::PERCENT | Unit::EM | Unit::REM)))
@@ -133,7 +132,7 @@ float ComputeFontsize(NumericValue value, const Style::ComputedValues& values, c
 		case Unit::REM:
 			// If the current element is a document, the rem unit is relative to the default size.
 			if (!document_values || &values == document_values)
-				return value.number * DefaultComputedValues().font_size();
+				return value.number * DefaultComputedValues(core_instance).font_size();
 
 			// Otherwise it is relative to the document font size.
 			return value.number * document_values->font_size();

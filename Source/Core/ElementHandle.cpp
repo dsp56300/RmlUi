@@ -252,7 +252,7 @@ public:
 	}
 };
 
-ElementHandle::ElementHandle(const String& tag) : Element(tag), drag_start(0, 0)
+ElementHandle::ElementHandle(CoreInstance& core_instance, const String& tag) : Element(core_instance, tag), drag_start(0, 0)
 {
 	// Make sure we can be dragged!
 	SetProperty(PropertyId::Drag, Property(Style::Drag::Drag));

@@ -45,7 +45,7 @@ class RMLUICORE_API ElementHandle : public Element {
 public:
 	RMLUI_RTTI_DefineWithParent(ElementHandle, Element)
 
-	ElementHandle(const String& tag);
+	ElementHandle(CoreInstance& core_instance, const String& tag);
 	virtual ~ElementHandle();
 
 	struct MoveData {

@@ -39,7 +39,7 @@ namespace Rml {
 
 class PropertyParserFontEffect : public PropertyParser {
 public:
-	PropertyParserFontEffect();
+	PropertyParserFontEffect(CoreInstance& core_instance);
 	virtual ~PropertyParserFontEffect();
 
 	/// Called to parse a font-effect declaration.

@@ -44,13 +44,13 @@ class Plugin;
 
 class PluginRegistry {
 public:
-	static void RegisterPlugin(Plugin* plugin);
-	static void UnregisterPlugin(Plugin* plugin);
+	static void RegisterPlugin(CoreInstance& core_instance, Plugin* plugin);
+	static void UnregisterPlugin(CoreInstance& core_instance, Plugin* plugin);
 
 	/// Calls OnInitialise() on all plugins.
-	static void NotifyInitialise();
+	static void NotifyInitialise(CoreInstance& core_instance);
 	/// Calls OnShutdown() on all plugins.
-	static void NotifyShutdown();
+	static void NotifyShutdown(CoreInstance& core_instance);
 
 	/// Calls OnContextCreate() on all plugins.
 	static void NotifyContextCreate(Context* context);

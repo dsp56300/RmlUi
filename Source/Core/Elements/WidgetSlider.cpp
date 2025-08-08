@@ -94,12 +94,14 @@ WidgetSlider::~WidgetSlider()
 
 bool WidgetSlider::Initialise()
 {
+	auto& factory = parent->GetFactory();
+
 	// Create all of our child elements as standard elements, and abort if we can't create them.
-	ElementPtr track_element = Factory::InstanceElement(parent, "*", "slidertrack", XMLAttributes());
-	ElementPtr bar_element = Factory::InstanceElement(parent, "*", "sliderbar", XMLAttributes());
-	ElementPtr progress_element = Factory::InstanceElement(parent, "*", "sliderprogress", XMLAttributes());
-	ElementPtr arrow0_element = Factory::InstanceElement(parent, "*", "sliderarrowdec", XMLAttributes());
-	ElementPtr arrow1_element = Factory::InstanceElement(parent, "*", "sliderarrowinc", XMLAttributes());
+	ElementPtr track_element = factory.InstanceElement(parent, "*", "slidertrack", XMLAttributes());
+	ElementPtr bar_element = factory.InstanceElement(parent, "*", "sliderbar", XMLAttributes());
+	ElementPtr progress_element = factory.InstanceElement(parent, "*", "sliderprogress", XMLAttributes());
+	ElementPtr arrow0_element = factory.InstanceElement(parent, "*", "sliderarrowdec", XMLAttributes());
+	ElementPtr arrow1_element = factory.InstanceElement(parent, "*", "sliderarrowinc", XMLAttributes());
 
 	if (!track_element || !bar_element || !progress_element || !arrow0_element || !arrow1_element)
 		return false;
@@ -136,7 +138,7 @@ void WidgetSlider::Update()
 	if (!std::any_of(std::begin(arrow_timers), std::end(arrow_timers), [](float timer) { return timer > 0; }))
 		return;
 
-	const double current_time = Clock::GetElapsedTime();
+	const double current_time = Clock::GetElapsedTime(parent->GetCoreInstance());
 	const float delta_time = float(current_time - last_update_time);
 	last_update_time = current_time;
 
@@ -421,13 +423,13 @@ void WidgetSlider::ProcessEvent(Event& event)
 		else if (event.GetTargetElement() == arrows[0])
 		{
 			arrow_timers[0] = DEFAULT_REPEAT_DELAY;
-			last_update_time = Clock::GetElapsedTime();
+			last_update_time = Clock::GetElapsedTime(parent->GetCoreInstance());
 			SetBarPosition(OnLineDecrement());
 		}
 		else if (event.GetTargetElement() == arrows[1])
 		{
 			arrow_timers[1] = DEFAULT_REPEAT_DELAY;
-			last_update_time = Clock::GetElapsedTime();
+			last_update_time = Clock::GetElapsedTime(parent->GetCoreInstance());
 			SetBarPosition(OnLineIncrement());
 		}
 	}

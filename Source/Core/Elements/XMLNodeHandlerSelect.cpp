@@ -34,7 +34,7 @@
 
 namespace Rml {
 
-XMLNodeHandlerSelect::XMLNodeHandlerSelect() {}
+XMLNodeHandlerSelect::XMLNodeHandlerSelect(Factory& factory) : XMLNodeHandlerDefault(factory) {}
 
 XMLNodeHandlerSelect::~XMLNodeHandlerSelect() {}
 
@@ -48,7 +48,7 @@ Element* XMLNodeHandlerSelect::ElementStart(XMLParser* parser, const String& nam
 		parser->PushHandler("select");
 
 		// Attempt to instance the tabset
-		ElementPtr element = Factory::InstanceElement(parser->GetParseFrame()->element, name, name, attributes);
+		ElementPtr element = factory.InstanceElement(parser->GetParseFrame()->element, name, name, attributes);
 		ElementFormControlSelect* select_element = rmlui_dynamic_cast<ElementFormControlSelect*>(element.get());
 		if (!select_element)
 		{
@@ -66,7 +66,7 @@ Element* XMLNodeHandlerSelect::ElementStart(XMLParser* parser, const String& nam
 		// Call default element handler for all children.
 		parser->PushDefaultHandler();
 
-		ElementPtr option_element = Factory::InstanceElement(parser->GetParseFrame()->element, name, name, attributes);
+		ElementPtr option_element = factory.InstanceElement(parser->GetParseFrame()->element, name, name, attributes);
 		Element* result = nullptr;
 
 		ElementFormControlSelect* select_element = rmlui_dynamic_cast<ElementFormControlSelect*>(parser->GetParseFrame()->element);

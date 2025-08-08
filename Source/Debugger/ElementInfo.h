@@ -47,7 +47,7 @@ class ElementInfo : public ElementDebugDocument, public EventListener {
 public:
 	RMLUI_RTTI_DefineWithParent(ElementInfo, ElementDebugDocument)
 
-	ElementInfo(const String& tag);
+	ElementInfo(CoreInstance& core_instance, const String& tag);
 	~ElementInfo();
 
 	/// Initialises the info element.

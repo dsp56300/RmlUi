@@ -41,7 +41,7 @@ namespace Rml {
 
 class XMLNodeHandlerTabSet : public XMLNodeHandler {
 public:
-	XMLNodeHandlerTabSet();
+	XMLNodeHandlerTabSet(Factory& factory);
 	virtual ~XMLNodeHandlerTabSet();
 
 	/// Called when a new element start is opened

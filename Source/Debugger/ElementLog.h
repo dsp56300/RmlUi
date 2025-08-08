@@ -47,7 +47,7 @@ class ElementLog : public ElementDebugDocument, public Rml::EventListener {
 public:
 	RMLUI_RTTI_DefineWithParent(ElementLog, ElementDebugDocument)
 
-	ElementLog(const String& tag);
+	ElementLog(CoreInstance& core_instance, const String& tag);
 	~ElementLog();
 
 	/// Initialises the log element.

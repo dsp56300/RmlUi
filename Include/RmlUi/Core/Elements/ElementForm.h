@@ -45,8 +45,9 @@ public:
 	RMLUI_RTTI_DefineWithParent(ElementForm, Element)
 
 	/// Constructs a new ElementForm. This should not be called directly; use the Factory instead.
+	/// @param[in] core_instance The core instance this element is associated with.
 	/// @param[in] tag The tag the element was declared as in RML.
-	ElementForm(const String& tag);
+	ElementForm(CoreInstance& core_instance, const String& tag);
 	virtual ~ElementForm();
 
 	/// Submits the form.

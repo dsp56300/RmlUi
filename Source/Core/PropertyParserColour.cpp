@@ -97,7 +97,7 @@ void PropertyParserColour::Shutdown()
 	parser_data.Shutdown();
 }
 
-PropertyParserColour::PropertyParserColour() {}
+PropertyParserColour::PropertyParserColour(CoreInstance& core_instance) : PropertyParser(core_instance) {}
 
 PropertyParserColour::~PropertyParserColour() {}
 

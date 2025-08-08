@@ -64,7 +64,7 @@ void PropertyParserNumber::Shutdown()
 	parser_data.Shutdown();
 }
 
-PropertyParserNumber::PropertyParserNumber(Units units, Unit zero_unit) : units(units), zero_unit(zero_unit) {}
+PropertyParserNumber::PropertyParserNumber(CoreInstance& core_instance, Units units, Unit zero_unit) : PropertyParser(core_instance), units(units), zero_unit(zero_unit) {}
 
 PropertyParserNumber::~PropertyParserNumber() {}
 

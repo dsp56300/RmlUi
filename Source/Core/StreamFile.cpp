@@ -33,7 +33,7 @@
 
 namespace Rml {
 
-StreamFile::StreamFile()
+StreamFile::StreamFile(CoreInstance& core_instance) : core_instance(core_instance)
 {
 	file_handle = 0;
 	length = 0;
@@ -55,7 +55,7 @@ bool StreamFile::Open(const String& path)
 
 	// Fix the path if a leading colon has been replaced with a pipe.
 	String fixed_path = StringUtilities::Replace(path, '|', ':');
-	file_handle = GetFileInterface()->Open(fixed_path);
+	file_handle = GetFileInterface(core_instance)->Open(fixed_path);
 	if (!file_handle)
 	{
 		Log::Message(Log::LT_WARNING, "Unable to open file %s.", fixed_path.c_str());
@@ -71,7 +71,7 @@ void StreamFile::Close()
 {
 	if (file_handle)
 	{
-		GetFileInterface()->Close(file_handle);
+		GetFileInterface(core_instance)->Close(file_handle);
 		file_handle = 0;
 	}
 
@@ -86,17 +86,17 @@ size_t StreamFile::Length() const
 
 size_t StreamFile::Tell() const
 {
-	return GetFileInterface()->Tell(file_handle);
+	return GetFileInterface(core_instance)->Tell(file_handle);
 }
 
 bool StreamFile::Seek(long offset, int origin) const
 {
-	return GetFileInterface()->Seek(file_handle, offset, origin);
+	return GetFileInterface(core_instance)->Seek(file_handle, offset, origin);
 }
 
 size_t StreamFile::Read(void* buffer, size_t bytes) const
 {
-	return GetFileInterface()->Read(buffer, bytes, file_handle);
+	return GetFileInterface(core_instance)->Read(buffer, bytes, file_handle);
 }
 
 size_t StreamFile::Write(const void* /*buffer*/, size_t /*bytes*/)
@@ -122,7 +122,7 @@ bool StreamFile::IsWriteReady()
 }
 void StreamFile::GetLength()
 {
-	length = GetFileInterface()->Length(file_handle);
+	length = GetFileInterface(core_instance)->Length(file_handle);
 }
 
 } // namespace Rml

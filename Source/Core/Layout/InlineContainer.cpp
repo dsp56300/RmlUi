@@ -43,7 +43,7 @@
 namespace Rml {
 
 InlineContainer::InlineContainer(BlockContainer* _parent, float _available_width) :
-	LayoutBox(Type::InlineContainer), parent(_parent), root_inline_box(_parent->GetElement())
+	LayoutBox(_parent->GetElement()->GetCoreInstance(), Type::InlineContainer), parent(_parent), root_inline_box(_parent->GetElement())
 {
 	RMLUI_ASSERT(_parent);
 

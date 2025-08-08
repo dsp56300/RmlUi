@@ -66,6 +66,8 @@
 #include <algorithm>
 #include <cmath>
 
+#include "RmlUi/Core/CoreInstance.h"
+
 namespace Rml {
 
 // Determines how many levels up in the hierarchy the OnChildAdd and OnChildRemove are called (starting at the child itself)
@@ -92,7 +94,8 @@ static float GetScrollOffsetDelta(ScrollAlignment alignment, float begin_offset,
 	return 0.f;
 }
 
-Element::Element(const String& tag) :
+Element::Element(CoreInstance& core_instance, const String& tag) :
+	core_instance(core_instance),
 	local_stacking_context(false), local_stacking_context_forced(false), stacking_context_dirty(false), computed_values_are_default_initialized(true),
 	visible(true), offset_fixed(false), absolute_offset_dirty(true), rounded_main_padding_size_dirty(true), dirty_definition(false),
 	dirty_child_definitions(false), dirty_animation(false), dirty_transition(false), dirty_transform(false), dirty_perspective(false), tag(tag),
@@ -113,7 +116,7 @@ Element::Element(const String& tag) :
 
 	z_index = 0;
 
-	meta = ElementMetaPool::element_meta_pool->pool.AllocateAndConstruct(this);
+	meta = core_instance.element_meta_pool->pool.AllocateAndConstruct(this);
 	data_model = nullptr;
 }
 
@@ -136,7 +139,7 @@ Element::~Element()
 	children.clear();
 	num_non_dom_children = 0;
 
-	ElementMetaPool::element_meta_pool->pool.DestroyAndDeallocate(meta);
+	core_instance.element_meta_pool->pool.DestroyAndDeallocate(meta);
 }
 
 void Element::Update(float dp_ratio, Vector2f vp_dimensions)
@@ -246,12 +249,12 @@ ElementPtr Element::Clone() const
 
 	if (instancer)
 	{
-		clone = instancer->InstanceElement(nullptr, GetTagName(), attributes);
+		clone = instancer->InstanceElement(core_instance, nullptr, GetTagName(), attributes);
 		if (clone)
 			clone->SetInstancer(instancer);
 	}
 	else
-		clone = Factory::InstanceElement(nullptr, GetTagName(), GetTagName(), attributes);
+		clone = core_instance.factory.InstanceElement(nullptr, GetTagName(), GetTagName(), attributes);
 
 	if (clone)
 	{
@@ -611,7 +614,7 @@ bool Element::SetProperty(const String& name, const String& value)
 {
 	// The name may be a shorthand giving us multiple underlying properties
 	PropertyDictionary properties;
-	if (!StyleSheetSpecification::ParsePropertyDeclaration(properties, name, value))
+	if (!GetCoreInstance().styleSheetSpecification->ParsePropertyDeclaration(properties, name, value))
 	{
 		Log::Message(Log::LT_WARNING, "Syntax error parsing inline property declaration '%s: %s;'.", name.c_str(), value.c_str());
 		return false;
@@ -631,15 +634,15 @@ bool Element::SetProperty(PropertyId id, const Property& property)
 
 void Element::RemoveProperty(const String& name)
 {
-	auto property_id = StyleSheetSpecification::GetPropertyId(name);
+	auto property_id = GetCoreInstance().styleSheetSpecification->GetPropertyId(name);
 	if (property_id != PropertyId::Invalid)
 		meta->style.RemoveProperty(property_id);
 	else
 	{
-		auto shorthand_id = StyleSheetSpecification::GetShorthandId(name);
+		auto shorthand_id = GetCoreInstance().styleSheetSpecification->GetShorthandId(name);
 		if (shorthand_id != ShorthandId::Invalid)
 		{
-			auto property_id_set = StyleSheetSpecification::GetShorthandUnderlyingProperties(shorthand_id);
+			auto property_id_set = GetCoreInstance().styleSheetSpecification->GetShorthandUnderlyingProperties(shorthand_id);
 			for (auto it = property_id_set.begin(); it != property_id_set.end(); ++it)
 				meta->style.RemoveProperty(*it);
 		}
@@ -653,7 +656,7 @@ void Element::RemoveProperty(PropertyId id)
 
 const Property* Element::GetProperty(const String& name)
 {
-	return meta->style.GetProperty(StyleSheetSpecification::GetPropertyId(name));
+	return meta->style.GetProperty(GetCoreInstance().styleSheetSpecification->GetPropertyId(name));
 }
 
 const Property* Element::GetProperty(PropertyId id)
@@ -663,7 +666,7 @@ const Property* Element::GetProperty(PropertyId id)
 
 const Property* Element::GetLocalProperty(const String& name)
 {
-	return meta->style.GetLocalProperty(StyleSheetSpecification::GetPropertyId(name));
+	return meta->style.GetLocalProperty(GetCoreInstance().styleSheetSpecification->GetPropertyId(name));
 }
 
 const Property* Element::GetLocalProperty(PropertyId id)
@@ -1160,7 +1163,7 @@ void Element::SetInnerRML(const String& rml)
 		RemoveChild(children.front().get());
 
 	if (!rml.empty())
-		Factory::InstanceElementText(this, rml);
+		core_instance.factory.InstanceElementText(this, rml);
 }
 
 bool Element::Focus(bool focus_visible)
@@ -1729,7 +1732,7 @@ void Element::OnAttributeChange(const ElementAttributes& changed_attributes)
 				remove_event_listener_if_exists();
 
 				const auto value_as_string = value.Get<String>();
-				auto insertion_result = attribute_event_listeners.emplace(event_id, Factory::InstanceEventListener(value_as_string, this));
+				auto insertion_result = attribute_event_listeners.emplace(event_id, core_instance.factory.InstanceEventListener(value_as_string, this));
 				if (auto* listener = insertion_result.first->second)
 					event_dispatcher.AttachEvent(event_id, listener, IN_CAPTURE_PHASE);
 			}
@@ -1798,7 +1801,7 @@ void Element::OnPropertyChange(const PropertyIdSet& changed_properties)
 	{
 		// Force a relayout if any of the changed properties require it.
 		const PropertyIdSet changed_properties_forcing_layout =
-			(changed_properties & StyleSheetSpecification::GetRegisteredPropertiesForcingLayout());
+			(changed_properties & GetCoreInstance().styleSheetSpecification->GetRegisteredPropertiesForcingLayout());
 
 		if (!changed_properties_forcing_layout.Empty())
 		{
@@ -2027,6 +2030,16 @@ const Style::ComputedValues& Element::GetComputedValues() const
 	return meta->computed_values;
 }
 
+CoreInstance& Element::GetCoreInstance() const
+{
+	return core_instance;
+}
+
+Factory& Element::GetFactory() const
+{
+	return GetCoreInstance().factory;
+}
+
 void Element::GetRML(String& content)
 {
 	// First we start the open tag, add the attributes then close the open tag.
@@ -2061,7 +2074,7 @@ void Element::GetRML(String& content)
 		const PropertyId id = pair.first;
 		const Property& property = pair.second;
 
-		content += StyleSheetSpecification::GetPropertyName(id);
+		content += GetCoreInstance().styleSheetSpecification->GetPropertyName(id);
 		content += ": ";
 		content += StringUtilities::EncodeRml(property.ToString());
 		content += "; ";
@@ -2130,7 +2143,7 @@ void Element::SetDataModel(DataModel* new_data_model)
 void Element::Release()
 {
 	if (instancer)
-		instancer->ReleaseElement(this);
+		instancer->ReleaseElement(core_instance, this);
 	else
 		Log::Message(Log::LT_WARNING, "Leak detected: element %s not instanced via RmlUi Factory. Unable to release.", GetAddress().c_str());
 }
@@ -2493,7 +2506,7 @@ bool Element::Animate(const String& property_name, const Property& target_value,
 	bool alternate_direction, float delay, const Property* start_value)
 {
 	bool result = false;
-	PropertyId property_id = StyleSheetSpecification::GetPropertyId(property_name);
+	PropertyId property_id = GetCoreInstance().styleSheetSpecification->GetPropertyId(property_name);
 
 	auto it_animation = StartAnimation(property_id, start_value, num_iterations, alternate_direction, delay, false);
 	if (it_animation != animations.end())
@@ -2510,7 +2523,7 @@ bool Element::AddAnimationKey(const String& property_name, const Property& targe
 {
 	ElementAnimation* animation = nullptr;
 
-	PropertyId property_id = StyleSheetSpecification::GetPropertyId(property_name);
+	PropertyId property_id = GetCoreInstance().styleSheetSpecification->GetPropertyId(property_name);
 
 	for (auto& existing_animation : animations)
 	{
@@ -2541,7 +2554,7 @@ ElementAnimationList::iterator Element::StartAnimation(PropertyId property_id, c
 			Log::Message(Log::LT_WARNING,
 				"Could not animate property '%s' on element: %s. "
 				"Please ensure that the property does not appear in multiple animations on the same element.",
-				StyleSheetSpecification::GetPropertyName(property_id).c_str(), GetAddress().c_str());
+				GetCoreInstance().styleSheetSpecification->GetPropertyName(property_id).c_str(), GetAddress().c_str());
 			return it;
 		}
 
@@ -2570,7 +2583,7 @@ ElementAnimationList::iterator Element::StartAnimation(PropertyId property_id, c
 	if (value.definition)
 	{
 		ElementAnimationOrigin origin = (initiated_by_animation_property ? ElementAnimationOrigin::Animation : ElementAnimationOrigin::User);
-		double start_time = Clock::GetElapsedTime() + (double)delay;
+		double start_time = Clock::GetElapsedTime(GetCoreInstance()) + (double)delay;
 		*it = ElementAnimation{property_id, origin, value, *this, start_time, 0.0f, num_iterations, alternate_direction};
 	}
 
@@ -2616,7 +2629,7 @@ bool Element::StartTransition(const Transition& transition, const Property& star
 		return false;
 
 	float duration = transition.duration;
-	double start_time = Clock::GetElapsedTime() + (double)transition.delay;
+	double start_time = Clock::GetElapsedTime(GetCoreInstance()) + (double)transition.delay;
 
 	if (it == animations.end())
 	{
@@ -2764,7 +2777,7 @@ void Element::AdvanceAnimations()
 {
 	if (!animations.empty())
 	{
-		double time = Clock::GetElapsedTime();
+		double time = Clock::GetElapsedTime(GetCoreInstance());
 
 		for (auto& animation : animations)
 		{
@@ -2784,7 +2797,7 @@ void Element::AdvanceAnimations()
 
 		for (auto it = it_completed; it != animations.end(); ++it)
 		{
-			const String& property_name = StyleSheetSpecification::GetPropertyName(it->GetPropertyId());
+			const String& property_name = GetCoreInstance().styleSheetSpecification->GetPropertyName(it->GetPropertyId());
 
 			dictionary_list.emplace_back();
 			dictionary_list.back().emplace("property", Variant(property_name));

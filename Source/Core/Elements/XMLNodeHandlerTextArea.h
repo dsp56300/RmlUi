@@ -41,7 +41,7 @@ namespace Rml {
 
 class XMLNodeHandlerTextArea : public XMLNodeHandler {
 public:
-	XMLNodeHandlerTextArea();
+	XMLNodeHandlerTextArea(Factory& factory);
 	virtual ~XMLNodeHandlerTextArea();
 
 	/// Called when a new element is opened.

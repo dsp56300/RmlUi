@@ -31,7 +31,7 @@
 namespace Rml {
 namespace Debugger {
 
-ElementDebugDocument::ElementDebugDocument(const String& tag) : ElementDocument(tag)
+ElementDebugDocument::ElementDebugDocument(CoreInstance& core_instance, const String& tag) : ElementDocument(core_instance, tag)
 {
 	SetFocusableFromModal(true);
 }

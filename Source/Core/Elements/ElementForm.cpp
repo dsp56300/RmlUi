@@ -33,7 +33,7 @@
 
 namespace Rml {
 
-ElementForm::ElementForm(const String& tag) : Element(tag) {}
+ElementForm::ElementForm(CoreInstance& core_instance, const String& tag) : Element(core_instance, tag) {}
 
 ElementForm::~ElementForm() {}
 

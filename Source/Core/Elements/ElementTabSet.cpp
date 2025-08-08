@@ -32,7 +32,7 @@
 
 namespace Rml {
 
-ElementTabSet::ElementTabSet(const String& tag) : Element(tag)
+ElementTabSet::ElementTabSet(CoreInstance& core_instance, const String& tag) : Element(core_instance, tag)
 {
 	active_tab = 0;
 }
@@ -41,15 +41,15 @@ ElementTabSet::~ElementTabSet() {}
 
 void ElementTabSet::SetTab(int tab_index, const String& rml)
 {
-	ElementPtr element = Factory::InstanceElement(nullptr, "*", "tab", XMLAttributes());
-	Factory::InstanceElementText(element.get(), rml);
+	ElementPtr element = GetFactory().InstanceElement(nullptr, "*", "tab", XMLAttributes());
+	GetFactory().InstanceElementText(element.get(), rml);
 	SetTab(tab_index, std::move(element));
 }
 
 void ElementTabSet::SetPanel(int tab_index, const String& rml)
 {
-	ElementPtr element = Factory::InstanceElement(nullptr, "*", "panel", XMLAttributes());
-	Factory::InstanceElementText(element.get(), rml);
+	ElementPtr element = GetFactory().InstanceElement(nullptr, "*", "panel", XMLAttributes());
+	GetFactory().InstanceElementText(element.get(), rml);
 	SetPanel(tab_index, std::move(element));
 }
 
@@ -196,7 +196,7 @@ Element* ElementTabSet::GetChildByTag(const String& tag)
 	}
 
 	// If it doesn't exist, create it
-	ElementPtr element = Factory::InstanceElement(this, "*", tag, XMLAttributes());
+	ElementPtr element = GetFactory().InstanceElement(this, "*", tag, XMLAttributes());
 	Element* result = AppendChild(std::move(element));
 	return result;
 }

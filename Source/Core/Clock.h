@@ -42,7 +42,7 @@ class Clock {
 public:
 	/// Get the elapsed time since application startup
 	/// @return Seconds elapsed since application startup.
-	RMLUICORE_API static double GetElapsedTime();
+	RMLUICORE_API static double GetElapsedTime(CoreInstance& core_instance);
 };
 
 } // namespace Rml

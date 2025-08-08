@@ -39,7 +39,7 @@ namespace Debugger {
 
 const int MAX_LOG_MESSAGES = 50;
 
-ElementLog::ElementLog(const String& tag) : ElementDebugDocument(tag)
+ElementLog::ElementLog(CoreInstance& core_instance, const String& tag) : ElementDebugDocument(core_instance, tag)
 {
 	dirty_logs = false;
 	beacon = nullptr;

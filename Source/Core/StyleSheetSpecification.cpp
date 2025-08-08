@@ -43,41 +43,62 @@
 #include "PropertyParserString.h"
 #include "PropertyParserTransform.h"
 #include "PropertyShorthandDefinition.h"
+#include "RmlUi/Core/CoreInstance.h"
 
 namespace Rml {
 
-static StyleSheetSpecification* instance = nullptr;
-
 struct DefaultStyleSheetParsers : NonCopyMoveable {
-	PropertyParserNumber number = PropertyParserNumber(Unit::NUMBER);
-	PropertyParserNumber length = PropertyParserNumber(Unit::LENGTH, Unit::PX);
-	PropertyParserNumber length_percent = PropertyParserNumber(Unit::LENGTH_PERCENT, Unit::PX);
-	PropertyParserNumber number_percent = PropertyParserNumber(Unit::NUMBER_PERCENT);
-	PropertyParserNumber number_length_percent = PropertyParserNumber(Unit::NUMBER_LENGTH_PERCENT, Unit::PX);
-	PropertyParserNumber angle = PropertyParserNumber(Unit::ANGLE, Unit::RAD);
-	PropertyParserKeyword keyword = PropertyParserKeyword();
-	PropertyParserString string = PropertyParserString();
-	PropertyParserAnimation animation = PropertyParserAnimation(PropertyParserAnimation::ANIMATION_PARSER);
-	PropertyParserAnimation transition = PropertyParserAnimation(PropertyParserAnimation::TRANSITION_PARSER);
-	PropertyParserColour color = PropertyParserColour();
-	PropertyParserColorStopList color_stop_list = PropertyParserColorStopList(&color);
-	PropertyParserDecorator decorator = PropertyParserDecorator();
-	PropertyParserFilter filter = PropertyParserFilter();
-	PropertyParserFontEffect font_effect = PropertyParserFontEffect();
-	PropertyParserTransform transform = PropertyParserTransform();
-	PropertyParserRatio ratio = PropertyParserRatio();
-	PropertyParserNumber resolution = PropertyParserNumber(Unit::X);
-	PropertyParserBoxShadow box_shadow = PropertyParserBoxShadow(&color, &length);
+	DefaultStyleSheetParsers(CoreInstance& core_instance)
+		: number(core_instance, Unit::NUMBER)
+		, length(core_instance, Unit::LENGTH, Unit::PX)
+		, length_percent(core_instance, Unit::LENGTH_PERCENT, Unit::PX)
+		, number_percent(core_instance, Unit::NUMBER_PERCENT)
+		, number_length_percent(core_instance, Unit::NUMBER_LENGTH_PERCENT, Unit::PX)
+		, angle(core_instance, Unit::ANGLE, Unit::RAD)
+		, keyword(core_instance)
+		, string(core_instance)
+		, animation(core_instance, PropertyParserAnimation::ANIMATION_PARSER)
+		, transition(core_instance, PropertyParserAnimation::TRANSITION_PARSER)
+		, color(core_instance)
+		, color_stop_list(&color)
+		, decorator(core_instance)
+		, filter(core_instance)
+		, font_effect(core_instance)
+		, transform(core_instance)
+		, ratio(core_instance)
+		, resolution(core_instance, Unit::X)
+		, box_shadow(core_instance, &color, &length)
+	{}
+
+	PropertyParserNumber number;
+	PropertyParserNumber length;
+	PropertyParserNumber length_percent;
+	PropertyParserNumber number_percent;
+	PropertyParserNumber number_length_percent;
+	PropertyParserNumber angle;
+	PropertyParserKeyword keyword;
+	PropertyParserString string;
+	PropertyParserAnimation animation;
+	PropertyParserAnimation transition;
+	PropertyParserColour color;
+	PropertyParserColorStopList color_stop_list;
+	PropertyParserDecorator decorator;
+	PropertyParserFilter filter;
+	PropertyParserFontEffect font_effect;
+	PropertyParserTransform transform;
+	PropertyParserRatio ratio;
+	PropertyParserNumber resolution;
+	PropertyParserBoxShadow box_shadow;
 };
 
-StyleSheetSpecification::StyleSheetSpecification() :
+StyleSheetSpecification::StyleSheetSpecification(CoreInstance& core_instance) : core_instance(core_instance), instance(this),
 	// Reserve space for all defined ids and some more for custom properties
 	properties((size_t)PropertyId::MaxNumIds, 2 * (size_t)ShorthandId::NumDefinedIds)
 {
-	RMLUI_ASSERT(instance == nullptr);
-	instance = this;
+	RMLUI_ASSERT(core_instance.styleSheetSpecification == nullptr);
+	core_instance.styleSheetSpecification = this;
 
-	default_parsers.reset(new DefaultStyleSheetParsers);
+	default_parsers.reset(new DefaultStyleSheetParsers(core_instance));
 }
 
 StyleSheetSpecification::~StyleSheetSpecification()
@@ -97,26 +118,26 @@ ShorthandId StyleSheetSpecification::RegisterShorthand(ShorthandId id, const Str
 	return properties.RegisterShorthand(shorthand_name, property_names, type, id);
 }
 
-void StyleSheetSpecification::Initialise()
+void StyleSheetSpecification::Initialise(CoreInstance& core_instance)
 {
-	RMLUI_ASSERT(!instance);
+	RMLUI_ASSERT(!core_instance.styleSheetSpecification);
 
 	PropertyParserAnimation::Initialize();
 	PropertyParserColour::Initialize();
 	PropertyParserDecorator::Initialize();
 	PropertyParserNumber::Initialize();
 
-	new StyleSheetSpecification();
+	new StyleSheetSpecification(core_instance);
 
-	instance->RegisterDefaultParsers();
-	instance->RegisterDefaultProperties();
+	core_instance.styleSheetSpecification->RegisterDefaultParsers();
+	core_instance.styleSheetSpecification->RegisterDefaultProperties();
 }
 
-void StyleSheetSpecification::Shutdown()
+void StyleSheetSpecification::Shutdown(CoreInstance& core_instance)
 {
-	RMLUI_ASSERT(instance);
+	RMLUI_ASSERT(core_instance.styleSheetSpecification);
 
-	delete instance;
+	delete core_instance.styleSheetSpecification;
 
 	PropertyParserAnimation::Shutdown();
 	PropertyParserColour::Shutdown();

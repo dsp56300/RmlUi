@@ -44,8 +44,9 @@
 #include "Types.h"
 
 namespace Rml {
+	class CoreInstance;
 
-class Context;
+	class Context;
 class DataModel;
 class Decorator;
 class ElementInstancer;
@@ -80,8 +81,9 @@ public:
 	RMLUI_RTTI_DefineWithParent(Element, ScriptInterface)
 
 	/// Constructs a new RmlUi element. This should not be called directly; use the Factory instead.
+	/// @param[in] core_instance The core instance this element is associated with.
 	/// @param[in] tag The tag the element was declared as in RML.
-	Element(const String& tag);
+	Element(CoreInstance& core_instance, const String& tag);
 	virtual ~Element();
 
 	/// Clones this element, returning a new, unparented element.
@@ -615,6 +617,14 @@ public:
 	/// Return the computed values of the element's properties. These values are updated as appropriate on every Context::Update.
 	const ComputedValues& GetComputedValues() const;
 
+	/// Returns the core instance this element belongs to.
+	/// @return The core instance this element belongs to.
+	CoreInstance& GetCoreInstance() const;
+
+	/// Returns the factory that created this element.
+	/// @return The factory that created this element.
+	Factory& GetFactory() const;
+
 protected:
 	void Update(float dp_ratio, Vector2f vp_dimensions);
 	void Render();
@@ -729,6 +739,9 @@ private:
 	/// Advances the animations (including transitions) forward in time.
 	void AdvanceAnimations();
 
+	// Core instance this element belongs to.
+	CoreInstance& core_instance;
+
 	// State flags are packed together for compact data layout.
 	bool local_stacking_context;
 	bool local_stacking_context_forced;
@@ -817,7 +830,7 @@ private:
 	friend class Rml::ReplacedBox;
 	friend class Rml::LayoutEngine;
 	friend class Rml::ElementScroll;
-	friend RMLUICORE_API void Rml::ReleaseFontResources();
+	friend RMLUICORE_API void Rml::ReleaseFontResources(CoreInstance& core_instance);
 };
 
 } // namespace Rml

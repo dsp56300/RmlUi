@@ -40,6 +40,8 @@
 #include <algorithm>
 #include <cstddef>
 
+#include "RmlUi/Core/CoreInstance.h"
+
 namespace Rml {
 
 template <size_t Size>
@@ -59,42 +61,40 @@ struct LayoutPoolsData {
 	Pool<LayoutChunk<ChunkSizeSmall>> layout_chunk_pool_small{50, true};
 };
 
-static ControlledLifetimeResource<LayoutPoolsData> layout_pools_data;
-
-void LayoutPools::Initialize()
+void LayoutPools::Initialize(CoreInstance& core_instance)
 {
-	layout_pools_data.Initialize();
+	core_instance.layout_pools_data.Initialize();
 }
-void LayoutPools::Shutdown()
+void LayoutPools::Shutdown(CoreInstance& core_instance)
 {
-	layout_pools_data.Shutdown();
+	core_instance.layout_pools_data.Shutdown();
 }
 
-void* LayoutPools::AllocateLayoutChunk(size_t size)
+void* LayoutPools::AllocateLayoutChunk(CoreInstance& core_instance, size_t size)
 {
 	static_assert(ChunkSizeBig > ChunkSizeMedium && ChunkSizeMedium > ChunkSizeSmall, "The following assumes a strict ordering of the chunk sizes.");
 
 	// Note: If any change is made here, make sure a corresponding change is applied to the deallocation procedure below.
 	if (size <= ChunkSizeSmall)
-		return layout_pools_data->layout_chunk_pool_small.AllocateAndConstruct();
+		return core_instance.layout_pools_data->layout_chunk_pool_small.AllocateAndConstruct();
 	else if (size <= ChunkSizeMedium)
-		return layout_pools_data->layout_chunk_pool_medium.AllocateAndConstruct();
+		return core_instance.layout_pools_data->layout_chunk_pool_medium.AllocateAndConstruct();
 	else if (size <= ChunkSizeBig)
-		return layout_pools_data->layout_chunk_pool_big.AllocateAndConstruct();
+		return core_instance.layout_pools_data->layout_chunk_pool_big.AllocateAndConstruct();
 
 	RMLUI_ERROR;
 	return nullptr;
 }
 
-void LayoutPools::DeallocateLayoutChunk(void* chunk, size_t size)
+void LayoutPools::DeallocateLayoutChunk(CoreInstance& core_instance, void* chunk, size_t size)
 {
 	// Note: If any change is made here, make sure a corresponding change is applied to the allocation procedure above.
 	if (size <= ChunkSizeSmall)
-		layout_pools_data->layout_chunk_pool_small.DestroyAndDeallocate((LayoutChunk<ChunkSizeSmall>*)chunk);
+		core_instance.layout_pools_data->layout_chunk_pool_small.DestroyAndDeallocate((LayoutChunk<ChunkSizeSmall>*)chunk);
 	else if (size <= ChunkSizeMedium)
-		layout_pools_data->layout_chunk_pool_medium.DestroyAndDeallocate((LayoutChunk<ChunkSizeMedium>*)chunk);
+		core_instance.layout_pools_data->layout_chunk_pool_medium.DestroyAndDeallocate((LayoutChunk<ChunkSizeMedium>*)chunk);
 	else if (size <= ChunkSizeBig)
-		layout_pools_data->layout_chunk_pool_big.DestroyAndDeallocate((LayoutChunk<ChunkSizeBig>*)chunk);
+		core_instance.layout_pools_data->layout_chunk_pool_big.DestroyAndDeallocate((LayoutChunk<ChunkSizeBig>*)chunk);
 	else
 	{
 		RMLUI_ERROR;

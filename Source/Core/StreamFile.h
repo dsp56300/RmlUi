@@ -40,7 +40,7 @@ namespace Rml {
 
 class StreamFile final : public Stream {
 public:
-	StreamFile();
+	StreamFile(CoreInstance& core_instance);
 	virtual ~StreamFile();
 
 	/// Attempts to open the stream pointing at a given location.
@@ -76,6 +76,7 @@ private:
 	// Determines the length of the stream.
 	void GetLength();
 
+	CoreInstance& core_instance;
 	FileHandle file_handle;
 	size_t length;
 };

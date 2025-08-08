@@ -66,52 +66,42 @@
 
 #include <algorithm>
 
+#include "RmlUi/Core/CoreInstance.h"
+
 namespace Rml {
 
-static RenderInterface* render_interface = nullptr;
-static SystemInterface* system_interface = nullptr;
-static FileInterface* file_interface = nullptr;
-static FontEngineInterface* font_interface = nullptr;
-static TextInputHandler* text_input_handler = nullptr;
-
-struct CoreData {
-	// Default interfaces should be created and destroyed on Initialise and Shutdown, respectively.
-	UniquePtr<SystemInterface> default_system_interface;
-	UniquePtr<FileInterface> default_file_interface;
-	UniquePtr<FontEngineInterface> default_font_interface;
-	UniquePtr<TextInputHandler> default_text_input_handler;
-
-	SmallUnorderedMap<RenderInterface*, UniquePtr<RenderManager>> render_managers;
-	UnorderedMap<String, ContextPtr> contexts;
-};
-
-static ControlledLifetimeResource<CoreData> core_data;
-
-static bool initialised = false;
-
-static void InitializeMemoryPools()
+static void InitializeMemoryPools(CoreInstance& instance)
 {
-	Detail::InitializeElementInstancerPools();
-	ElementMetaPool::Initialize();
-	LayoutPools::Initialize();
+	Detail::InitializeElementInstancerPools(instance);
+	ElementMetaPool::Initialize(instance);
+	LayoutPools::Initialize(instance);
 }
-static void ReleaseMemoryPools()
+static void ReleaseMemoryPools(CoreInstance& instance)
 {
-	LayoutPools::Shutdown();
-	ElementMetaPool::Shutdown();
-	Detail::ShutdownElementInstancerPools();
+	LayoutPools::Shutdown(instance);
+	ElementMetaPool::Shutdown(instance);
+	Detail::ShutdownElementInstancerPools(instance);
 }
 
 #ifndef RMLUI_VERSION
 	#define RMLUI_VERSION "custom"
 #endif
 
-bool Initialise()
+bool Initialise(CoreInstance& core_instance)
 {
+	// [DSP56300] we use this to ease merging if RmlUi changes in the future.
+	auto& initialised = core_instance.initialised;
+	auto& system_interface = core_instance.system_interface;
+	auto& render_interface = core_instance.render_interface;
+	auto& file_interface = core_instance.file_interface;
+	auto& font_interface = core_instance.font_interface;
+	auto& text_input_handler = core_instance.text_input_handler;
+	auto& core_data = core_instance.core_data;
+
 	RMLUI_ASSERTMSG(!initialised, "Rml::Initialise() called, but RmlUi is already initialised!");
 
-	InitializeMemoryPools();
-	InitializeComputeProperty();
+	InitializeMemoryPools(core_instance);
+	InitializeComputeProperty(core_instance);
 
 	core_data.Initialize();
 
@@ -159,13 +149,13 @@ bool Initialise()
 
 	font_interface->Initialize();
 
-	StyleSheetSpecification::Initialise();
+	StyleSheetSpecification::Initialise(core_instance);
 	StyleSheetParser::Initialise();
 	StyleSheetFactory::Initialise();
 
 	TemplateCache::Initialise();
 
-	Factory::Initialise();
+	core_instance.factory.Initialise();
 
 	// Initialise plugins integrated with Core.
 #ifdef RMLUI_LOTTIE_PLUGIN
@@ -176,28 +166,37 @@ bool Initialise()
 #endif
 
 	// Notify all plugins we're starting up.
-	PluginRegistry::NotifyInitialise();
+	PluginRegistry::NotifyInitialise(core_instance);
 
 	initialised = true;
 
 	return true;
 }
 
-void Shutdown()
+void Shutdown(CoreInstance& core_instance)
 {
+	// [DSP56300] we use this to ease merging if RmlUi changes in the future.
+	auto& initialised = core_instance.initialised;
+	auto& core_data = core_instance.core_data;
+	auto& font_interface = core_instance.font_interface;
+	auto& render_interface = core_instance.render_interface;
+	auto& text_input_handler = core_instance.text_input_handler;
+	auto& file_interface = core_instance.file_interface;
+	auto& system_interface = core_instance.system_interface;
+
 	RMLUI_ASSERTMSG(initialised, "Rml::Shutdown() called, but RmlUi is not initialised!");
 
 	// Clear out all contexts, which should also clean up all attached elements.
 	core_data->contexts.clear();
 
 	// Notify all plugins we're being shutdown.
-	PluginRegistry::NotifyShutdown();
+	PluginRegistry::NotifyShutdown(core_instance);
 
-	Factory::Shutdown();
+	core_instance.factory.Shutdown();
 	TemplateCache::Shutdown();
 	StyleSheetFactory::Shutdown();
 	StyleSheetParser::Shutdown();
-	StyleSheetSpecification::Shutdown();
+	StyleSheetSpecification::Shutdown(core_instance);
 
 	font_interface->Shutdown();
 
@@ -217,8 +216,8 @@ void Shutdown()
 
 	EventSpecificationInterface::Shutdown();
 
-	ShutdownComputeProperty();
-	ReleaseMemoryPools();
+	ShutdownComputeProperty(core_instance);
+	ReleaseMemoryPools(core_instance);
 }
 
 String GetVersion()
@@ -226,67 +225,67 @@ String GetVersion()
 	return RMLUI_VERSION;
 }
 
-void SetSystemInterface(SystemInterface* _system_interface)
+void SetSystemInterface(CoreInstance& instance, SystemInterface* _system_interface)
 {
-	system_interface = _system_interface;
+	instance.system_interface = _system_interface;
 }
 
-SystemInterface* GetSystemInterface()
+SystemInterface* GetSystemInterface(CoreInstance& instance)
 {
-	return system_interface;
+	return instance.system_interface;
 }
 
-void SetRenderInterface(RenderInterface* _render_interface)
+void SetRenderInterface(CoreInstance& instance, RenderInterface* _render_interface)
 {
-	render_interface = _render_interface;
+	instance.render_interface = _render_interface;
 }
 
-RenderInterface* GetRenderInterface()
+RenderInterface* GetRenderInterface(CoreInstance& instance)
 {
-	return render_interface;
+	return instance.render_interface;
 }
 
-void SetFileInterface(FileInterface* _file_interface)
+void SetFileInterface(CoreInstance& instance, FileInterface* _file_interface)
 {
-	file_interface = _file_interface;
+	instance.file_interface = _file_interface;
 }
 
-FileInterface* GetFileInterface()
+FileInterface* GetFileInterface(CoreInstance& instance)
 {
-	return file_interface;
+	return instance.file_interface;
 }
 
-void SetFontEngineInterface(FontEngineInterface* _font_interface)
+void SetFontEngineInterface(CoreInstance& instance, FontEngineInterface* _font_interface)
 {
-	font_interface = _font_interface;
+	instance.font_interface = _font_interface;
 }
 
-FontEngineInterface* GetFontEngineInterface()
+FontEngineInterface* GetFontEngineInterface(CoreInstance& instance)
 {
-	return font_interface;
+	return instance.font_interface;
 }
 
-void SetTextInputHandler(TextInputHandler* _text_input_handler)
+void SetTextInputHandler(CoreInstance& instance, TextInputHandler* _text_input_handler)
 {
-	text_input_handler = _text_input_handler;
+	instance.text_input_handler = _text_input_handler;
 }
 
-TextInputHandler* GetTextInputHandler()
+TextInputHandler* GetTextInputHandler(CoreInstance& core_instance)
 {
-	return text_input_handler;
+	return core_instance.text_input_handler;
 }
 
-Context* CreateContext(const String& name, const Vector2i dimensions, RenderInterface* render_interface_for_context,
+Context* CreateContext(CoreInstance& instance, const String& name, const Vector2i dimensions, RenderInterface* render_interface_for_context,
 	TextInputHandler* text_input_handler_for_context)
 {
-	if (!initialised)
+	if (!instance.initialised)
 		return nullptr;
 
 	if (!render_interface_for_context)
-		render_interface_for_context = render_interface;
+		render_interface_for_context = instance.render_interface;
 
 	if (!text_input_handler_for_context)
-		text_input_handler_for_context = text_input_handler;
+		text_input_handler_for_context = instance.text_input_handler;
 
 	if (!render_interface_for_context)
 	{
@@ -295,18 +294,18 @@ Context* CreateContext(const String& name, const Vector2i dimensions, RenderInte
 		return nullptr;
 	}
 
-	if (GetContext(name))
+	if (GetContext(instance, name))
 	{
 		Log::Message(Log::LT_WARNING, "Failed to create context '%s', context already exists.", name.c_str());
 		return nullptr;
 	}
 
 	// Each unique render interface gets its own render manager.
-	auto& render_manager = core_data->render_managers[render_interface_for_context];
+	auto& render_manager = instance.core_data->render_managers[render_interface_for_context];
 	if (!render_manager)
 		render_manager = MakeUnique<RenderManager>(render_interface_for_context);
 
-	ContextPtr new_context = Factory::InstanceContext(name, render_manager.get(), text_input_handler_for_context);
+	ContextPtr new_context = instance.factory.InstanceContext(name, render_manager.get(), text_input_handler_for_context);
 	if (!new_context)
 	{
 		Log::Message(Log::LT_WARNING, "Failed to instance context '%s', instancer returned nullptr.", name.c_str());
@@ -316,106 +315,106 @@ Context* CreateContext(const String& name, const Vector2i dimensions, RenderInte
 	new_context->SetDimensions(dimensions);
 
 	Context* new_context_raw = new_context.get();
-	core_data->contexts[name] = std::move(new_context);
+	instance.core_data->contexts[name] = std::move(new_context);
 
 	PluginRegistry::NotifyContextCreate(new_context_raw);
 
 	return new_context_raw;
 }
 
-bool RemoveContext(const String& name)
+bool RemoveContext(CoreInstance& core_instance, const String& name)
 {
-	return core_data->contexts.erase(name) != 0;
+	return core_instance.core_data->contexts.erase(name) != 0;
 }
 
-Context* GetContext(const String& name)
+Context* GetContext(CoreInstance& core_instance, const String& name)
 {
-	auto it = core_data->contexts.find(name);
-	if (it == core_data->contexts.end())
+	auto it = core_instance.core_data->contexts.find(name);
+	if (it == core_instance.core_data->contexts.end())
 		return nullptr;
 
 	return it->second.get();
 }
 
-Context* GetContext(int index)
+Context* GetContext(CoreInstance& core_instance, int index)
 {
-	if (index < 0 || index >= GetNumContexts())
+	if (index < 0 || index >= GetNumContexts(core_instance))
 		return nullptr;
 
-	auto it = core_data->contexts.begin();
+	auto it = core_instance.core_data->contexts.begin();
 	std::advance(it, index);
 
-	if (it == core_data->contexts.end())
+	if (it == core_instance.core_data->contexts.end())
 		return nullptr;
 
 	return it->second.get();
 }
 
-int GetNumContexts()
+int GetNumContexts(CoreInstance& core_instance)
 {
-	return (int)core_data->contexts.size();
+	return (int)core_instance.core_data->contexts.size();
 }
 
-bool LoadFontFace(const String& file_path, bool fallback_face, Style::FontWeight weight, int face_index)
+bool LoadFontFace(CoreInstance& core_instance, const String& file_path, bool fallback_face, Style::FontWeight weight, int face_index)
 {
-	return font_interface->LoadFontFace(file_path, face_index, fallback_face, weight);
+	return core_instance.font_interface->LoadFontFace(file_path, face_index, fallback_face, weight);
 }
 
-bool LoadFontFace(Span<const byte> data, const String& family, Style::FontStyle style, Style::FontWeight weight, bool fallback_face, int face_index)
+bool LoadFontFace(CoreInstance& core_instance, Span<const byte> data, const String& family, Style::FontStyle style, Style::FontWeight weight, bool fallback_face, int face_index)
 {
-	return font_interface->LoadFontFace(data, face_index, family, style, weight, fallback_face);
+	return core_instance.font_interface->LoadFontFace(data, face_index, family, style, weight, fallback_face);
 }
 
-void RegisterPlugin(Plugin* plugin)
+void RegisterPlugin(CoreInstance& core_instance, Plugin* plugin)
 {
-	if (initialised)
+	if (core_instance.initialised)
 		plugin->OnInitialise();
 
-	PluginRegistry::RegisterPlugin(plugin);
+	PluginRegistry::RegisterPlugin(core_instance, plugin);
 }
 
-void UnregisterPlugin(Plugin* plugin)
+void UnregisterPlugin(CoreInstance& core_instance, Plugin* plugin)
 {
-	PluginRegistry::UnregisterPlugin(plugin);
+	PluginRegistry::UnregisterPlugin(core_instance, plugin);
 
-	if (initialised)
+	if (core_instance.initialised)
 		plugin->OnShutdown();
 }
 
-EventId RegisterEventType(const String& type, bool interruptible, bool bubbles, DefaultActionPhase default_action_phase)
+EventId RegisterEventType(CoreInstance&, const String& type, bool interruptible, bool bubbles, DefaultActionPhase default_action_phase)
 {
 	return EventSpecificationInterface::InsertOrReplaceCustom(type, interruptible, bubbles, default_action_phase);
 }
 
-StringList GetTextureSourceList()
+StringList GetTextureSourceList(CoreInstance& core_instance)
 {
 	StringList result;
-	if (!core_data)
+	if (!core_instance.core_data)
 		return result;
-	for (const auto& render_manager : core_data->render_managers)
+	for (const auto& render_manager : core_instance.core_data->render_managers)
 	{
 		RenderManagerAccess::GetTextureSourceList(render_manager.second.get(), result);
 	}
 	return result;
 }
 
-void ReleaseTextures(RenderInterface* match_render_interface)
+void ReleaseTextures(CoreInstance& core_instance, RenderInterface* match_render_interface)
 {
-	if (!core_data)
+	if (!core_instance.core_data)
 		return;
-	for (auto& render_manager : core_data->render_managers)
+	for (auto& render_manager : core_instance.core_data->render_managers)
 	{
 		if (!match_render_interface || render_manager.first == match_render_interface)
 			RenderManagerAccess::ReleaseAllTextures(render_manager.second.get());
 	}
 }
 
-bool ReleaseTexture(const String& source, RenderInterface* match_render_interface)
+bool ReleaseTexture(CoreInstance& core_instance, const String& source, RenderInterface* match_render_interface)
 {
 	bool result = false;
-	if (!core_data)
+	if (!core_instance.core_data)
 		return result;
-	for (auto& render_manager : core_data->render_managers)
+	for (auto& render_manager : core_instance.core_data->render_managers)
 	{
 		if (!match_render_interface || render_manager.first == match_render_interface)
 		{
@@ -426,37 +425,37 @@ bool ReleaseTexture(const String& source, RenderInterface* match_render_interfac
 	return result;
 }
 
-void ReleaseCompiledGeometry(RenderInterface* match_render_interface)
+void ReleaseCompiledGeometry(CoreInstance& core_instance, RenderInterface* match_render_interface)
 {
-	if (!core_data)
+	if (!core_instance.core_data)
 		return;
-	for (auto& render_manager : core_data->render_managers)
+	for (auto& render_manager : core_instance.core_data->render_managers)
 	{
 		if (!match_render_interface || render_manager.first == match_render_interface)
 			RenderManagerAccess::ReleaseAllCompiledGeometry(render_manager.second.get());
 	}
 }
 
-void ReleaseFontResources()
+void ReleaseFontResources(CoreInstance& core_instance)
 {
-	if (!font_interface)
+	if (!core_instance.font_interface)
 		return;
 
-	for (const auto& name_context : core_data->contexts)
+	for (const auto& name_context : core_instance.core_data->contexts)
 		name_context.second->GetRootElement()->DirtyFontFaceRecursive();
 
-	font_interface->ReleaseFontResources();
+	core_instance.font_interface->ReleaseFontResources();
 
-	for (const auto& name_context : core_data->contexts)
+	for (const auto& name_context : core_instance.core_data->contexts)
 		name_context.second->Update();
 }
 
-void ReleaseRenderManagers()
+void ReleaseRenderManagers(CoreInstance& core_instance)
 {
-	auto& contexts = core_data->contexts;
-	auto& render_managers = core_data->render_managers;
+	auto& contexts = core_instance.core_data->contexts;
+	auto& render_managers = core_instance.core_data->render_managers;
 
-	ReleaseFontResources();
+	ReleaseFontResources(core_instance);
 
 	for (auto it = render_managers.begin(); it != render_managers.end();)
 	{
@@ -474,9 +473,9 @@ void ReleaseRenderManagers()
 // Functions that need to be accessible within the Core library, but not publicly.
 namespace CoreInternal {
 
-	bool HasRenderManager(RenderInterface* match_render_interface)
+	bool HasRenderManager(CoreInstance& core_instance, RenderInterface* match_render_interface)
 	{
-		return core_data && core_data->render_managers.find(match_render_interface) != core_data->render_managers.end();
+		return core_instance.core_data && core_instance.core_data->render_managers.find(match_render_interface) != core_instance.core_data->render_managers.end();
 	}
 
 } // namespace CoreInternal

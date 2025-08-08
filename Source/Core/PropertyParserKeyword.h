@@ -41,7 +41,7 @@ namespace Rml {
 
 class PropertyParserKeyword : public PropertyParser {
 public:
-	PropertyParserKeyword();
+	PropertyParserKeyword(CoreInstance& core_instance);
 	virtual ~PropertyParserKeyword();
 
 	/// Called to parse a RCSS keyword declaration.

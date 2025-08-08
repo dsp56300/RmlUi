@@ -35,11 +35,11 @@ namespace Rml {
 
 namespace LayoutPools {
 
-	void Initialize();
-	void Shutdown();
+	void Initialize(CoreInstance& instance);
+	void Shutdown(CoreInstance& instance);
 
-	void* AllocateLayoutChunk(size_t size);
-	void DeallocateLayoutChunk(void* chunk, size_t size);
+	void* AllocateLayoutChunk(CoreInstance& instance, size_t size);
+	void DeallocateLayoutChunk(CoreInstance& instance, void* chunk, size_t size);
 
 } // namespace LayoutPools
 

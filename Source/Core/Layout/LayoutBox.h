@@ -60,11 +60,13 @@ public:
 	void operator delete(void* chunk, size_t size);
 
 protected:
-	LayoutBox(Type type) : type(type) {}
+	LayoutBox(CoreInstance& core_instance, Type type) : core_instance(core_instance), type(type) {}
 
 	void SetVisibleOverflowSize(Vector2f size) { visible_overflow_size = size; }
 
 	virtual String DebugDumpTree(int depth) const = 0;
+
+	CoreInstance& core_instance;
 
 private:
 	Type type;

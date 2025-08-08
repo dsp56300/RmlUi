@@ -32,9 +32,9 @@
 
 namespace Rml {
 
-RMLUICORE_API double Clock::GetElapsedTime()
+RMLUICORE_API double Clock::GetElapsedTime(CoreInstance& core_instance)
 {
-	SystemInterface* system_interface = GetSystemInterface();
+	SystemInterface* system_interface = GetSystemInterface(core_instance);
 	if (system_interface != nullptr)
 		return system_interface->GetElapsedTime();
 	else

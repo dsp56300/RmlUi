@@ -49,7 +49,7 @@ public:
 	/// Constructs a new ElementFormControlSelect. This should not be called directly; use the
 	/// Factory instead.
 	/// @param[in] tag The tag the element was declared as in RML.
-	ElementFormControlSelect(const String& tag);
+	ElementFormControlSelect(CoreInstance& core_instance, const String& tag);
 	virtual ~ElementFormControlSelect();
 
 	/// Returns a string representation of the current value of the form control.

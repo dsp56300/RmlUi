@@ -48,23 +48,25 @@
 #include <iterator>
 #include <limits>
 
+#include "RmlUi/Core/CoreInstance.h"
+
 namespace Rml {
 
 static constexpr float DOUBLE_CLICK_TIME = 0.5f;    // [s]
 static constexpr float DOUBLE_CLICK_MAX_DIST = 3.f; // [dp]
 static constexpr float UNIT_SCROLL_LENGTH = 80.f;   // [dp]
 
-Context::Context(const String& name, RenderManager* render_manager, TextInputHandler* text_input_handler) :
-	name(name), render_manager(render_manager), text_input_handler(text_input_handler)
+Context::Context(CoreInstance& core_instance, const String& name, RenderManager* render_manager, TextInputHandler* text_input_handler) :
+	core_instance(core_instance), name(name), render_manager(render_manager), text_input_handler(text_input_handler)
 {
 	instancer = nullptr;
 
-	root = Factory::InstanceElement(nullptr, "*", "#root", XMLAttributes());
+	root = core_instance.factory.InstanceElement(nullptr, "*", "#root", XMLAttributes());
 	root->SetId(name);
 	root->SetOffset(Vector2f(0, 0), nullptr);
 	root->SetProperty(PropertyId::ZIndex, Property(0, Unit::NUMBER));
 
-	cursor_proxy = Factory::InstanceElement(nullptr, documents_base_tag, documents_base_tag, XMLAttributes());
+	cursor_proxy = core_instance.factory.InstanceElement(nullptr, documents_base_tag, documents_base_tag, XMLAttributes());
 	ElementDocument* cursor_proxy_document = rmlui_dynamic_cast<ElementDocument*>(cursor_proxy.get());
 	RMLUI_ASSERT(cursor_proxy_document);
 	cursor_proxy_document->context = this;
@@ -236,7 +238,7 @@ bool Context::Render()
 
 ElementDocument* Context::CreateDocument(const String& instancer_name)
 {
-	ElementPtr element = Factory::InstanceElement(nullptr, instancer_name, documents_base_tag, XMLAttributes());
+	ElementPtr element = core_instance.factory.InstanceElement(nullptr, instancer_name, documents_base_tag, XMLAttributes());
 	if (!element)
 	{
 		Log::Message(Log::LT_ERROR, "Failed to instance document on instancer_name '%s', instancer returned nullptr.", instancer_name.c_str());
@@ -276,7 +278,7 @@ ElementDocument* Context::LoadDocument(Stream* stream)
 {
 	PluginRegistry::NotifyDocumentOpen(this, stream->GetSourceURL().GetURL());
 
-	ElementPtr element = Factory::InstanceDocumentStream(this, stream, GetDocumentsBaseTag());
+	ElementPtr element = core_instance.factory.InstanceDocumentStream(this, stream, GetDocumentsBaseTag());
 	if (!element)
 		return nullptr;
 
@@ -647,7 +649,7 @@ bool Context::ProcessMouseButtonDown(int button_index, int key_modifier_state)
 			float mouse_distance_squared = float((mouse_position - last_click_mouse_position).SquaredMagnitude());
 			float max_mouse_distance = DOUBLE_CLICK_MAX_DIST * density_independent_pixel_ratio;
 
-			double click_time = GetSystemInterface()->GetElapsedTime();
+			double click_time = GetSystemInterface(GetCoreInstance())->GetElapsedTime();
 
 			if (active == last_click_element && float(click_time - last_click_time) < DOUBLE_CLICK_TIME &&
 				mouse_distance_squared < max_mouse_distance * max_mouse_distance)
@@ -1114,7 +1116,7 @@ void Context::UpdateHoverChain(Vector2i old_mouse_position, int key_modifier_sta
 
 		if (new_cursor_name != cursor_name)
 		{
-			GetSystemInterface()->SetMouseCursor(new_cursor_name);
+			GetSystemInterface(GetCoreInstance())->SetMouseCursor(new_cursor_name);
 			cursor_name = new_cursor_name;
 		}
 	}
@@ -1414,4 +1416,8 @@ double Context::GetNextUpdateDelay() const
 	return next_update_timeout;
 }
 
+CoreInstance& Context::GetCoreInstance() const
+{
+	return core_instance;
+}
 } // namespace Rml

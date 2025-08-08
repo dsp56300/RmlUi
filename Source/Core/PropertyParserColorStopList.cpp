@@ -34,7 +34,8 @@
 namespace Rml {
 
 PropertyParserColorStopList::PropertyParserColorStopList(PropertyParser* parser_color) :
-	parser_color(parser_color), parser_length_percent_angle(Unit::LENGTH_PERCENT | Unit::ANGLE, Unit::PERCENT)
+	PropertyParser(parser_color->core_instance),
+	parser_color(parser_color), parser_length_percent_angle(core_instance, Unit::LENGTH_PERCENT | Unit::ANGLE, Unit::PERCENT)
 {
 	RMLUI_ASSERT(parser_color);
 }

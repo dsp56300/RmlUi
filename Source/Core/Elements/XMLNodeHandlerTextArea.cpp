@@ -35,7 +35,7 @@
 
 namespace Rml {
 
-XMLNodeHandlerTextArea::XMLNodeHandlerTextArea() {}
+XMLNodeHandlerTextArea::XMLNodeHandlerTextArea(Factory& factory) : XMLNodeHandler(factory) {}
 
 XMLNodeHandlerTextArea::~XMLNodeHandlerTextArea() {}
 
@@ -44,7 +44,7 @@ Element* XMLNodeHandlerTextArea::ElementStart(XMLParser* parser, const String& n
 	ElementFormControlTextArea* text_area = rmlui_dynamic_cast<ElementFormControlTextArea*>(parser->GetParseFrame()->element);
 	if (!text_area)
 	{
-		ElementPtr new_element = Factory::InstanceElement(parser->GetParseFrame()->element, name, name, attributes);
+		ElementPtr new_element = factory.InstanceElement(parser->GetParseFrame()->element, name, name, attributes);
 		if (!new_element)
 			return nullptr;
 
@@ -68,7 +68,7 @@ bool XMLNodeHandlerTextArea::ElementData(XMLParser* parser, const String& data, 
 	{
 		// Do any necessary translation.
 		String translated_data;
-		GetSystemInterface()->TranslateString(translated_data, data);
+		GetSystemInterface(parser->GetCoreInstance())->TranslateString(translated_data, data);
 
 		text_area->SetValue(translated_data);
 	}

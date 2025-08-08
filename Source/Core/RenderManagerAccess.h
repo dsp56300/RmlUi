@@ -66,11 +66,11 @@ private:
 	friend class Geometry;
 	friend class Texture;
 
-	friend StringList Rml::GetTextureSourceList();
-	friend bool Rml::ReleaseTexture(const String&, RenderInterface*);
-	friend void Rml::ReleaseTextures(RenderInterface*);
-	friend void Rml::ReleaseCompiledGeometry(RenderInterface*);
-	friend void Rml::ReleaseRenderManagers();
+	friend StringList Rml::GetTextureSourceList(CoreInstance& core_instance);
+	friend bool Rml::ReleaseTexture(CoreInstance& core_instance, const String&, RenderInterface*);
+	friend void Rml::ReleaseTextures(CoreInstance& core_instance, RenderInterface*);
+	friend void Rml::ReleaseCompiledGeometry(CoreInstance& core_instance, RenderInterface*);
+	friend void Rml::ReleaseRenderManagers(CoreInstance& core_instance);
 };
 
 } // namespace Rml

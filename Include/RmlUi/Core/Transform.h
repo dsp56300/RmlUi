@@ -60,7 +60,7 @@ public:
 	Transform(PrimitiveList primitives);
 
 	/// Helper function to create a 'transform' Property from the given list of primitives
-	static Property MakeProperty(PrimitiveList primitives);
+	static Property MakeProperty(CoreInstance& core_instance, PrimitiveList primitives);
 
 	/// Remove all Primitives from this Transform
 	void ClearPrimitives();

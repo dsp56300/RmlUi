@@ -32,7 +32,8 @@
 
 namespace Rml {
 
-PropertyParserBoxShadow::PropertyParserBoxShadow(PropertyParser* parser_color, PropertyParser* parser_length) :
+PropertyParserBoxShadow::PropertyParserBoxShadow(CoreInstance& core_instance, PropertyParser* parser_color, PropertyParser* parser_length) :
+	PropertyParser(core_instance),
 	parser_color(parser_color), parser_length(parser_length)
 {
 	RMLUI_ASSERT(parser_color && parser_length);

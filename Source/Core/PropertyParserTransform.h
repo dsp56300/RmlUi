@@ -41,7 +41,7 @@ namespace Rml {
  */
 class PropertyParserTransform : public PropertyParser {
 public:
-	PropertyParserTransform();
+	PropertyParserTransform(CoreInstance& core_instance);
 	virtual ~PropertyParserTransform();
 
 	/// Called to parse a RCSS transform declaration.

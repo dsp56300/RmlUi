@@ -18,6 +18,7 @@ add_library(rmlui_core
 	ControlledLifetimeResource.h
 	ConvolutionFilter.cpp
 	Core.cpp
+	CoreInstance.cpp
 	DataController.cpp
 	DataController.h
 	DataControllerDefault.cpp
@@ -246,6 +247,7 @@ target_sources(rmlui_core PRIVATE
 	"${PROJECT_SOURCE_DIR}/Include/RmlUi/Core/ContextInstancer.h"
 	"${PROJECT_SOURCE_DIR}/Include/RmlUi/Core/ConvolutionFilter.h"
 	"${PROJECT_SOURCE_DIR}/Include/RmlUi/Core/Core.h"
+	"${PROJECT_SOURCE_DIR}/Include/RmlUi/Core/CoreInstance.h"
 	"${PROJECT_SOURCE_DIR}/Include/RmlUi/Core/DataModelHandle.h"
 	"${PROJECT_SOURCE_DIR}/Include/RmlUi/Core/DataStructHandle.h"
 	"${PROJECT_SOURCE_DIR}/Include/RmlUi/Core/DataTypeRegister.h"

@@ -37,7 +37,7 @@
 
 namespace Rml {
 
-XMLNodeHandlerTemplate::XMLNodeHandlerTemplate() {}
+XMLNodeHandlerTemplate::XMLNodeHandlerTemplate(Factory& factory) : XMLNodeHandler(factory) {}
 
 XMLNodeHandlerTemplate::~XMLNodeHandlerTemplate() {}
 
@@ -70,7 +70,7 @@ bool XMLNodeHandlerTemplate::ElementEnd(XMLParser* /*parser*/, const String& /*n
 
 bool XMLNodeHandlerTemplate::ElementData(XMLParser* parser, const String& data, XMLDataType /*type*/)
 {
-	return Factory::InstanceElementText(parser->GetParseFrame()->element, data);
+	return factory.InstanceElementText(parser->GetParseFrame()->element, data);
 }
 
 } // namespace Rml

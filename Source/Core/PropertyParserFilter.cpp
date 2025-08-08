@@ -35,7 +35,7 @@
 
 namespace Rml {
 
-PropertyParserFilter::PropertyParserFilter() {}
+PropertyParserFilter::PropertyParserFilter(CoreInstance& core_instance) : PropertyParser(core_instance) {}
 
 PropertyParserFilter::~PropertyParserFilter() {}
 

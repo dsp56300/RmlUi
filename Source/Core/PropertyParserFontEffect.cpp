@@ -37,7 +37,7 @@
 
 namespace Rml {
 
-PropertyParserFontEffect::PropertyParserFontEffect() {}
+PropertyParserFontEffect::PropertyParserFontEffect(CoreInstance& core_instance) : PropertyParser(core_instance) {}
 
 PropertyParserFontEffect::~PropertyParserFontEffect() {}
 

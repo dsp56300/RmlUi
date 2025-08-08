@@ -44,7 +44,7 @@ class Element;
 
 class Template {
 public:
-	Template();
+	Template(CoreInstance& core_instance);
 	~Template();
 
 	/// Load a template from the given stream
@@ -62,6 +62,7 @@ public:
 	const DocumentHeader* GetHeader();
 
 private:
+	CoreInstance& core_instance;
 	String name;
 	String content;
 	DocumentHeader header;

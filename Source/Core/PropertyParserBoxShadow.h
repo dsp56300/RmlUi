@@ -39,7 +39,7 @@ namespace Rml {
 
 class PropertyParserBoxShadow : public PropertyParser {
 public:
-	PropertyParserBoxShadow(PropertyParser* parser_color, PropertyParser* parser_length);
+	PropertyParserBoxShadow(CoreInstance& core_instance, PropertyParser* parser_color, PropertyParser* parser_length);
 
 	/// Called to parse a RCSS declaration.
 	/// @param[out] property The property to set the parsed value on.

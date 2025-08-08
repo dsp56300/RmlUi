@@ -68,8 +68,8 @@ void LogMissingFontFace(Element* element)
 	}
 }
 
-ElementText::ElementText(const String& tag) :
-	Element(tag), colour(255, 255, 255), opacity(1), font_handle_version(0), geometry_dirty(true), dirty_layout_on_change(true),
+ElementText::ElementText(CoreInstance& core_instance, const String& tag) :
+	Element(core_instance, tag), colour(255, 255, 255), opacity(1), font_handle_version(0), geometry_dirty(true), dirty_layout_on_change(true),
 	generated_decoration(Style::TextDecoration::None), decoration_property(Style::TextDecoration::None), font_effects_dirty(true),
 	font_effects_handle(0)
 {}
@@ -107,7 +107,7 @@ void ElementText::OnRender()
 		geometry_dirty = true;
 
 	// Dirty geometry if font version has changed.
-	int new_version = GetFontEngineInterface()->GetVersion(font_face_handle);
+	int new_version = GetFontEngineInterface(GetCoreInstance())->GetVersion(font_face_handle);
 	if (new_version != font_handle_version)
 	{
 		font_handle_version = new_version;
@@ -152,7 +152,7 @@ void ElementText::OnRender()
 
 	if (!GetTransformState() || !GetTransformState()->GetTransform())
 	{
-		const FontMetrics& font_metrics = GetFontEngineInterface()->GetFontMetrics(GetFontFaceHandle());
+		const FontMetrics& font_metrics = GetFontEngineInterface(GetCoreInstance())->GetFontMetrics(GetFontFaceHandle());
 		const int ascent = Math::RoundUpToInteger(font_metrics.ascent);
 		const int descent = Math::RoundUpToInteger(font_metrics.descent);
 
@@ -216,7 +216,7 @@ bool ElementText::GenerateLine(String& line, int& line_length, float& line_width
 	TextTransform text_transform_property = computed.text_transform();
 	WordBreak word_break = computed.word_break();
 
-	FontEngineInterface* font_engine_interface = GetFontEngineInterface();
+	FontEngineInterface* font_engine_interface = GetFontEngineInterface(GetCoreInstance());
 
 	// Starting at the line_begin character, we generate sections of the text (we'll call them tokens) depending on the
 	// white-space parsing parameters. Each section is then appended to the line if it can fit. If not, or if an
@@ -438,7 +438,7 @@ bool ElementText::UpdateFontEffects()
 
 	// Request a font layer configuration to match this set of effects. If this is different from
 	// our old configuration, then return true to indicate we'll need to regenerate geometry.
-	FontEffectsHandle new_font_effects_handle = GetFontEngineInterface()->PrepareFontEffects(GetFontFaceHandle(), *font_effects);
+	FontEffectsHandle new_font_effects_handle = GetFontEngineInterface(GetCoreInstance())->PrepareFontEffects(GetFontFaceHandle(), *font_effects);
 	if (new_font_effects_handle != font_effects_handle)
 	{
 		font_effects_handle = new_font_effects_handle;
@@ -463,7 +463,7 @@ void ElementText::GenerateGeometry(RenderManager& render_manager, const FontFace
 	// Generate the new geometry, one line at a time.
 	for (size_t i = 0; i < lines.size(); ++i)
 	{
-		lines[i].width = GetFontEngineInterface()->GenerateString(render_manager, font_face_handle, font_effects_handle, lines[i].text,
+		lines[i].width = GetFontEngineInterface(GetCoreInstance())->GenerateString(render_manager, font_face_handle, font_effects_handle, lines[i].text,
 			lines[i].position, colour, opacity, text_shaping_context, mesh_list);
 	}
 
@@ -484,7 +484,7 @@ void ElementText::GenerateDecoration(Mesh& mesh, const FontFaceHandle font_face_
 	RMLUI_ZoneScopedC(0xA52A2A);
 	RMLUI_ASSERT(decoration);
 
-	const FontMetrics& metrics = GetFontEngineInterface()->GetFontMetrics(font_face_handle);
+	const FontMetrics& metrics = GetFontEngineInterface(GetCoreInstance())->GetFontMetrics(font_face_handle);
 
 	float offset = 0.f;
 	switch (decoration_property)

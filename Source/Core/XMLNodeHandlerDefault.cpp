@@ -37,7 +37,7 @@
 
 namespace Rml {
 
-XMLNodeHandlerDefault::XMLNodeHandlerDefault() {}
+XMLNodeHandlerDefault::XMLNodeHandlerDefault(Factory& _factory) : XMLNodeHandler(_factory) {}
 
 XMLNodeHandlerDefault::~XMLNodeHandlerDefault() {}
 
@@ -49,7 +49,7 @@ Element* XMLNodeHandlerDefault::ElementStart(XMLParser* parser, const String& na
 	Element* parent = parser->GetParseFrame()->element;
 
 	// Attempt to instance the element with the instancer
-	ElementPtr element = Factory::InstanceElement(parent, name, name, attributes);
+	ElementPtr element = factory.InstanceElement(parent, name, name, attributes);
 	if (!element)
 	{
 		Log::Message(Log::LT_ERROR, "Failed to create element for tag %s, instancer returned nullptr.", name.c_str());
@@ -83,7 +83,7 @@ bool XMLNodeHandlerDefault::ElementData(XMLParser* parser, const String& data, X
 	}
 
 	// Parse the text into the element
-	return Factory::InstanceElementText(parent, data);
+	return factory.InstanceElementText(parent, data);
 }
 
 } // namespace Rml

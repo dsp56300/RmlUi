@@ -58,9 +58,8 @@ struct ElementMeta {
 struct ElementMetaPool {
 	Pool<ElementMeta> pool{50, true};
 
-	static ControlledLifetimeResource<ElementMetaPool> element_meta_pool;
-	static void Initialize();
-	static void Shutdown();
+	static void Initialize(CoreInstance& instance);
+	static void Shutdown(CoreInstance& instance);
 };
 
 } // namespace Rml

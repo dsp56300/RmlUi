@@ -117,7 +117,7 @@ void PropertyParserAnimation::Shutdown()
 	parser_data.Shutdown();
 }
 
-PropertyParserAnimation::PropertyParserAnimation(Type type) : type(type) {}
+PropertyParserAnimation::PropertyParserAnimation(CoreInstance& core_instance, Type type) : PropertyParser(core_instance), type(type) {}
 
 bool PropertyParserAnimation::ParseValue(Property& property, const String& value, const ParameterMap& /*parameters*/) const
 {

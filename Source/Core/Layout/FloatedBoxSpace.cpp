@@ -36,7 +36,9 @@
 
 namespace Rml {
 
-FloatedBoxSpace::FloatedBoxSpace() {}
+CoreInstance* FloatedBoxSpace::core_instance_ptr = nullptr;
+
+FloatedBoxSpace::FloatedBoxSpace(CoreInstance& core_instance) : core_instance(core_instance) {}
 
 FloatedBoxSpace::~FloatedBoxSpace() {}
 
@@ -252,12 +254,13 @@ float FloatedBoxSpace::GetShrinkToFitWidth(float edge_left, float edge_right) co
 
 void* FloatedBoxSpace::operator new(size_t size)
 {
-	return LayoutPools::AllocateLayoutChunk(size);
+	RMLUI_ASSERT(core_instance_ptr);
+	return LayoutPools::AllocateLayoutChunk(*core_instance_ptr, size);
 }
 
 void FloatedBoxSpace::operator delete(void* chunk, size_t size)
 {
-	LayoutPools::DeallocateLayoutChunk(chunk, size);
+	LayoutPools::DeallocateLayoutChunk(static_cast<FloatedBoxSpace*>(chunk)->core_instance, chunk, size);
 }
 
 } // namespace Rml

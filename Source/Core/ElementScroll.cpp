@@ -218,7 +218,7 @@ bool ElementScroll::CreateScrollbar(Orientation orientation)
 		return true;
 
 	ElementPtr scrollbar_element =
-		Factory::InstanceElement(element, "*", orientation == VERTICAL ? "scrollbarvertical" : "scrollbarhorizontal", XMLAttributes());
+		element->GetFactory().InstanceElement(element, "*", orientation == VERTICAL ? "scrollbarvertical" : "scrollbarhorizontal", XMLAttributes());
 	scrollbars[orientation].element = scrollbar_element.get();
 	scrollbars[orientation].element->SetProperty(PropertyId::Clip, Property(1, Unit::NUMBER));
 	scrollbars[orientation].element->SetProperty(PropertyId::Drag, Property(Style::Drag::Block));
@@ -238,7 +238,7 @@ bool ElementScroll::CreateCorner()
 	if (corner != nullptr)
 		return true;
 
-	ElementPtr corner_element = Factory::InstanceElement(element, "*", "scrollbarcorner", XMLAttributes());
+	ElementPtr corner_element = element->GetFactory().InstanceElement(element, "*", "scrollbarcorner", XMLAttributes());
 	corner = corner_element.get();
 	corner->SetProperty(PropertyId::Clip, Property(1, Unit::NUMBER));
 	corner->SetProperty(PropertyId::Drag, Property(Style::Drag::Block));

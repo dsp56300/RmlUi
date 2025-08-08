@@ -31,7 +31,7 @@
 
 namespace Rml {
 
-ElementFormControl::ElementFormControl(const String& tag) : Element(tag)
+ElementFormControl::ElementFormControl(CoreInstance& core_instance, const String& tag) : Element(core_instance, tag)
 {
 	SetProperty(PropertyId::TabIndex, Property(Style::TabIndex::Auto));
 }

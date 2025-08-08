@@ -30,7 +30,7 @@
 
 namespace Rml {
 
-PropertyParserKeyword::PropertyParserKeyword() {}
+PropertyParserKeyword::PropertyParserKeyword(CoreInstance& core_instance) : PropertyParser(core_instance) {}
 
 PropertyParserKeyword::~PropertyParserKeyword() {}
 

@@ -41,7 +41,7 @@ namespace Rml {
 
 class XMLNodeHandlerBody : public XMLNodeHandler {
 public:
-	XMLNodeHandlerBody();
+	XMLNodeHandlerBody(Factory& factory);
 	~XMLNodeHandlerBody();
 
 	/// Called when a new element start is opened

@@ -49,7 +49,6 @@ enum class FloatedBoxEdge {
 
 class FloatedBoxSpace {
 public:
-	FloatedBoxSpace();
 	~FloatedBoxSpace();
 
 	/// Generates the position for a box of a given size within our block box.
@@ -100,7 +99,16 @@ public:
 	void* operator new(size_t size);
 	void operator delete(void* chunk, size_t size);
 
+	FloatedBoxSpace* Create(CoreInstance& instance)
+	{
+		core_instance_ptr = &instance;
+		auto* result = new FloatedBoxSpace(instance);
+		core_instance_ptr = nullptr;
+		return result;
+	}
 private:
+	FloatedBoxSpace(CoreInstance& core_instance);
+
 	enum AnchorEdge { LEFT = 0, RIGHT = 1, NUM_ANCHOR_EDGES = 2 };
 
 	// Generates the position for an arbitrary box within our space layout, floated against either the left or right edge.
@@ -113,6 +121,9 @@ private:
 	};
 
 	using FloatedBoxList = Vector<FloatedBox>;
+
+	CoreInstance& core_instance;
+	static CoreInstance* core_instance_ptr;
 
 	// The boxes floating in our space.
 	FloatedBoxList boxes[NUM_ANCHOR_EDGES];

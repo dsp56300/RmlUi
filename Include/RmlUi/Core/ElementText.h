@@ -43,7 +43,7 @@ class RMLUICORE_API ElementText final : public Element {
 public:
 	RMLUI_RTTI_DefineWithParent(ElementText, Element)
 
-	ElementText(const String& tag);
+	ElementText(CoreInstance& core_instance, const String& tag);
 	virtual ~ElementText();
 
 	/// Sets the raw string this text element contains. The actual rendered text may be different due to whitespace formatting.

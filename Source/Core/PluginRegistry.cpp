@@ -31,6 +31,8 @@
 #include "ControlledLifetimeResource.h"
 #include <algorithm>
 
+#include "RmlUi/Core/CoreInstance.h"
+
 namespace Rml {
 
 struct PluginVectors {
@@ -39,31 +41,29 @@ struct PluginVectors {
 	Vector<Plugin*> element;
 };
 
-static ControlledLifetimeResource<PluginVectors> plugin_vectors;
-
-static void EnsurePluginVectorsInitialized()
+static void EnsurePluginVectorsInitialized(CoreInstance& core_instance)
 {
-	if (!plugin_vectors)
+	if (!core_instance.plugin_vectors)
 	{
-		plugin_vectors.Initialize();
+		core_instance.plugin_vectors.Initialize();
 	}
 }
 
-void PluginRegistry::RegisterPlugin(Plugin* plugin)
+void PluginRegistry::RegisterPlugin(CoreInstance& core_instance, Plugin* plugin)
 {
-	EnsurePluginVectorsInitialized();
+	EnsurePluginVectorsInitialized(core_instance);
 
 	int event_classes = plugin->GetEventClasses();
 
 	if (event_classes & Plugin::EVT_BASIC)
-		plugin_vectors->basic.push_back(plugin);
+		core_instance.plugin_vectors->basic.push_back(plugin);
 	if (event_classes & Plugin::EVT_DOCUMENT)
-		plugin_vectors->document.push_back(plugin);
+		core_instance.plugin_vectors->document.push_back(plugin);
 	if (event_classes & Plugin::EVT_ELEMENT)
-		plugin_vectors->element.push_back(plugin);
+		core_instance.plugin_vectors->element.push_back(plugin);
 }
 
-void PluginRegistry::UnregisterPlugin(Plugin* plugin)
+void PluginRegistry::UnregisterPlugin(CoreInstance& core_instance, Plugin* plugin)
 {
 	auto erase_value = [](Vector<Plugin*>& container, Plugin* value) {
 		container.erase(std::remove(container.begin(), container.end(), value), container.end());
@@ -71,72 +71,79 @@ void PluginRegistry::UnregisterPlugin(Plugin* plugin)
 
 	int event_classes = plugin->GetEventClasses();
 	if (event_classes & Plugin::EVT_BASIC)
-		erase_value(plugin_vectors->basic, plugin);
+		erase_value(core_instance.plugin_vectors->basic, plugin);
 	if (event_classes & Plugin::EVT_DOCUMENT)
-		erase_value(plugin_vectors->document, plugin);
+		erase_value(core_instance.plugin_vectors->document, plugin);
 	if (event_classes & Plugin::EVT_ELEMENT)
-		erase_value(plugin_vectors->element, plugin);
+		erase_value(core_instance.plugin_vectors->element, plugin);
 }
 
-void PluginRegistry::NotifyInitialise()
+void PluginRegistry::NotifyInitialise(CoreInstance& core_instance)
 {
-	EnsurePluginVectorsInitialized();
+	EnsurePluginVectorsInitialized(core_instance);
 
-	for (Plugin* plugin : plugin_vectors->basic)
+	for (Plugin* plugin : core_instance.plugin_vectors->basic)
 		plugin->OnInitialise();
 }
 
-void PluginRegistry::NotifyShutdown()
+void PluginRegistry::NotifyShutdown(CoreInstance& core_instance)
 {
-	while (!plugin_vectors->basic.empty())
+	while (!core_instance.plugin_vectors->basic.empty())
 	{
-		Plugin* plugin = plugin_vectors->basic.back();
-		PluginRegistry::UnregisterPlugin(plugin);
+		Plugin* plugin = core_instance.plugin_vectors->basic.back();
+		UnregisterPlugin(core_instance, plugin);
 		plugin->OnShutdown();
 	}
 
-	plugin_vectors.Shutdown();
+	core_instance.plugin_vectors.Shutdown();
 }
 
 void PluginRegistry::NotifyContextCreate(Context* context)
 {
-	for (Plugin* plugin : plugin_vectors->basic)
+	auto& core_instance = context->GetCoreInstance();
+	for (Plugin* plugin : core_instance.plugin_vectors->basic)
 		plugin->OnContextCreate(context);
 }
 
 void PluginRegistry::NotifyContextDestroy(Context* context)
 {
-	for (Plugin* plugin : plugin_vectors->basic)
+	auto& core_instance = context->GetCoreInstance();
+	for (Plugin* plugin : core_instance.plugin_vectors->basic)
 		plugin->OnContextDestroy(context);
 }
 
 void PluginRegistry::NotifyDocumentOpen(Context* context, const String& document_path)
 {
-	for (Plugin* plugin : plugin_vectors->document)
+	auto& core_instance = context->GetCoreInstance();
+	for (Plugin* plugin : core_instance.plugin_vectors->document)
 		plugin->OnDocumentOpen(context, document_path);
 }
 
 void PluginRegistry::NotifyDocumentLoad(ElementDocument* document)
 {
-	for (Plugin* plugin : plugin_vectors->document)
+	auto& core_instance = document->GetCoreInstance();
+	for (Plugin* plugin : core_instance.plugin_vectors->document)
 		plugin->OnDocumentLoad(document);
 }
 
 void PluginRegistry::NotifyDocumentUnload(ElementDocument* document)
 {
-	for (Plugin* plugin : plugin_vectors->document)
+	auto& core_instance = document->GetCoreInstance();
+	for (Plugin* plugin : core_instance.plugin_vectors->document)
 		plugin->OnDocumentUnload(document);
 }
 
 void PluginRegistry::NotifyElementCreate(Element* element)
 {
-	for (Plugin* plugin : plugin_vectors->element)
+	auto& core_instance = element->GetCoreInstance();
+	for (Plugin* plugin : core_instance.plugin_vectors->element)
 		plugin->OnElementCreate(element);
 }
 
 void PluginRegistry::NotifyElementDestroy(Element* element)
 {
-	for (Plugin* plugin : plugin_vectors->element)
+	auto& core_instance = element->GetCoreInstance();
+	for (Plugin* plugin : core_instance.plugin_vectors->element)
 		plugin->OnElementDestroy(element);
 }
 

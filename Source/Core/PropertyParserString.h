@@ -41,7 +41,7 @@ namespace Rml {
 
 class PropertyParserString : public PropertyParser {
 public:
-	PropertyParserString();
+	PropertyParserString(CoreInstance& core_instance);
 	virtual ~PropertyParserString();
 
 	/// Called to parse a RCSS string declaration.

@@ -38,10 +38,12 @@
 #include "../../../Include/RmlUi/Core/URL.h"
 #include <algorithm>
 
+#include "RmlUi/Core/CoreInstance.h"
+
 namespace Rml {
 
-ElementProgress::ElementProgress(const String& tag) :
-	Element(tag), direction(DefaultDirection), start_edge(DefaultStartEdge), fill(nullptr), rect_set(false)
+ElementProgress::ElementProgress(CoreInstance& core_instance, const String& tag) :
+	Element(core_instance, tag), direction(DefaultDirection), start_edge(DefaultStartEdge), fill(nullptr), rect_set(false)
 {
 	if (tag == "progressbar")
 		Log::Message(Log::LT_WARNING, "Deprecation notice: Element '<progressbar>' renamed to '<progress>', please adjust RML tags accordingly.");
@@ -49,7 +51,7 @@ ElementProgress::ElementProgress(const String& tag) :
 	geometry_dirty = false;
 
 	// Add the fill element as a non-DOM element.
-	ElementPtr fill_element = Factory::InstanceElement(this, "*", "fill", XMLAttributes());
+	ElementPtr fill_element = core_instance.factory.InstanceElement(this, "*", "fill", XMLAttributes());
 	RMLUI_ASSERT(fill_element);
 	fill = AppendChild(std::move(fill_element), false);
 }

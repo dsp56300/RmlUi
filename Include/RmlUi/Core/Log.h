@@ -33,8 +33,9 @@
 #include "Types.h"
 
 namespace Rml {
+	class CoreInstance;
 
-/**
+	/**
     RmlUi logging API.
 
     @author Lloyd Weehuizen

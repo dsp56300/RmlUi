@@ -167,13 +167,7 @@ struct FactoryData {
 	StringList structural_data_view_attribute_names;
 };
 
-static ControlledLifetimeResource<FactoryData> factory_data;
-
-static ContextInstancer* context_instancer = nullptr;
-static EventInstancer* event_instancer = nullptr;
-static EventListenerInstancer* event_listener_instancer = nullptr;
-
-Factory::Factory() {}
+Factory::Factory(CoreInstance& core_instance) : core_instance(core_instance) {}
 
 Factory::~Factory() {}
 
@@ -282,15 +276,15 @@ void Factory::Initialise()
 	RegisterDataControllerInstancer(&default_instancers.data_controller_value, "value");
 
 	// XML node handlers
-	XMLParser::RegisterNodeHandler("", MakeShared<XMLNodeHandlerDefault>());
-	XMLParser::RegisterNodeHandler("body", MakeShared<XMLNodeHandlerBody>());
-	XMLParser::RegisterNodeHandler("head", MakeShared<XMLNodeHandlerHead>());
-	XMLParser::RegisterNodeHandler("template", MakeShared<XMLNodeHandlerTemplate>());
+	XMLParser::RegisterNodeHandler(core_instance, "", MakeShared<XMLNodeHandlerDefault>(*this));
+	XMLParser::RegisterNodeHandler(core_instance, "body", MakeShared<XMLNodeHandlerBody>());
+	XMLParser::RegisterNodeHandler(core_instance, "head", MakeShared<XMLNodeHandlerHead>());
+	XMLParser::RegisterNodeHandler(core_instance, "template", MakeShared<XMLNodeHandlerTemplate>());
 
 	// XML node handlers for control elements
-	XMLParser::RegisterNodeHandler("tabset", MakeShared<XMLNodeHandlerTabSet>());
-	XMLParser::RegisterNodeHandler("textarea", MakeShared<XMLNodeHandlerTextArea>());
-	XMLParser::RegisterNodeHandler("select", MakeShared<XMLNodeHandlerSelect>());
+	XMLParser::RegisterNodeHandler(core_instance, "tabset", MakeShared<XMLNodeHandlerTabSet>());
+	XMLParser::RegisterNodeHandler(core_instance, "textarea", MakeShared<XMLNodeHandlerTextArea>());
+	XMLParser::RegisterNodeHandler(core_instance, "select", MakeShared<XMLNodeHandlerSelect>());
 }
 
 void Factory::Shutdown()
@@ -299,7 +293,7 @@ void Factory::Shutdown()
 	event_listener_instancer = nullptr;
 	event_instancer = nullptr;
 
-	XMLParser::ReleaseHandlers();
+	XMLParser::ReleaseHandlers(core_instance);
 
 	factory_data.Shutdown();
 }
@@ -311,7 +305,7 @@ void Factory::RegisterContextInstancer(ContextInstancer* instancer)
 
 ContextPtr Factory::InstanceContext(const String& name, RenderManager* render_manager, TextInputHandler* text_input_handler)
 {
-	ContextPtr new_context = context_instancer->InstanceContext(name, render_manager, text_input_handler);
+	ContextPtr new_context = context_instancer->InstanceContext(core_instance, name, render_manager, text_input_handler);
 	if (new_context)
 		new_context->SetInstancer(context_instancer);
 	return new_context;
@@ -339,7 +333,7 @@ ElementPtr Factory::InstanceElement(Element* parent, const String& instancer_nam
 {
 	if (ElementInstancer* instancer = GetElementInstancer(instancer_name))
 	{
-		if (ElementPtr element = instancer->InstanceElement(parent, tag, attributes))
+		if (ElementPtr element = instancer->InstanceElement(core_instance, parent, tag, attributes))
 		{
 			element->SetInstancer(instancer);
 			element->SetAttributes(attributes);
@@ -357,7 +351,7 @@ bool Factory::InstanceElementText(Element* parent, const String& in_text)
 	RMLUI_ASSERT(parent);
 
 	String text;
-	if (SystemInterface* system_interface = GetSystemInterface())
+	if (SystemInterface* system_interface = GetSystemInterface(core_instance))
 		system_interface->TranslateString(text, in_text);
 
 	// If this text node only contains white-space we don't want to construct it.
@@ -416,7 +410,7 @@ bool Factory::InstanceElementText(Element* parent, const String& in_text)
 		if (has_data_expression)
 			attributes.emplace("data-text", Variant());
 
-		ElementPtr element = Factory::InstanceElement(parent, "#text", "#text", attributes);
+		ElementPtr element = InstanceElement(parent, "#text", "#text", attributes);
 		if (!element)
 		{
 			Log::Message(Log::LT_ERROR, "Failed to instance text element '%s', instancer returned nullptr.", text.c_str());
@@ -446,7 +440,7 @@ bool Factory::InstanceElementText(Element* parent, const String& in_text)
 
 bool Factory::InstanceElementStream(Element* parent, Stream* stream)
 {
-	XMLParser parser(parent);
+	XMLParser parser(core_instance, parent);
 	parser.Parse(stream);
 	return true;
 }
@@ -455,7 +449,7 @@ ElementPtr Factory::InstanceDocumentStream(Context* context, Stream* stream, con
 {
 	RMLUI_ZoneScoped;
 
-	ElementPtr element = Factory::InstanceElement(nullptr, document_base_tag, document_base_tag, XMLAttributes());
+	ElementPtr element = InstanceElement(nullptr, document_base_tag, document_base_tag, XMLAttributes());
 	if (!element)
 	{
 		Log::Message(Log::LT_ERROR, "Failed to instance document, instancer returned nullptr.");
@@ -472,7 +466,7 @@ ElementPtr Factory::InstanceDocumentStream(Context* context, Stream* stream, con
 
 	document->context = context;
 
-	XMLParser parser(element.get());
+	XMLParser parser(core_instance, element.get());
 	parser.Parse(stream);
 
 	return element;

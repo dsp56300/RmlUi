@@ -64,7 +64,7 @@ static DocumentHeader::Resource MakeExternalResource(XMLParser* parser, const St
 	return resource;
 }
 
-XMLNodeHandlerHead::XMLNodeHandlerHead() {}
+XMLNodeHandlerHead::XMLNodeHandlerHead(Factory& factory) : XMLNodeHandler(factory) {}
 
 XMLNodeHandlerHead::~XMLNodeHandlerHead() {}
 

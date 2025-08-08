@@ -52,9 +52,9 @@ void Log::Message(Log::Type type, const char* fmt, ...)
 	buffer[len] = '\0';
 	va_end(argument_list);
 
-	if (SystemInterface* system_interface = GetSystemInterface())
-		system_interface->LogMessage(type, buffer);
-	else
+//	if (SystemInterface* system_interface = GetSystemInterface(core_instance))
+//		system_interface->LogMessage(type, buffer);
+//	else
 		LogDefault::LogMessage(type, buffer);
 }
 
@@ -75,9 +75,9 @@ void Log::ParseError(const String& filename, int line_number, const char* fmt, .
 	va_end(argument_list);
 
 	if (line_number >= 0)
-		Message(Log::LT_ERROR, "%s:%d: %s", filename.c_str(), line_number, buffer);
+		Message(LT_ERROR, "%s:%d: %s", filename.c_str(), line_number, buffer);
 	else
-		Message(Log::LT_ERROR, "%s: %s", filename.c_str(), buffer);
+		Message(LT_ERROR, "%s: %s", filename.c_str(), buffer);
 }
 
 bool Assert(const char* msg, const char* file, int line)
@@ -85,9 +85,10 @@ bool Assert(const char* msg, const char* file, int line)
 	String message = CreateString("%s\n%s:%d", msg, file, line);
 
 	bool result = true;
-	if (SystemInterface* system_interface = GetSystemInterface())
-		result = system_interface->LogMessage(Log::LT_ASSERT, message);
-	else
+	// [DSP56300] FIXME: we don't want to forward the system interface to every assert call for now
+//	if (SystemInterface* system_interface = GetSystemInterface(core_instance))
+//		result = system_interface->LogMessage(Log::LT_ASSERT, message);
+//	else
 		result = LogDefault::LogMessage(Log::LT_ASSERT, message);
 
 	return result;

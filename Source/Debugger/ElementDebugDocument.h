@@ -38,7 +38,7 @@ class ElementDebugDocument : public ElementDocument {
 public:
 	RMLUI_RTTI_DefineWithParent(ElementDebugDocument, ElementDocument)
 
-	ElementDebugDocument(const String& tag);
+	ElementDebugDocument(CoreInstance& core_instance, const String& tag);
 };
 
 } // namespace Debugger

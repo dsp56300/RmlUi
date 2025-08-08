@@ -34,7 +34,7 @@
 
 namespace Rml {
 
-ElementFormControlSelect::ElementFormControlSelect(const String& tag) : ElementFormControl(tag), widget(nullptr)
+ElementFormControlSelect::ElementFormControlSelect(CoreInstance& core_instance, const String& tag) : ElementFormControl(core_instance, tag), widget(nullptr)
 {
 	widget = new WidgetDropDown(this);
 }

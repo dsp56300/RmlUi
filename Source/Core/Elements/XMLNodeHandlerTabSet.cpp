@@ -34,7 +34,7 @@
 
 namespace Rml {
 
-XMLNodeHandlerTabSet::XMLNodeHandlerTabSet() {}
+XMLNodeHandlerTabSet::XMLNodeHandlerTabSet(Factory& factory) : XMLNodeHandler(factory) {}
 
 XMLNodeHandlerTabSet::~XMLNodeHandlerTabSet() {}
 
@@ -48,7 +48,7 @@ Element* XMLNodeHandlerTabSet::ElementStart(XMLParser* parser, const String& nam
 		parser->PushHandler("tabset");
 
 		// Attempt to instance the tabset
-		ElementPtr element = Factory::InstanceElement(parser->GetParseFrame()->element, name, name, attributes);
+		ElementPtr element = factory.InstanceElement(parser->GetParseFrame()->element, name, name, attributes);
 		ElementTabSet* tabset = rmlui_dynamic_cast<ElementTabSet*>(element.get());
 		if (!tabset)
 		{
@@ -66,7 +66,7 @@ Element* XMLNodeHandlerTabSet::ElementStart(XMLParser* parser, const String& nam
 		// Call default element handler for all children.
 		parser->PushDefaultHandler();
 
-		ElementPtr tab_element = Factory::InstanceElement(parser->GetParseFrame()->element, "*", "tab", attributes);
+		ElementPtr tab_element = factory.InstanceElement(parser->GetParseFrame()->element, "*", "tab", attributes);
 		Element* result = nullptr;
 
 		ElementTabSet* tabset = rmlui_dynamic_cast<ElementTabSet*>(parser->GetParseFrame()->element);
@@ -83,7 +83,7 @@ Element* XMLNodeHandlerTabSet::ElementStart(XMLParser* parser, const String& nam
 		// Call default element handler for all children.
 		parser->PushDefaultHandler();
 
-		ElementPtr panel_element = Factory::InstanceElement(parser->GetParseFrame()->element, "*", "panel", attributes);
+		ElementPtr panel_element = factory.InstanceElement(parser->GetParseFrame()->element, "*", "panel", attributes);
 		Element* result = nullptr;
 
 		ElementTabSet* tabset = rmlui_dynamic_cast<ElementTabSet*>(parser->GetParseFrame()->element);
@@ -103,7 +103,7 @@ Element* XMLNodeHandlerTabSet::ElementStart(XMLParser* parser, const String& nam
 
 		Element* parent = parser->GetParseFrame()->element;
 
-		ElementPtr element = Factory::InstanceElement(parent, name, name, attributes);
+		ElementPtr element = factory.InstanceElement(parent, name, name, attributes);
 		if (!element)
 		{
 			Log::Message(Log::LT_ERROR, "Instancer failed to create element for tag %s.", name.c_str());
@@ -125,7 +125,7 @@ bool XMLNodeHandlerTabSet::ElementEnd(XMLParser* /*parser*/, const String& /*nam
 
 bool XMLNodeHandlerTabSet::ElementData(XMLParser* parser, const String& data, XMLDataType /*type*/)
 {
-	return Factory::InstanceElementText(parser->GetParseFrame()->element, data);
+	return factory.InstanceElementText(parser->GetParseFrame()->element, data);
 }
 
 } // namespace Rml

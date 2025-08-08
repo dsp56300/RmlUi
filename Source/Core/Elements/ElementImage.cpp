@@ -39,7 +39,7 @@
 
 namespace Rml {
 
-ElementImage::ElementImage(const String& tag) : Element(tag), dimensions(-1, -1), rect_source(RectSource::None)
+ElementImage::ElementImage(CoreInstance& core_instance, const String& tag) : Element(core_instance, tag), dimensions(-1, -1), rect_source(RectSource::None)
 {
 	dimensions_scale = 1.0f;
 	geometry_dirty = false;

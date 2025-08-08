@@ -53,7 +53,7 @@ void* LayoutBox::operator new(size_t size)
 
 void LayoutBox::operator delete(void* chunk, size_t size)
 {
-	LayoutPools::DeallocateLayoutChunk(chunk, size);
+	LayoutPools::DeallocateLayoutChunk(static_cast<LayoutBox*>(chunk)->core_instance, chunk, size);
 }
 
 } // namespace Rml

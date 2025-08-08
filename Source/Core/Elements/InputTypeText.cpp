@@ -33,6 +33,7 @@
 #include "../../../Include/RmlUi/Core/StyleSheetSpecification.h"
 #include "WidgetTextInputSingleLine.h"
 #include "WidgetTextInputSingleLinePassword.h"
+#include "RmlUi/Core/CoreInstance.h"
 
 namespace Rml {
 
@@ -93,9 +94,11 @@ bool InputTypeText::OnAttributeChange(const ElementAttributes& changed_attribute
 
 void InputTypeText::OnPropertyChange(const PropertyIdSet& changed_properties)
 {
+	auto* styleSheetSpecification = element->GetCoreInstance().styleSheetSpecification;
+
 	// Some inherited properties require text formatting update, mainly font and line-height properties.
 	const PropertyIdSet changed_inherited_layout_properties = changed_properties &
-		(StyleSheetSpecification::GetRegisteredInheritedProperties() & StyleSheetSpecification::GetRegisteredPropertiesForcingLayout());
+		(styleSheetSpecification->GetRegisteredInheritedProperties() & styleSheetSpecification->GetRegisteredPropertiesForcingLayout());
 
 	if (!changed_inherited_layout_properties.Empty())
 		widget->ForceFormattingOnNextLayout();

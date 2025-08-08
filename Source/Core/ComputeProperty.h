@@ -41,7 +41,7 @@ float ComputeLength(NumericValue value, float font_size, float document_font_siz
 
 float ComputeAngle(NumericValue value);
 
-float ComputeFontsize(NumericValue value, const Style::ComputedValues& values, const Style::ComputedValues* parent_values,
+float ComputeFontsize(CoreInstance& core_instance, NumericValue value, const Style::ComputedValues& values, const Style::ComputedValues* parent_values,
 	const Style::ComputedValues* document_values, float dp_ratio, Vector2f vp_dimensions);
 
 String ComputeFontFamily(String font_family);
@@ -67,10 +67,10 @@ uint16_t ComputeBorderWidth(float computed_length);
 
 String GetFontFaceDescription(const String& font_family, Style::FontStyle style, Style::FontWeight weight);
 
-const Style::ComputedValues& DefaultComputedValues();
+const Style::ComputedValues& DefaultComputedValues(CoreInstance& core_instance);
 
-void InitializeComputeProperty();
-void ShutdownComputeProperty();
+void InitializeComputeProperty(CoreInstance& core_instance);
+void ShutdownComputeProperty(CoreInstance& core_instance);
 
 } // namespace Rml
 #endif

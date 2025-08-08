@@ -30,7 +30,7 @@
 
 namespace Rml {
 
-PropertyParserRatio::PropertyParserRatio() {}
+PropertyParserRatio::PropertyParserRatio(CoreInstance& core_instance) : PropertyParser(core_instance) {}
 
 PropertyParserRatio::~PropertyParserRatio() {}
 

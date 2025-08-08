@@ -166,7 +166,7 @@ bool EventDispatcher::DispatchEvent(Element* target_element, const EventId id, c
 	std::stable_sort(listeners.begin(), listeners.end());
 
 	// Instance event
-	EventPtr event = Factory::InstanceEvent(target_element, id, type, parameters, interruptible);
+	EventPtr event = target_element->GetFactory().InstanceEvent(target_element, id, type, parameters, interruptible);
 	if (!event)
 		return false;
 

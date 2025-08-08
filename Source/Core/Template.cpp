@@ -34,7 +34,7 @@
 
 namespace Rml {
 
-Template::Template() {}
+Template::Template(CoreInstance& core_instance) : core_instance(core_instance), header(core_instance) {}
 
 Template::~Template() {}
 
@@ -92,7 +92,7 @@ bool Template::Load(Stream* stream)
 	auto header_stream = MakeUnique<StreamMemory>((const byte*)head_start, head_end - head_start);
 	header_stream->SetSourceURL(stream->GetSourceURL());
 
-	XMLParser parser(nullptr);
+	XMLParser parser(core_instance, nullptr);
 	parser.Parse(header_stream.get());
 
 	header_stream.reset();

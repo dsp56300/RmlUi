@@ -48,20 +48,22 @@ class URL;
 
 class RMLUICORE_API XMLParser : public BaseXMLParser {
 public:
-	XMLParser(Element* root);
+	XMLParser(CoreInstance& core_instance, Element* root);
 	~XMLParser();
 
 	/// Registers a custom node handler to be used to a given tag.
+	/// @param[in] core_instance The core instance to register the handler with.
 	/// @param[in] tag The tag the custom parser will handle.
 	/// @param[in] handler The custom handler.
 	/// @return The registered XML node handler.
-	static XMLNodeHandler* RegisterNodeHandler(const String& tag, SharedPtr<XMLNodeHandler> handler);
+	static XMLNodeHandler* RegisterNodeHandler(CoreInstance& core_instance, const String& tag, SharedPtr<XMLNodeHandler> handler);
 	/// Retrieve a registered node handler.
+	/// @param[in] core_instance The core instance to retrieve the handler from.
 	/// @param[in] tag The tag the custom parser handles.
 	/// @return The registered XML node handler or nullptr if it does not exist for the given tag.
-	static XMLNodeHandler* GetNodeHandler(const String& tag);
+	static XMLNodeHandler* GetNodeHandler(CoreInstance& core_instance, const String& tag);
 	/// Releases all registered node handlers. This is called internally.
-	static void ReleaseHandlers();
+	static void ReleaseHandlers(CoreInstance& core_instance);
 
 	/// Returns the XML document's header.
 	/// @return The document header.
@@ -83,6 +85,7 @@ public:
 	};
 
 	/// Pushes an element handler onto the parse stack for parsing child elements.
+	/// @param[in] core_instance The core instance to push the handler onto.
 	/// @param[in] tag The tag the handler was registered with.
 	/// @return True if an appropriate handler was found and pushed onto the stack, false if not.
 	bool PushHandler(const String& tag);
@@ -95,6 +98,9 @@ public:
 	/// Returns the source URL of this parse.
 	const URL& GetSourceURL() const;
 
+	/// Returns the core instance that this parser belongs to.
+	CoreInstance& GetCoreInstance() const;
+
 protected:
 	/// Called when the parser finds the beginning of an element tag.
 	void HandleElementStart(const String& name, const XMLAttributes& attributes) override;
@@ -104,6 +110,7 @@ protected:
 	void HandleData(const String& data, XMLDataType type) override;
 
 private:
+	CoreInstance& core_instance;
 	UniquePtr<DocumentHeader> header;
 	XMLNodeHandler* active_handler;
 	Stack<ParseFrame> stack;

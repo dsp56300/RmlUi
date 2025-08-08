@@ -63,7 +63,7 @@ public:
 
 	/// Constructs a new ElementProgress. This should not be called directly; use the Factory instead.
 	/// @param[in] tag The tag the element was declared as in RML.
-	ElementProgress(const String& tag);
+	ElementProgress(CoreInstance& core_instance, const String& tag);
 	virtual ~ElementProgress();
 
 	/// Returns the value of the progress bar.

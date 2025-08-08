@@ -30,7 +30,7 @@
 
 namespace Rml {
 
-ElementLabel::ElementLabel(const String& tag) : Element(tag)
+ElementLabel::ElementLabel(CoreInstance& core_instance, const String& tag) : Element(core_instance, tag)
 {
 	AddEventListener(EventId::Click, this, true);
 }

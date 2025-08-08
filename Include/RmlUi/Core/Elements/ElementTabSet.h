@@ -44,7 +44,7 @@ class RMLUICORE_API ElementTabSet : public Element {
 public:
 	RMLUI_RTTI_DefineWithParent(ElementTabSet, Element)
 
-	ElementTabSet(const String& tag);
+	ElementTabSet(CoreInstance& core_instance, const String& tag);
 	~ElementTabSet();
 
 	/// Sets the specified tab index's tab title RML.

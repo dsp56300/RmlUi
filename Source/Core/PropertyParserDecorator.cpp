@@ -54,7 +54,7 @@ void PropertyParserDecorator::Shutdown()
 	parser_data.Shutdown();
 }
 
-PropertyParserDecorator::PropertyParserDecorator() {}
+PropertyParserDecorator::PropertyParserDecorator(CoreInstance& core_instance) : PropertyParser(core_instance) {}
 
 PropertyParserDecorator::~PropertyParserDecorator() {}
 

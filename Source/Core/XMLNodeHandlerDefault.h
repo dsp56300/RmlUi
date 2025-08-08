@@ -42,7 +42,7 @@ namespace Rml {
 
 class XMLNodeHandlerDefault : public XMLNodeHandler {
 public:
-	XMLNodeHandlerDefault();
+	XMLNodeHandlerDefault(Factory& factory);
 	~XMLNodeHandlerDefault();
 
 	/// Called when a new element start is opened

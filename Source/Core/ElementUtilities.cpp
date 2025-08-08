@@ -136,7 +136,7 @@ int ElementUtilities::GetStringWidth(Element* element, StringView string, Charac
 	if (font_face_handle == 0)
 		return 0;
 
-	return GetFontEngineInterface()->GetStringWidth(font_face_handle, string, text_shaping_context, prior_character);
+	return GetFontEngineInterface(element->GetCoreInstance())->GetStringWidth(font_face_handle, string, text_shaping_context, prior_character);
 }
 
 bool ElementUtilities::GetClippingRegion(Element* element, Rectanglei& out_clip_region, ClipMaskGeometryList* out_clip_mask_list,
@@ -446,7 +446,7 @@ static bool ApplyDataViewsControllersInternal(Element* element, const bool const
 				// Structural data views are applied in a separate step from the normal views and controllers.
 				if (construct_structural_view)
 				{
-					if (DataViewPtr view = Factory::InstanceDataView(type_name, element, true))
+					if (DataViewPtr view = element->GetFactory().InstanceDataView(type_name, element, true))
 					{
 						initializer.modifier_or_inner_rml = structural_view_inner_rml;
 						initializer.view = std::move(view);
@@ -454,7 +454,7 @@ static bool ApplyDataViewsControllersInternal(Element* element, const bool const
 				}
 				else
 				{
-					if (Factory::IsStructuralDataView(type_name))
+					if (element->GetFactory().IsStructuralDataView(type_name))
 					{
 						// Structural data views should cancel all other non-structural data views and controllers. Exit now.
 						// Eg. in elements with a 'data-for' attribute, the data views should be constructed on the generated
@@ -466,10 +466,10 @@ static bool ApplyDataViewsControllersInternal(Element* element, const bool const
 					if (modifier_offset < name.size())
 						initializer.modifier_or_inner_rml = name.substr(modifier_offset);
 
-					if (DataViewPtr view = Factory::InstanceDataView(type_name, element, false))
+					if (DataViewPtr view = element->GetFactory().InstanceDataView(type_name, element, false))
 						initializer.view = std::move(view);
 
-					if (DataControllerPtr controller = Factory::InstanceDataController(type_name, element))
+					if (DataControllerPtr controller = element->GetFactory().InstanceDataController(type_name, element))
 						initializer.controller = std::move(controller);
 				}
 

@@ -203,9 +203,11 @@ WidgetTextInput::WidgetTextInput(ElementFormControl* _parent)
 	parent->AddEventListener(EventId::Dblclick, this, true);
 	parent->AddEventListener(EventId::Drag, this, true);
 
-	ElementPtr unique_text = Factory::InstanceElement(parent, "#text", "#text", XMLAttributes());
+	auto& factory = parent->GetFactory();
+
+	ElementPtr unique_text = factory.InstanceElement(parent, "#text", "#text", XMLAttributes());
 	text_element = rmlui_dynamic_cast<ElementText*>(unique_text.get());
-	ElementPtr unique_selected_text = Factory::InstanceElement(parent, "#text", "#text", XMLAttributes());
+	ElementPtr unique_selected_text = factory.InstanceElement(parent, "#text", "#text", XMLAttributes());
 	selected_text_element = rmlui_dynamic_cast<ElementText*>(unique_selected_text.get());
 	if (text_element)
 	{
@@ -217,7 +219,7 @@ WidgetTextInput::WidgetTextInput(ElementFormControl* _parent)
 	}
 
 	// Create the dummy selection element.
-	ElementPtr unique_selection = Factory::InstanceElement(parent, "#selection", "selection", XMLAttributes());
+	ElementPtr unique_selection = factory.InstanceElement(parent, "#selection", "selection", XMLAttributes());
 	if (ElementTextSelection* text_selection_element = rmlui_dynamic_cast<ElementTextSelection*>(unique_selection.get()))
 	{
 		selection_element = text_selection_element;
@@ -444,7 +446,7 @@ void WidgetTextInput::OnUpdate()
 {
 	if (cursor_timer > 0)
 	{
-		double current_time = Clock::GetElapsedTime();
+		double current_time = Clock::GetElapsedTime(parent->GetCoreInstance());
 		cursor_timer -= float(current_time - last_update_time);
 		last_update_time = current_time;
 
@@ -622,7 +624,7 @@ void WidgetTextInput::ProcessEvent(Event& event)
 			if (ctrl && !alt)
 			{
 				String clipboard_text;
-				GetSystemInterface()->GetClipboardText(clipboard_text);
+				GetSystemInterface(parent->GetCoreInstance())->GetClipboardText(clipboard_text);
 
 				AddCharacters(clipboard_text);
 				ShowCursor(true);
@@ -785,7 +787,7 @@ void WidgetTextInput::CopySelection()
 {
 	const String& value = GetValue();
 	const String snippet = value.substr(Math::Min((size_t)selection_begin_index, (size_t)value.size()), (size_t)selection_length);
-	GetSystemInterface()->SetClipboardText(snippet);
+	GetSystemInterface(parent->GetCoreInstance())->SetClipboardText(snippet);
 }
 
 bool WidgetTextInput::MoveCursorHorizontal(CursorMovement movement, bool select, bool& out_of_bounds)
@@ -1143,7 +1145,7 @@ void WidgetTextInput::ShowCursor(bool show, bool move_to_cursor)
 	{
 		cursor_visible = true;
 		cursor_timer = CURSOR_BLINK_TIME;
-		last_update_time = GetSystemInterface()->GetElapsedTime();
+		last_update_time = GetSystemInterface(parent->GetCoreInstance())->GetElapsedTime();
 
 		// Shift the cursor into view.
 		if (move_to_cursor)
@@ -1234,7 +1236,7 @@ Vector2f WidgetTextInput::FormatText(float height_constraint)
 	if (!font_handle)
 		return content_area;
 
-	const FontMetrics& font_metrics = GetFontEngineInterface()->GetFontMetrics(font_handle);
+	const FontMetrics& font_metrics = GetFontEngineInterface(parent->GetCoreInstance())->GetFontMetrics(font_handle);
 
 	// Clear the old lines, and all the lines in the text elements.
 	lines.clear();
@@ -1574,7 +1576,7 @@ void WidgetTextInput::GetLineIMEComposition(StringView& pre_composition, StringV
 
 void WidgetTextInput::SetKeyboardActive(bool active)
 {
-	if (SystemInterface* system = GetSystemInterface())
+	if (SystemInterface* system = GetSystemInterface(parent->GetCoreInstance()))
 	{
 		if (active)
 		{

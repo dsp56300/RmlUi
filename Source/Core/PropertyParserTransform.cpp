@@ -34,8 +34,9 @@
 
 namespace Rml {
 
-PropertyParserTransform::PropertyParserTransform() :
-	number(Unit::NUMBER), length(Unit::LENGTH, Unit::PX), length_pct(Unit::LENGTH_PERCENT, Unit::PX), angle(Unit::ANGLE, Unit::RAD)
+PropertyParserTransform::PropertyParserTransform(CoreInstance& core_instance ) :
+	PropertyParser(core_instance),
+	number(core_instance, Unit::NUMBER), length(core_instance, Unit::LENGTH, Unit::PX), length_pct(core_instance, Unit::LENGTH_PERCENT, Unit::PX), angle(core_instance, Unit::ANGLE, Unit::RAD)
 {}
 
 PropertyParserTransform::~PropertyParserTransform() {}

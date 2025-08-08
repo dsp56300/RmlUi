@@ -40,7 +40,7 @@ namespace Rml {
 
 class PropertyParserDecorator : public PropertyParser {
 public:
-	PropertyParserDecorator();
+	PropertyParserDecorator(CoreInstance& core_instance);
 	virtual ~PropertyParserDecorator();
 
 	/// Called to parse a decorator declaration.

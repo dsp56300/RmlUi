@@ -393,7 +393,7 @@ bool DataViewText::Update(DataModel& model)
 		{
 			String new_text = BuildText();
 			String text;
-			if (SystemInterface* system_interface = GetSystemInterface())
+			if (SystemInterface* system_interface = GetSystemInterface(element->GetCoreInstance()))
 				system_interface->TranslateString(text, new_text);
 
 			rmlui_static_cast<ElementText*>(element)->SetText(text);
@@ -532,7 +532,7 @@ bool DataViewFor::Update(DataModel& model)
 	{
 		if (i >= num_elements)
 		{
-			ElementPtr new_element_ptr = Factory::InstanceElement(nullptr, element->GetTagName(), element->GetTagName(), attributes);
+			ElementPtr new_element_ptr = element->GetFactory().InstanceElement(nullptr, element->GetTagName(), element->GetTagName(), attributes);
 
 			DataAddress iterator_address;
 			iterator_address.reserve(container_address.size() + 1);

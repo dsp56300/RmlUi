@@ -68,7 +68,7 @@ public:
 
 	/// Constructs a new ElementImage. This should not be called directly; use the Factory instead.
 	/// @param[in] tag The tag the element was declared as in RML.
-	ElementImage(const String& tag);
+	ElementImage(CoreInstance& core_instance, const String& tag);
 	virtual ~ElementImage();
 
 	/// Returns the element's inherent size.

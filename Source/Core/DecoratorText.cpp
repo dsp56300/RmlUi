@@ -86,7 +86,7 @@ bool DecoratorText::GenerateGeometry(Element* element, ElementData& element_data
 	if (font_face_handle == 0)
 		return false;
 
-	FontEngineInterface* font_engine_interface = GetFontEngineInterface();
+	FontEngineInterface* font_engine_interface = GetFontEngineInterface(element->GetCoreInstance());
 	const int new_version = font_engine_interface->GetVersion(font_face_handle);
 	if (new_version == element_data.font_handle_version)
 		return true;

@@ -65,7 +65,7 @@ class RMLUICORE_API ElementDocument : public Element {
 public:
 	RMLUI_RTTI_DefineWithParent(ElementDocument, Element)
 
-	ElementDocument(const String& tag);
+	ElementDocument(CoreInstance& core_instance, const String& tag);
 	virtual ~ElementDocument();
 
 	/// Process given document header

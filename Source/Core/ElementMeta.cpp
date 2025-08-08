@@ -28,21 +28,21 @@
 
 #include "ElementMeta.h"
 
+#include "RmlUi/Core/CoreInstance.h"
+
 namespace Rml {
 
-ControlledLifetimeResource<ElementMetaPool> ElementMetaPool::element_meta_pool;
-
-void ElementMetaPool::Initialize()
+void ElementMetaPool::Initialize(CoreInstance& instance)
 {
-	element_meta_pool.InitializeIfEmpty();
+	instance.element_meta_pool.InitializeIfEmpty();
 }
 
-void ElementMetaPool::Shutdown()
+void ElementMetaPool::Shutdown(CoreInstance& instance)
 {
-	const int num_objects = element_meta_pool->pool.GetNumAllocatedObjects();
+	const int num_objects = instance.element_meta_pool->pool.GetNumAllocatedObjects();
 	if (num_objects == 0)
 	{
-		element_meta_pool.Shutdown();
+		instance.element_meta_pool.Shutdown();
 	}
 	else
 	{
@@ -51,7 +51,7 @@ void ElementMetaPool::Shutdown()
 			"no Rml::Element objects are kept alive in user space at the end of Rml::Shutdown.",
 			num_objects);
 		RMLUI_ERROR;
-		element_meta_pool.Leak();
+		instance.element_meta_pool.Leak();
 	}
 }
 

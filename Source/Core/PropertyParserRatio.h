@@ -41,7 +41,7 @@ namespace Rml {
 
 class PropertyParserRatio : public PropertyParser {
 public:
-	PropertyParserRatio();
+	PropertyParserRatio(CoreInstance& core_instance);
 	virtual ~PropertyParserRatio();
 
 	/// Called to parse a RCSS string declaration.
