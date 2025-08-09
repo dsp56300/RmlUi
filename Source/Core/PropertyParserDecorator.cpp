@@ -32,6 +32,7 @@
 #include "../../Include/RmlUi/Core/Profiling.h"
 #include "../../Include/RmlUi/Core/PropertySpecification.h"
 #include "../../Include/RmlUi/Core/StyleSheetTypes.h"
+#include "RmlUi/Core/CoreInstance.h"
 
 namespace Rml {
 
@@ -126,7 +127,7 @@ bool PropertyParserDecorator::ParseValue(Property& property, const String& decor
 			const String type = StringUtilities::StripWhitespace(decorator_string.substr(0, shorthand_open));
 
 			// Check for valid decorator type
-			DecoratorInstancer* instancer = Factory::GetDecoratorInstancer(type);
+			DecoratorInstancer* instancer = core_instance.factory.GetDecoratorInstancer(type);
 			if (!instancer)
 			{
 				Log::Message(Log::LT_WARNING, "Decorator type '%s' not found.", type.c_str());

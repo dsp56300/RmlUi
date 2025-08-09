@@ -59,7 +59,7 @@ bool DataViewCommon::Initialize(DataModel& model, Element* element, const String
 	expression = MakeUnique<DataExpression>(expression_str);
 	DataExpressionInterface expr_interface(&model, element);
 
-	bool result = expression->Parse(expr_interface, false);
+	bool result = expression->Parse(model.GetCoreInstance(), expr_interface, false);
 	return result;
 }
 
@@ -99,12 +99,12 @@ bool DataViewAttribute::Update(DataModel& model)
 	Element* element = GetElement();
 	DataExpressionInterface expr_interface(&model, element);
 
-	if (element && GetExpression().Run(expr_interface, variant))
+	if (element && GetExpression().Run(model.GetCoreInstance(), expr_interface, variant))
 	{
-		const String value = variant.Get<String>();
+		const String value = variant.Get<String>(model.GetCoreInstance());
 		const Variant* attribute = element->GetAttribute(attribute_name);
 
-		if (!attribute || attribute->Get<String>() != value)
+		if (!attribute || attribute->Get<String>(model.GetCoreInstance()) != value)
 		{
 			element->SetAttribute(attribute_name, value);
 			result = true;
@@ -123,9 +123,9 @@ bool DataViewAttributeIf::Update(DataModel& model)
 	Element* element = GetElement();
 	DataExpressionInterface expr_interface(&model, element);
 
-	if (element && GetExpression().Run(expr_interface, variant))
+	if (element && GetExpression().Run(model.GetCoreInstance(), expr_interface, variant))
 	{
-		const bool value = variant.Get<bool>();
+		const bool value = variant.Get<bool>(model.GetCoreInstance());
 		const bool is_set = static_cast<bool>(element->GetAttribute(attribute_name));
 		if (is_set != value)
 		{
@@ -150,17 +150,17 @@ bool DataViewChecked::Update(DataModel& model)
 	Element* element = GetElement();
 	DataExpressionInterface expr_interface(&model, element);
 
-	if (element && GetExpression().Run(expr_interface, variant))
+	if (element && GetExpression().Run(model.GetCoreInstance(), expr_interface, variant))
 	{
 		bool new_checked_state = false;
 
 		if (variant.GetType() == Variant::BOOL)
 		{
-			new_checked_state = variant.Get<bool>();
+			new_checked_state = variant.Get<bool>(model.GetCoreInstance());
 		}
 		else
 		{
-			const String value = variant.Get<String>();
+			const String value = variant.Get<String>(model.GetCoreInstance());
 			new_checked_state = (!value.empty() && value == element->GetAttribute<String>("value", ""));
 		}
 
@@ -189,11 +189,11 @@ bool DataViewStyle::Update(DataModel& model)
 	Element* element = GetElement();
 	DataExpressionInterface expr_interface(&model, element);
 
-	if (element && GetExpression().Run(expr_interface, variant))
+	if (element && GetExpression().Run(model.GetCoreInstance(), expr_interface, variant))
 	{
-		const String value = variant.Get<String>();
+		const String value = variant.Get<String>(model.GetCoreInstance());
 		const Property* p = element->GetLocalProperty(property_name);
-		if (!p || p->Get<String>() != value)
+		if (!p || p->Get<String>(model.GetCoreInstance()) != value)
 		{
 			element->SetProperty(property_name, value);
 			result = true;
@@ -212,9 +212,9 @@ bool DataViewClass::Update(DataModel& model)
 	Element* element = GetElement();
 	DataExpressionInterface expr_interface(&model, element);
 
-	if (element && GetExpression().Run(expr_interface, variant))
+	if (element && GetExpression().Run(model.GetCoreInstance(), expr_interface, variant))
 	{
-		const bool activate = variant.Get<bool>();
+		const bool activate = variant.Get<bool>(model.GetCoreInstance());
 		const bool is_set = element->IsClassSet(class_name);
 		if (activate != is_set)
 		{
@@ -234,9 +234,9 @@ bool DataViewRml::Update(DataModel& model)
 	Element* element = GetElement();
 	DataExpressionInterface expr_interface(&model, element);
 
-	if (element && GetExpression().Run(expr_interface, variant))
+	if (element && GetExpression().Run(model.GetCoreInstance(), expr_interface, variant))
 	{
-		String new_rml = variant.Get<String>();
+		String new_rml = variant.Get<String>(model.GetCoreInstance());
 		if (new_rml != previous_rml)
 		{
 			element->SetInnerRML(new_rml);
@@ -256,9 +256,9 @@ bool DataViewIf::Update(DataModel& model)
 	Element* element = GetElement();
 	DataExpressionInterface expr_interface(&model, element);
 
-	if (element && GetExpression().Run(expr_interface, variant))
+	if (element && GetExpression().Run(model.GetCoreInstance(), expr_interface, variant))
 	{
-		const bool value = variant.Get<bool>();
+		const bool value = variant.Get<bool>(model.GetCoreInstance());
 		const bool is_visible = (element->GetLocalStyleProperties().count(PropertyId::Display) == 0);
 		if (is_visible != value)
 		{
@@ -281,9 +281,9 @@ bool DataViewVisible::Update(DataModel& model)
 	Element* element = GetElement();
 	DataExpressionInterface expr_interface(&model, element);
 
-	if (element && GetExpression().Run(expr_interface, variant))
+	if (element && GetExpression().Run(model.GetCoreInstance(), expr_interface, variant))
 	{
-		const bool value = variant.Get<bool>();
+		const bool value = variant.Get<bool>(model.GetCoreInstance());
 		const bool is_visible = (element->GetLocalStyleProperties().count(PropertyId::Visibility) == 0);
 		if (is_visible != value)
 		{
@@ -340,7 +340,7 @@ bool DataViewText::Initialize(DataModel& model, Element* element, const String& 
 			entry.data_expression = MakeUnique<DataExpression>(String(in_text.begin() + begin_brackets + 1, in_text.begin() + cur - 1));
 			entry.value = "#rmlui#"; // A random value that the user string will not be initialized with.
 
-			if (entry.data_expression->Parse(expression_interface, false))
+			if (entry.data_expression->Parse(model.GetCoreInstance(), expression_interface, false))
 				data_entries.push_back(std::move(entry));
 
 			// Reset char so that it won't be appended to the output
@@ -377,8 +377,8 @@ bool DataViewText::Update(DataModel& model)
 		{
 			RMLUI_ASSERT(entry.data_expression);
 			Variant variant;
-			bool result = entry.data_expression->Run(expression_interface, variant);
-			const String value = variant.Get<String>();
+			bool result = entry.data_expression->Run(model.GetCoreInstance(), expression_interface, variant);
+			const String value = variant.Get<String>(model.GetCoreInstance());
 			if (result && entry.value != value)
 			{
 				entry.value = value;
@@ -393,7 +393,7 @@ bool DataViewText::Update(DataModel& model)
 		{
 			String new_text = BuildText();
 			String text;
-			if (SystemInterface* system_interface = GetSystemInterface(element->GetCoreInstance()))
+			if (SystemInterface* system_interface = GetSystemInterface(model.GetCoreInstance()))
 				system_interface->TranslateString(text, new_text);
 
 			rmlui_static_cast<ElementText*>(element)->SetText(text);

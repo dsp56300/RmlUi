@@ -58,24 +58,24 @@ bool FontEffectShadow::GetGlyphMetrics(Vector2i& origin, Vector2i& /*dimensions*
 	return true;
 }
 
-FontEffectShadowInstancer::FontEffectShadowInstancer() :
+FontEffectShadowInstancer::FontEffectShadowInstancer(CoreInstance& in_core_instance) :
 	id_offset_x(PropertyId::Invalid), id_offset_y(PropertyId::Invalid), id_color(PropertyId::Invalid)
 {
-	id_offset_x = RegisterProperty("offset-x", "0px", true).AddParser("length").GetId();
-	id_offset_y = RegisterProperty("offset-y", "0px", true).AddParser("length").GetId();
-	id_color = RegisterProperty("color", "white", false).AddParser("color").GetId();
+	id_offset_x = RegisterProperty(in_core_instance, "offset-x", "0px", true).AddParser("length").GetId();
+	id_offset_y = RegisterProperty(in_core_instance, "offset-y", "0px", true).AddParser("length").GetId();
+	id_color = RegisterProperty(in_core_instance, "color", "white", false).AddParser("color").GetId();
 	RegisterShorthand("offset", "offset-x, offset-y", ShorthandType::FallThrough);
 	RegisterShorthand("font-effect", "offset-x, offset-y, color", ShorthandType::FallThrough);
 }
 
 FontEffectShadowInstancer::~FontEffectShadowInstancer() {}
 
-SharedPtr<FontEffect> FontEffectShadowInstancer::InstanceFontEffect(const String& /*name*/, const PropertyDictionary& properties)
+SharedPtr<FontEffect> FontEffectShadowInstancer::InstanceFontEffect(CoreInstance& in_core_instance, const String& /*name*/, const PropertyDictionary& properties)
 {
 	Vector2i offset;
-	offset.x = properties.GetProperty(id_offset_x)->Get<int>();
-	offset.y = properties.GetProperty(id_offset_y)->Get<int>();
-	Colourb color = properties.GetProperty(id_color)->Get<Colourb>();
+	offset.x = properties.GetProperty(id_offset_x)->Get<int>(in_core_instance);
+	offset.y = properties.GetProperty(id_offset_y)->Get<int>(in_core_instance);
+	Colourb color = properties.GetProperty(id_color)->Get<Colourb>(in_core_instance);
 
 	auto font_effect = MakeShared<FontEffectShadow>();
 	if (font_effect->Initialise(offset))

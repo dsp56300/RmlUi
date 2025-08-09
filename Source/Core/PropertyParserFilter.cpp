@@ -32,6 +32,7 @@
 #include "../../Include/RmlUi/Core/Profiling.h"
 #include "../../Include/RmlUi/Core/PropertySpecification.h"
 #include "../../Include/RmlUi/Core/StyleSheetTypes.h"
+#include "RmlUi/Core/CoreInstance.h"
 
 namespace Rml {
 
@@ -81,7 +82,7 @@ bool PropertyParserFilter::ParseValue(Property& property, const String& filter_s
 			const String type = StringUtilities::StripWhitespace(filter_string.substr(0, shorthand_open));
 
 			// Check for valid filter type
-			FilterInstancer* instancer = Factory::GetFilterInstancer(type);
+			FilterInstancer* instancer = core_instance.factory.GetFilterInstancer(type);
 			if (!instancer)
 			{
 				Log::Message(Log::LT_WARNING, "Filter type '%s' not found.", type.c_str());

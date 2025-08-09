@@ -84,10 +84,10 @@ bool PropertyParserBoxShadow::ParseValue(Property& property, const String& value
 			{
 				switch (length_argument_index)
 				{
-				case 0: shadow.offset_x = prop.GetNumericValue(); break;
-				case 1: shadow.offset_y = prop.GetNumericValue(); break;
-				case 2: shadow.blur_radius = prop.GetNumericValue(); break;
-				case 3: shadow.spread_distance = prop.GetNumericValue(); break;
+				case 0: shadow.offset_x = prop.GetNumericValue(core_instance); break;
+				case 1: shadow.offset_y = prop.GetNumericValue(core_instance); break;
+				case 2: shadow.blur_radius = prop.GetNumericValue(core_instance); break;
+				case 3: shadow.spread_distance = prop.GetNumericValue(core_instance); break;
 				default: return false;
 				}
 				length_argument_index += 1;
@@ -98,7 +98,7 @@ bool PropertyParserBoxShadow::ParseValue(Property& property, const String& value
 			}
 			else if (parser_color->ParseValue(prop, argument, empty_parameter_map))
 			{
-				shadow.color = prop.Get<Colourb>().ToPremultiplied();
+				shadow.color = prop.Get<Colourb>(core_instance).ToPremultiplied();
 			}
 			else
 			{

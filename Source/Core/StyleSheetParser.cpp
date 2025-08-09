@@ -81,6 +81,7 @@ public:
  */
 class SpritesheetPropertyParser final : public AbstractPropertyParser {
 private:
+	CoreInstance& core_instance;
 	String image_source;
 	float image_resolution_factor = 1.f;
 	SpriteDefinitionList sprite_definitions;
@@ -91,15 +92,15 @@ private:
 	ShorthandId id_rectangle;
 
 public:
-	SpritesheetPropertyParser() : specification(6, 1)
+	SpritesheetPropertyParser(CoreInstance& in_core_instance) : core_instance(in_core_instance), specification(6, 1)
 	{
-		id_src = specification.RegisterProperty("src", "", false, false).AddParser("string").GetId();
-		id_rx = specification.RegisterProperty("rectangle-x", "", false, false).AddParser("length").GetId();
-		id_ry = specification.RegisterProperty("rectangle-y", "", false, false).AddParser("length").GetId();
-		id_rw = specification.RegisterProperty("rectangle-w", "", false, false).AddParser("length").GetId();
-		id_rh = specification.RegisterProperty("rectangle-h", "", false, false).AddParser("length").GetId();
+		id_src = specification.RegisterProperty(in_core_instance, "src", "", false, false).AddParser("string").GetId();
+		id_rx = specification.RegisterProperty(in_core_instance, "rectangle-x", "", false, false).AddParser("length").GetId();
+		id_ry = specification.RegisterProperty(in_core_instance, "rectangle-y", "", false, false).AddParser("length").GetId();
+		id_rw = specification.RegisterProperty(in_core_instance, "rectangle-w", "", false, false).AddParser("length").GetId();
+		id_rh = specification.RegisterProperty(in_core_instance, "rectangle-h", "", false, false).AddParser("length").GetId();
 		id_rectangle = specification.RegisterShorthand("rectangle", "rectangle-x, rectangle-y, rectangle-w, rectangle-h", ShorthandType::FallThrough);
-		id_resolution = specification.RegisterProperty("resolution", "", false, false).AddParser("resolution").GetId();
+		id_resolution = specification.RegisterProperty(in_core_instance, "resolution", "", false, false).AddParser("resolution").GetId();
 	}
 
 	const String& GetImageSource() const { return image_source; }
@@ -123,7 +124,7 @@ public:
 			if (const Property* property = properties.GetProperty(id_src))
 			{
 				if (property->unit == Unit::STRING)
-					image_source = property->Get<String>();
+					image_source = property->Get<String>(core_instance);
 			}
 		}
 		else if (name == "resolution")
@@ -134,7 +135,7 @@ public:
 			if (const Property* property = properties.GetProperty(id_resolution))
 			{
 				if (property->unit == Unit::X)
-					image_resolution_factor = property->Get<float>();
+					image_resolution_factor = property->Get<float>(core_instance);
 			}
 		}
 		else
@@ -144,13 +145,13 @@ public:
 
 			Vector2f position, size;
 			if (auto p = properties.GetProperty(id_rx))
-				position.x = p->Get<float>();
+				position.x = p->Get<float>(core_instance);
 			if (auto p = properties.GetProperty(id_ry))
-				position.y = p->Get<float>();
+				position.y = p->Get<float>(core_instance);
 			if (auto p = properties.GetProperty(id_rw))
-				size.x = p->Get<float>();
+				size.x = p->Get<float>(core_instance);
 			if (auto p = properties.GetProperty(id_rh))
-				size.y = p->Get<float>();
+				size.y = p->Get<float>(core_instance);
 
 			sprite_definitions.emplace_back(name, Rectanglef::FromPositionSize(position, size));
 		}
@@ -172,28 +173,28 @@ private:
 	static PropertyId CastId(MediaQueryId id) { return static_cast<PropertyId>(id); }
 
 public:
-	MediaQueryPropertyParser() : specification(14, 0)
+	MediaQueryPropertyParser(CoreInstance& in_core_instance) : specification(14, 0)
 	{
-		specification.RegisterProperty("width", "", false, false, CastId(MediaQueryId::Width)).AddParser("length");
-		specification.RegisterProperty("min-width", "", false, false, CastId(MediaQueryId::MinWidth)).AddParser("length");
-		specification.RegisterProperty("max-width", "", false, false, CastId(MediaQueryId::MaxWidth)).AddParser("length");
+		specification.RegisterProperty(in_core_instance, "width", "", false, false, CastId(MediaQueryId::Width)).AddParser("length");
+		specification.RegisterProperty(in_core_instance, "min-width", "", false, false, CastId(MediaQueryId::MinWidth)).AddParser("length");
+		specification.RegisterProperty(in_core_instance, "max-width", "", false, false, CastId(MediaQueryId::MaxWidth)).AddParser("length");
 
-		specification.RegisterProperty("height", "", false, false, CastId(MediaQueryId::Height)).AddParser("length");
-		specification.RegisterProperty("min-height", "", false, false, CastId(MediaQueryId::MinHeight)).AddParser("length");
-		specification.RegisterProperty("max-height", "", false, false, CastId(MediaQueryId::MaxHeight)).AddParser("length");
+		specification.RegisterProperty(in_core_instance, "height", "", false, false, CastId(MediaQueryId::Height)).AddParser("length");
+		specification.RegisterProperty(in_core_instance, "min-height", "", false, false, CastId(MediaQueryId::MinHeight)).AddParser("length");
+		specification.RegisterProperty(in_core_instance, "max-height", "", false, false, CastId(MediaQueryId::MaxHeight)).AddParser("length");
 
-		specification.RegisterProperty("aspect-ratio", "", false, false, CastId(MediaQueryId::AspectRatio)).AddParser("ratio");
-		specification.RegisterProperty("min-aspect-ratio", "", false, false, CastId(MediaQueryId::MinAspectRatio)).AddParser("ratio");
-		specification.RegisterProperty("max-aspect-ratio", "", false, false, CastId(MediaQueryId::MaxAspectRatio)).AddParser("ratio");
+		specification.RegisterProperty(in_core_instance, "aspect-ratio", "", false, false, CastId(MediaQueryId::AspectRatio)).AddParser("ratio");
+		specification.RegisterProperty(in_core_instance, "min-aspect-ratio", "", false, false, CastId(MediaQueryId::MinAspectRatio)).AddParser("ratio");
+		specification.RegisterProperty(in_core_instance, "max-aspect-ratio", "", false, false, CastId(MediaQueryId::MaxAspectRatio)).AddParser("ratio");
 
-		specification.RegisterProperty("resolution", "", false, false, CastId(MediaQueryId::Resolution)).AddParser("resolution");
-		specification.RegisterProperty("min-resolution", "", false, false, CastId(MediaQueryId::MinResolution)).AddParser("resolution");
-		specification.RegisterProperty("max-resolution", "", false, false, CastId(MediaQueryId::MaxResolution)).AddParser("resolution");
+		specification.RegisterProperty(in_core_instance, "resolution", "", false, false, CastId(MediaQueryId::Resolution)).AddParser("resolution");
+		specification.RegisterProperty(in_core_instance, "min-resolution", "", false, false, CastId(MediaQueryId::MinResolution)).AddParser("resolution");
+		specification.RegisterProperty(in_core_instance, "max-resolution", "", false, false, CastId(MediaQueryId::MaxResolution)).AddParser("resolution");
 
-		specification.RegisterProperty("orientation", "", false, false, CastId(MediaQueryId::Orientation))
+		specification.RegisterProperty(in_core_instance, "orientation", "", false, false, CastId(MediaQueryId::Orientation))
 			.AddParser("keyword", "landscape, portrait");
 
-		specification.RegisterProperty("theme", "", false, false, CastId(MediaQueryId::Theme)).AddParser("string");
+		specification.RegisterProperty(in_core_instance, "theme", "", false, false, CastId(MediaQueryId::Theme)).AddParser("string");
 	}
 
 	void SetTargetProperties(PropertyDictionary* _properties) { properties = _properties; }

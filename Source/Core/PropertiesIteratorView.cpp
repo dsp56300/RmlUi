@@ -55,9 +55,9 @@ PropertyId PropertiesIteratorView::GetId() const
 	return (*(*ptr)).first;
 }
 
-const String& PropertiesIteratorView::GetName() const
+const String& PropertiesIteratorView::GetName(StyleSheetSpecification& style_sheet_specification) const
 {
-	return StyleSheetSpecification::GetPropertyName(GetId());
+	return style_sheet_specification.GetPropertyName(GetId());
 }
 
 const Property& PropertiesIteratorView::GetProperty() const

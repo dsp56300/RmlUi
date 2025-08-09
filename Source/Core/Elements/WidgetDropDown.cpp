@@ -301,7 +301,7 @@ void WidgetDropDown::OnValueChange(const String& value)
 		{
 			Element* option = selection_element->GetChild(i);
 			Variant* variant = option->GetAttribute("value");
-			if (variant && variant->Get<String>() == value)
+			if (variant && variant->Get<String>(selection_element->GetCoreInstance()) == value)
 			{
 				select_option = option;
 				break;
@@ -578,7 +578,7 @@ void WidgetDropDown::ProcessEvent(Event& event)
 			{
 				if (p->unit != Unit::KEYWORD)
 					return true;
-				const Style::Nav nav = static_cast<Style::Nav>(p->Get<int>());
+				const Style::Nav nav = static_cast<Style::Nav>(p->Get<int>(parent_element->GetCoreInstance()));
 				if (nav == Style::Nav::Auto || nav == Style::Nav::Vertical)
 					return true;
 			}

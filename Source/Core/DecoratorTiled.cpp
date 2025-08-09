@@ -245,31 +245,31 @@ DecoratorTiledInstancer::DecoratorTiledInstancer(size_t num_tiles)
 	tile_property_ids.reserve(num_tiles);
 }
 
-void DecoratorTiledInstancer::RegisterTileProperty(const String& name, bool register_fit_modes)
+void DecoratorTiledInstancer::RegisterTileProperty(CoreInstance& in_core_instance, const String& name, bool register_fit_modes)
 {
 	TilePropertyIds ids = {};
 
-	ids.src = RegisterProperty(CreateString("%s-src", name.c_str()), "").AddParser("string").GetId();
+	ids.src = RegisterProperty(in_core_instance, CreateString( "%s-src", name.c_str()), "").AddParser("string").GetId();
 
 	String additional_modes;
 
 	if (register_fit_modes)
 	{
 		String fit_name = CreateString("%s-fit", name.c_str());
-		ids.fit = RegisterProperty(fit_name, "fill")
+		ids.fit = RegisterProperty(in_core_instance, fit_name, "fill")
 					  .AddParser("keyword", "fill, contain, cover, scale-none, scale-down, repeat, repeat-x, repeat-y")
 					  .GetId();
 
 		String align_x_name = CreateString("%s-align-x", name.c_str());
-		ids.align_x = RegisterProperty(align_x_name, "center").AddParser("keyword", "left, center, right").AddParser("length_percent").GetId();
+		ids.align_x = RegisterProperty(in_core_instance, align_x_name, "center").AddParser("keyword", "left, center, right").AddParser("length_percent").GetId();
 
 		String align_y_name = CreateString("%s-align-y", name.c_str());
-		ids.align_y = RegisterProperty(align_y_name, "center").AddParser("keyword", "top, center, bottom").AddParser("length_percent").GetId();
+		ids.align_y = RegisterProperty(in_core_instance, align_y_name, "center").AddParser("keyword", "top, center, bottom").AddParser("length_percent").GetId();
 
 		additional_modes += ", " + fit_name + ", " + align_x_name + ", " + align_y_name;
 	}
 
-	ids.orientation = RegisterProperty(CreateString("%s-orientation", name.c_str()), "none")
+	ids.orientation = RegisterProperty(in_core_instance, CreateString("%s-orientation", name.c_str()), "none")
 						  .AddParser("keyword", "none, flip-horizontal, flip-vertical, rotate-180")
 						  .GetId();
 
@@ -289,12 +289,14 @@ bool DecoratorTiledInstancer::GetTileProperties(DecoratorTiled::Tile* tiles, Tex
 	String previous_texture_name;
 	Texture previous_texture;
 
+	auto& coreInstance = instancer_interface.GetRenderManager().GetCoreInstance();
+
 	for (size_t i = 0; i < num_tiles_and_textures; i++)
 	{
 		const TilePropertyIds& ids = tile_property_ids[i];
 
 		const Property* src_property = properties.GetProperty(ids.src);
-		const String texture_name = src_property->Get<String>();
+		const String texture_name = src_property->Get<String>(coreInstance);
 
 		// Skip the tile if it has no source name.
 		// Declaring the name 'auto' is the same as an empty string. This gives an easy way to skip certain
@@ -344,13 +346,13 @@ bool DecoratorTiledInstancer::GetTileProperties(DecoratorTiled::Tile* tiles, Tex
 		{
 			RMLUI_ASSERT(ids.align_x != PropertyId::Invalid && ids.align_y != PropertyId::Invalid);
 			const Property& fit_property = *properties.GetProperty(ids.fit);
-			tile.fit_mode = (DecoratorTiled::TileFitMode)fit_property.value.Get<int>();
+			tile.fit_mode = (DecoratorTiled::TileFitMode)fit_property.value.Get<int>(coreInstance);
 
 			if (sprite &&
 				(tile.fit_mode == DecoratorTiled::TileFitMode::REPEAT || tile.fit_mode == DecoratorTiled::TileFitMode::REPEAT_X ||
 					tile.fit_mode == DecoratorTiled::TileFitMode::REPEAT_Y))
 			{
-				Log::Message(Log::LT_WARNING, "Decorator 'fit' value is '%s', which is incompatible with sprites", fit_property.ToString().c_str());
+				Log::Message(Log::LT_WARNING, "Decorator 'fit' value is '%s', which is incompatible with sprites", fit_property.ToString(coreInstance).c_str());
 				return false;
 			}
 
@@ -365,7 +367,7 @@ bool DecoratorTiledInstancer::GetTileProperties(DecoratorTiled::Tile* tiles, Tex
 				if (property.unit == Unit::KEYWORD)
 				{
 					enum { TOP_LEFT, CENTER, BOTTOM_RIGHT };
-					switch (property.Get<int>())
+					switch (property.Get<int>(coreInstance))
 					{
 					case TOP_LEFT: align = LengthPercentage(LengthPercentage::Percentage, 0.0f); break;
 					case CENTER: align = LengthPercentage(LengthPercentage::Percentage, 50.0f); break;
@@ -374,16 +376,16 @@ bool DecoratorTiledInstancer::GetTileProperties(DecoratorTiled::Tile* tiles, Tex
 				}
 				else if (property.unit == Unit::PERCENT)
 				{
-					align = LengthPercentage(LengthPercentage::Percentage, property.Get<float>());
+					align = LengthPercentage(LengthPercentage::Percentage, property.Get<float>(coreInstance));
 				}
 				else if (property.unit == Unit::PX)
 				{
-					align = LengthPercentage(LengthPercentage::Length, property.Get<float>());
+					align = LengthPercentage(LengthPercentage::Length, property.Get<float>(coreInstance));
 				}
 				else
 				{
 					Log::Message(Log::LT_WARNING, "Decorator alignment value is '%s' which uses an unsupported unit (use px, %%, or keyword)",
-						property.ToString().c_str());
+						property.ToString(coreInstance).c_str());
 				}
 			}
 		}
@@ -391,7 +393,7 @@ bool DecoratorTiledInstancer::GetTileProperties(DecoratorTiled::Tile* tiles, Tex
 		if (ids.orientation != PropertyId::Invalid)
 		{
 			const Property& orientation_property = *properties.GetProperty(ids.orientation);
-			tile.orientation = (DecoratorTiled::TileOrientation)orientation_property.value.Get<int>();
+			tile.orientation = (DecoratorTiled::TileOrientation)orientation_property.value.Get<int>(coreInstance);
 		}
 	}
 

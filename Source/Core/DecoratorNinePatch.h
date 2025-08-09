@@ -56,7 +56,7 @@ private:
 
 class DecoratorNinePatchInstancer : public DecoratorInstancer {
 public:
-	DecoratorNinePatchInstancer();
+	DecoratorNinePatchInstancer(CoreInstance& in_core_instance);
 	~DecoratorNinePatchInstancer();
 
 	SharedPtr<Decorator> InstanceDecorator(const String& name, const PropertyDictionary& properties,

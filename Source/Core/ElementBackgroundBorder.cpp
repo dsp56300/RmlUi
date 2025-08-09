@@ -161,7 +161,7 @@ void ElementBackgroundBorder::GenerateGeometry(Element* element)
 
 		const Property* p_box_shadow = element->GetLocalProperty(PropertyId::BoxShadow);
 		RMLUI_ASSERT(p_box_shadow->value.GetType() == Variant::BOXSHADOWLIST);
-		BoxShadowList shadow_list = p_box_shadow->value.Get<BoxShadowList>();
+		BoxShadowList shadow_list = p_box_shadow->value.Get<BoxShadowList>(element->GetCoreInstance());
 
 		// Generate the geometry for the box-shadow texture.
 		Background& shadow_background = GetOrCreateBackground(BackgroundType::BoxShadow);

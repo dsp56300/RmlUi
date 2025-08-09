@@ -31,7 +31,7 @@
 
 namespace Rml {
 
-Vector2Numeric ComputePosition(Array<const Property*, 2> p_position)
+Vector2Numeric ComputePosition(CoreInstance& core_instance, Array<const Property*, 2> p_position)
 {
 	Vector2Numeric position;
 	for (int dimension = 0; dimension < 2; dimension++)
@@ -41,7 +41,7 @@ Vector2Numeric ComputePosition(Array<const Property*, 2> p_position)
 		if (property.unit == Unit::KEYWORD)
 		{
 			enum { TOP_LEFT, CENTER, BOTTOM_RIGHT };
-			switch (property.Get<int>())
+			switch (property.Get<int>(core_instance))
 			{
 			case TOP_LEFT: value = NumericValue(0.f, Unit::PERCENT); break;
 			case CENTER: value = NumericValue(50.f, Unit::PERCENT); break;
@@ -50,7 +50,7 @@ Vector2Numeric ComputePosition(Array<const Property*, 2> p_position)
 		}
 		else
 		{
-			value = property.GetNumericValue();
+			value = property.GetNumericValue(core_instance);
 		}
 	}
 	return position;

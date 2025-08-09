@@ -55,7 +55,7 @@ private:
 
 class DecoratorShaderInstancer : public DecoratorInstancer {
 public:
-	DecoratorShaderInstancer();
+	DecoratorShaderInstancer(CoreInstance& in_core_instance);
 	~DecoratorShaderInstancer();
 
 	SharedPtr<Decorator> InstanceDecorator(const String& name, const PropertyDictionary& properties,

@@ -65,7 +65,7 @@ public:
 	bool AtEnd() const;
 
 	PropertyId GetId() const;
-	const String& GetName() const;
+	const String& GetName(StyleSheetSpecification& style_sheet_specification) const;
 	const Property& GetProperty() const;
 
 private:

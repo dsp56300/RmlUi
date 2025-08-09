@@ -187,7 +187,7 @@ void ElementFormControlSelect::OnAttributeChange(const ElementAttributes& change
 
 	auto it = changed_attributes.find("value");
 	if (it != changed_attributes.end())
-		widget->OnValueChange(it->second.Get<String>());
+		widget->OnValueChange(it->second.Get<String>(GetCoreInstance()));
 }
 
 } // namespace Rml

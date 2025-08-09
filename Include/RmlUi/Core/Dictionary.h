@@ -49,12 +49,12 @@ inline const Variant* GetIf(const Dictionary& dictionary, const String& key)
 	return nullptr;
 }
 template <typename T>
-inline T Get(const Dictionary& dictionary, const String& key, const T& default_value)
+inline T Get(CoreInstance& in_core_instance, const Dictionary& dictionary, const String& key, const T& default_value)
 {
 	T result = default_value;
 	auto it = dictionary.find(key);
 	if (it != dictionary.end())
-		it->second.GetInto(result);
+		it->second.GetInto(in_core_instance, result);
 	return result;
 }
 

@@ -87,21 +87,21 @@ static void ReleaseMemoryPools(CoreInstance& instance)
 	#define RMLUI_VERSION "custom"
 #endif
 
-bool Initialise(CoreInstance& core_instance)
+bool Initialise(CoreInstance& in_core_instance)
 {
 	// [DSP56300] we use this to ease merging if RmlUi changes in the future.
-	auto& initialised = core_instance.initialised;
-	auto& system_interface = core_instance.system_interface;
-	auto& render_interface = core_instance.render_interface;
-	auto& file_interface = core_instance.file_interface;
-	auto& font_interface = core_instance.font_interface;
-	auto& text_input_handler = core_instance.text_input_handler;
-	auto& core_data = core_instance.core_data;
+	auto& initialised = in_core_instance.initialised;
+	auto& system_interface = in_core_instance.system_interface;
+	auto& render_interface = in_core_instance.render_interface;
+	auto& file_interface = in_core_instance.file_interface;
+	auto& font_interface = in_core_instance.font_interface;
+	auto& text_input_handler = in_core_instance.text_input_handler;
+	auto& core_data = in_core_instance.core_data;
 
 	RMLUI_ASSERTMSG(!initialised, "Rml::Initialise() called, but RmlUi is already initialised!");
 
-	InitializeMemoryPools(core_instance);
-	InitializeComputeProperty(core_instance);
+	InitializeMemoryPools(in_core_instance);
+	InitializeComputeProperty(in_core_instance);
 
 	core_data.Initialize();
 
@@ -149,13 +149,13 @@ bool Initialise(CoreInstance& core_instance)
 
 	font_interface->Initialize();
 
-	StyleSheetSpecification::Initialise(core_instance);
+	StyleSheetSpecification::Initialise(in_core_instance);
 	StyleSheetParser::Initialise();
 	StyleSheetFactory::Initialise();
 
-	TemplateCache::Initialise();
+	TemplateCache::Initialise(in_core_instance);
 
-	core_instance.factory.Initialise();
+	in_core_instance.factory.Initialise();
 
 	// Initialise plugins integrated with Core.
 #ifdef RMLUI_LOTTIE_PLUGIN
@@ -166,23 +166,23 @@ bool Initialise(CoreInstance& core_instance)
 #endif
 
 	// Notify all plugins we're starting up.
-	PluginRegistry::NotifyInitialise(core_instance);
+	PluginRegistry::NotifyInitialise(in_core_instance);
 
 	initialised = true;
 
 	return true;
 }
 
-void Shutdown(CoreInstance& core_instance)
+void Shutdown(CoreInstance& in_core_instance)
 {
 	// [DSP56300] we use this to ease merging if RmlUi changes in the future.
-	auto& initialised = core_instance.initialised;
-	auto& core_data = core_instance.core_data;
-	auto& font_interface = core_instance.font_interface;
-	auto& render_interface = core_instance.render_interface;
-	auto& text_input_handler = core_instance.text_input_handler;
-	auto& file_interface = core_instance.file_interface;
-	auto& system_interface = core_instance.system_interface;
+	auto& initialised = in_core_instance.initialised;
+	auto& core_data = in_core_instance.core_data;
+	auto& font_interface = in_core_instance.font_interface;
+	auto& render_interface = in_core_instance.render_interface;
+	auto& text_input_handler = in_core_instance.text_input_handler;
+	auto& file_interface = in_core_instance.file_interface;
+	auto& system_interface = in_core_instance.system_interface;
 
 	RMLUI_ASSERTMSG(initialised, "Rml::Shutdown() called, but RmlUi is not initialised!");
 
@@ -190,13 +190,13 @@ void Shutdown(CoreInstance& core_instance)
 	core_data->contexts.clear();
 
 	// Notify all plugins we're being shutdown.
-	PluginRegistry::NotifyShutdown(core_instance);
+	PluginRegistry::NotifyShutdown(in_core_instance);
 
-	core_instance.factory.Shutdown();
-	TemplateCache::Shutdown();
+	in_core_instance.factory.Shutdown();
+	TemplateCache::Shutdown(in_core_instance);
 	StyleSheetFactory::Shutdown();
 	StyleSheetParser::Shutdown();
-	StyleSheetSpecification::Shutdown(core_instance);
+	StyleSheetSpecification::Shutdown(in_core_instance);
 
 	font_interface->Shutdown();
 
@@ -216,8 +216,8 @@ void Shutdown(CoreInstance& core_instance)
 
 	EventSpecificationInterface::Shutdown();
 
-	ShutdownComputeProperty(core_instance);
-	ReleaseMemoryPools(core_instance);
+	ShutdownComputeProperty(in_core_instance);
+	ReleaseMemoryPools(in_core_instance);
 }
 
 String GetVersion()

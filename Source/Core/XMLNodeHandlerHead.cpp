@@ -39,10 +39,10 @@
 
 namespace Rml {
 
-static String Absolutepath(const String& source, const String& base)
+static String Absolutepath(CoreInstance& in_core_instance, const String& source, const String& base)
 {
 	String joined_path;
-	::Rml::GetSystemInterface()->JoinPath(joined_path, StringUtilities::Replace(base, '|', ':'), StringUtilities::Replace(source, '|', ':'));
+	::Rml::GetSystemInterface(in_core_instance)->JoinPath(joined_path, StringUtilities::Replace(base, '|', ':'), StringUtilities::Replace(source, '|', ':'));
 	return StringUtilities::Replace(joined_path, ':', '|');
 }
 
@@ -60,7 +60,7 @@ static DocumentHeader::Resource MakeExternalResource(XMLParser* parser, const St
 {
 	DocumentHeader::Resource resource;
 	resource.is_inline = false;
-	resource.path = Absolutepath(path, parser->GetSourceURL().GetURL());
+	resource.path = Absolutepath(parser->GetCoreInstance(), path, parser->GetSourceURL().GetURL());
 	return resource;
 }
 
@@ -80,8 +80,8 @@ Element* XMLNodeHandlerHead::ElementStart(XMLParser* parser, const String& name,
 	else if (name == "link")
 	{
 		// Lookup the type and href
-		String type = StringUtilities::ToLower(Get<String>(attributes, "type", ""));
-		String href = Get<String>(attributes, "href", "");
+		String type = StringUtilities::ToLower(Get<String>(parser->GetCoreInstance(), attributes, "type", ""));
+		String href = Get<String>(parser->GetCoreInstance(), attributes, "href", "");
 
 		if (!type.empty() && !href.empty())
 		{
@@ -112,7 +112,7 @@ Element* XMLNodeHandlerHead::ElementStart(XMLParser* parser, const String& name,
 	else if (name == "script")
 	{
 		// Check if its an external string
-		String src = Get<String>(attributes, "src", "");
+		String src = Get<String>(parser->GetCoreInstance(), attributes, "src", "");
 		if (src.size() > 0)
 		{
 			parser->GetDocumentHeader()->scripts.push_back(MakeExternalResource(parser, src));
@@ -146,7 +146,7 @@ bool XMLNodeHandlerHead::ElementData(XMLParser* parser, const String& data, XMLD
 	// Store the title
 	if (tag == "title")
 	{
-		SystemInterface* system_interface = GetSystemInterface();
+		SystemInterface* system_interface = GetSystemInterface(parser->GetCoreInstance());
 		if (system_interface != nullptr)
 			system_interface->TranslateString(parser->GetDocumentHeader()->title, data);
 	}

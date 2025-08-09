@@ -46,26 +46,26 @@ float ComputeFontsize(CoreInstance& core_instance, NumericValue value, const Sty
 
 String ComputeFontFamily(String font_family);
 
-Style::Clip ComputeClip(const Property* property);
+Style::Clip ComputeClip(CoreInstance& core_instance, const Property* property);
 
-Style::LineHeight ComputeLineHeight(const Property* property, float font_size, float document_font_size, float dp_ratio, Vector2f vp_dimensions);
+Style::LineHeight ComputeLineHeight(CoreInstance& core_instance, const Property* property, float font_size, float document_font_size, float dp_ratio, Vector2f vp_dimensions);
 
-Style::VerticalAlign ComputeVerticalAlign(const Property* property, float line_height, float font_size, float document_font_size, float dp_ratio,
+Style::VerticalAlign ComputeVerticalAlign(CoreInstance& core_instance, const Property* property, float line_height, float font_size, float document_font_size, float dp_ratio,
 	Vector2f vp_dimensions);
 
-Style::LengthPercentage ComputeLengthPercentage(const Property* property, float font_size, float document_font_size, float dp_ratio,
+Style::LengthPercentage ComputeLengthPercentage(CoreInstance& core_instance, const Property* property, float font_size, float document_font_size, float dp_ratio,
 	Vector2f vp_dimensions);
 
-Style::LengthPercentageAuto ComputeLengthPercentageAuto(const Property* property, float font_size, float document_font_size, float dp_ratio,
+Style::LengthPercentageAuto ComputeLengthPercentageAuto(CoreInstance& core_instance, const Property* property, float font_size, float document_font_size, float dp_ratio,
 	Vector2f vp_dimensions);
 
-Style::LengthPercentage ComputeOrigin(const Property* property, float font_size, float document_font_size, float dp_ratio, Vector2f vp_dimensions);
+Style::LengthPercentage ComputeOrigin(CoreInstance& core_instance, const Property* property, float font_size, float document_font_size, float dp_ratio, Vector2f vp_dimensions);
 
-Style::LengthPercentage ComputeMaxSize(const Property* property, float font_size, float document_font_size, float dp_ratio, Vector2f vp_dimensions);
+Style::LengthPercentage ComputeMaxSize(CoreInstance& core_instance, const Property* property, float font_size, float document_font_size, float dp_ratio, Vector2f vp_dimensions);
 
 uint16_t ComputeBorderWidth(float computed_length);
 
-String GetFontFaceDescription(const String& font_family, Style::FontStyle style, Style::FontWeight weight);
+String GetFontFaceDescription(CoreInstance& core_instance, const String& font_family, Style::FontStyle style, Style::FontWeight weight);
 
 const Style::ComputedValues& DefaultComputedValues(CoreInstance& core_instance);
 

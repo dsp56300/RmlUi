@@ -143,11 +143,11 @@ void DecoratorTiledHorizontal::RenderElement(Element* element, DecoratorDataHand
 		data->geometry[i].Render(translation, GetTexture(i));
 }
 
-DecoratorTiledHorizontalInstancer::DecoratorTiledHorizontalInstancer() : DecoratorTiledInstancer(3)
+DecoratorTiledHorizontalInstancer::DecoratorTiledHorizontalInstancer(CoreInstance& in_core_instance) : DecoratorTiledInstancer(3)
 {
-	RegisterTileProperty("left-image");
-	RegisterTileProperty("right-image");
-	RegisterTileProperty("center-image");
+	RegisterTileProperty(in_core_instance, "left-image");
+	RegisterTileProperty(in_core_instance, "right-image");
+	RegisterTileProperty(in_core_instance, "center-image");
 	RegisterShorthand("decorator", "left-image, center-image, right-image", ShorthandType::RecursiveCommaSeparated);
 }
 

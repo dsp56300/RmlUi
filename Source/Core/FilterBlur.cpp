@@ -54,20 +54,20 @@ void FilterBlur::ExtendInkOverflow(Element* element, Rectanglef& scissor_region)
 	scissor_region = scissor_region.Extend(blur_extent);
 }
 
-FilterBlurInstancer::FilterBlurInstancer()
+FilterBlurInstancer::FilterBlurInstancer(CoreInstance& in_core_instance)
 {
-	ids.sigma = RegisterProperty("sigma", "0px").AddParser("length").GetId();
+	ids.sigma = RegisterProperty(in_core_instance, "sigma", "0px").AddParser("length").GetId();
 	RegisterShorthand("filter", "sigma", ShorthandType::FallThrough);
 }
 
-SharedPtr<Filter> FilterBlurInstancer::InstanceFilter(const String& /*name*/, const PropertyDictionary& properties)
+SharedPtr<Filter> FilterBlurInstancer::InstanceFilter(CoreInstance& in_core_instance, const String& /*name*/, const PropertyDictionary& properties)
 {
 	const Property* p_radius = properties.GetProperty(ids.sigma);
 	if (!p_radius)
 		return nullptr;
 
-	auto decorator = MakeShared<FilterBlur>();
-	if (decorator->Initialise(p_radius->GetNumericValue()))
+	auto decorator = MakeShared<FilterBlur>(in_core_instance);
+	if (decorator->Initialise(p_radius->GetNumericValue(in_core_instance)))
 		return decorator;
 
 	return nullptr;

@@ -40,7 +40,7 @@ UniquePtr<LayoutBox> ReplacedFormattingContext::Format(ContainerBox* parent_cont
 	RMLUI_ASSERT(element->IsReplaced());
 
 	// Replaced elements provide their own rendering, we just set their box here and notify them that the element has been sized.
-	auto replaced_box = MakeUnique<ReplacedBox>(element);
+	UniquePtr<ReplacedBox> replaced_box(ReplacedBox::Create<ReplacedBox>(element->GetCoreInstance(), element));
 	Box& box = replaced_box->GetBox();
 	if (override_initial_box)
 		box = *override_initial_box;

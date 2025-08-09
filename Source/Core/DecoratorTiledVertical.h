@@ -64,7 +64,7 @@ private:
 
 class DecoratorTiledVerticalInstancer : public DecoratorTiledInstancer {
 public:
-	DecoratorTiledVerticalInstancer();
+	DecoratorTiledVerticalInstancer(CoreInstance& in_core_instance);
 	~DecoratorTiledVerticalInstancer();
 
 	/// Instances a vertical decorator.

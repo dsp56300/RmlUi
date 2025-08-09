@@ -61,7 +61,7 @@ Element* XMLNodeHandlerBody::ElementStart(XMLParser* parser, const String& /*nam
 	}
 
 	// Check for and apply any template
-	String template_name = Get<String>(attributes, "template", "");
+	String template_name = Get<String>(parser->GetCoreInstance(), attributes, "template", "");
 	if (!template_name.empty())
 	{
 		element = XMLParseTools::ParseTemplate(element, template_name);

@@ -35,6 +35,7 @@
 #include "../../Include/RmlUi/Core/Utilities.h"
 #include "ComputeProperty.h"
 #include "StyleSheetParser.h"
+#include "RmlUi/Core/CoreInstance.h"
 
 namespace Rml {
 
@@ -59,6 +60,8 @@ bool StyleSheetContainer::UpdateCompiledStyleSheet(const Context* context)
 
 	Vector<int> new_active_media_block_indices;
 
+	auto& core_instance = context->GetCoreInstance();
+
 	const float font_size = DefaultComputedValues(context->GetCoreInstance()).font_size();
 
 	for (int media_block_index = 0; media_block_index < (int)media_blocks.size(); media_block_index++)
@@ -75,64 +78,64 @@ bool StyleSheetContainer::UpdateCompiledStyleSheet(const Context* context)
 			switch (id)
 			{
 			case MediaQueryId::Width:
-				if (vp_dimensions.x != ComputeLength(property.second.GetNumericValue(), font_size, font_size, dp_ratio, vp_dimensions))
+				if (vp_dimensions.x != ComputeLength(property.second.GetNumericValue(core_instance), font_size, font_size, dp_ratio, vp_dimensions))
 					all_match = false;
 				break;
 			case MediaQueryId::MinWidth:
-				if (vp_dimensions.x < ComputeLength(property.second.GetNumericValue(), font_size, font_size, dp_ratio, vp_dimensions))
+				if (vp_dimensions.x < ComputeLength(property.second.GetNumericValue(core_instance), font_size, font_size, dp_ratio, vp_dimensions))
 					all_match = false;
 				break;
 			case MediaQueryId::MaxWidth:
-				if (vp_dimensions.x > ComputeLength(property.second.GetNumericValue(), font_size, font_size, dp_ratio, vp_dimensions))
+				if (vp_dimensions.x > ComputeLength(property.second.GetNumericValue(core_instance), font_size, font_size, dp_ratio, vp_dimensions))
 					all_match = false;
 				break;
 			case MediaQueryId::Height:
-				if (vp_dimensions.y != ComputeLength(property.second.GetNumericValue(), font_size, font_size, dp_ratio, vp_dimensions))
+				if (vp_dimensions.y != ComputeLength(property.second.GetNumericValue(core_instance), font_size, font_size, dp_ratio, vp_dimensions))
 					all_match = false;
 				break;
 			case MediaQueryId::MinHeight:
-				if (vp_dimensions.y < ComputeLength(property.second.GetNumericValue(), font_size, font_size, dp_ratio, vp_dimensions))
+				if (vp_dimensions.y < ComputeLength(property.second.GetNumericValue(core_instance), font_size, font_size, dp_ratio, vp_dimensions))
 					all_match = false;
 				break;
 			case MediaQueryId::MaxHeight:
-				if (vp_dimensions.y > ComputeLength(property.second.GetNumericValue(), font_size, font_size, dp_ratio, vp_dimensions))
+				if (vp_dimensions.y > ComputeLength(property.second.GetNumericValue(core_instance), font_size, font_size, dp_ratio, vp_dimensions))
 					all_match = false;
 				break;
 			case MediaQueryId::AspectRatio:
-				ratio = Vector2i(property.second.Get<Vector2f>());
+				ratio = Vector2i(property.second.Get<Vector2f>(core_instance));
 				if (vp_dimensions_i.x * ratio.y != vp_dimensions_i.y * ratio.x)
 					all_match = false;
 				break;
 			case MediaQueryId::MinAspectRatio:
-				ratio = Vector2i(property.second.Get<Vector2f>());
+				ratio = Vector2i(property.second.Get<Vector2f>(core_instance));
 				if (vp_dimensions_i.x * ratio.y < vp_dimensions_i.y * ratio.x)
 					all_match = false;
 				break;
 			case MediaQueryId::MaxAspectRatio:
-				ratio = Vector2i(property.second.Get<Vector2f>());
+				ratio = Vector2i(property.second.Get<Vector2f>(core_instance));
 				if (vp_dimensions_i.x * ratio.y > vp_dimensions_i.y * ratio.x)
 					all_match = false;
 				break;
 			case MediaQueryId::Resolution:
-				if (dp_ratio != property.second.Get<float>())
+				if (dp_ratio != property.second.Get<float>(core_instance))
 					all_match = false;
 				break;
 			case MediaQueryId::MinResolution:
-				if (dp_ratio < property.second.Get<float>())
+				if (dp_ratio < property.second.Get<float>(core_instance))
 					all_match = false;
 				break;
 			case MediaQueryId::MaxResolution:
-				if (dp_ratio > property.second.Get<float>())
+				if (dp_ratio > property.second.Get<float>(core_instance))
 					all_match = false;
 				break;
 			case MediaQueryId::Orientation:
 				// Landscape (x > y) = 0
 				// Portrait (x <= y) = 1
-				if ((vp_dimensions.x <= vp_dimensions.y) != property.second.Get<bool>())
+				if ((vp_dimensions.x <= vp_dimensions.y) != property.second.Get<bool>(core_instance))
 					all_match = false;
 				break;
 			case MediaQueryId::Theme:
-				if (!context->IsThemeActive(property.second.Get<String>()))
+				if (!context->IsThemeActive(property.second.Get<String>(core_instance)))
 					all_match = false;
 				break;
 				// Invalid properties

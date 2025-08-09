@@ -30,6 +30,7 @@
 #define RMLUI_CORE_EVENT_H
 
 #include "Dictionary.h"
+#include "Element.h"
 #include "Header.h"
 #include "ID.h"
 #include "ScriptInterface.h"
@@ -108,7 +109,7 @@ public:
 	template <typename T>
 	T GetParameter(const String& key, const T& default_value) const
 	{
-		return Get(parameters, key, default_value);
+		return Get(GetCoreInstance(), parameters, key, default_value);
 	}
 	/// Access the dictionary of parameters
 	/// @return The dictionary of parameters
@@ -123,6 +124,8 @@ protected:
 
 	Element* target_element = nullptr;
 	Element* current_element = nullptr;
+
+	CoreInstance& GetCoreInstance() const;
 
 private:
 	/// Project the mouse coordinates to the current element to enable

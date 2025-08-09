@@ -75,7 +75,7 @@ private:
 
 class DecoratorTiledBoxInstancer : public DecoratorTiledInstancer {
 public:
-	DecoratorTiledBoxInstancer();
+	DecoratorTiledBoxInstancer(CoreInstance& in_core_instance);
 	~DecoratorTiledBoxInstancer();
 
 	/// Instances a box decorator.

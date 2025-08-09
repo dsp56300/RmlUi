@@ -255,19 +255,19 @@ void DecoratorTiledBox::RenderElement(Element* element, DecoratorDataHandle elem
 		data->geometry[i].Render(translation, GetTexture(i));
 }
 
-DecoratorTiledBoxInstancer::DecoratorTiledBoxInstancer() : DecoratorTiledInstancer(9)
+DecoratorTiledBoxInstancer::DecoratorTiledBoxInstancer(CoreInstance& in_core_instance) : DecoratorTiledInstancer(9)
 {
-	RegisterTileProperty("top-left-image");
-	RegisterTileProperty("top-right-image");
-	RegisterTileProperty("bottom-left-image");
-	RegisterTileProperty("bottom-right-image");
+	RegisterTileProperty(in_core_instance, "top-left-image");
+	RegisterTileProperty(in_core_instance, "top-right-image");
+	RegisterTileProperty(in_core_instance, "bottom-left-image");
+	RegisterTileProperty(in_core_instance, "bottom-right-image");
 
-	RegisterTileProperty("left-image");
-	RegisterTileProperty("right-image");
-	RegisterTileProperty("top-image");
-	RegisterTileProperty("bottom-image");
+	RegisterTileProperty(in_core_instance, "left-image");
+	RegisterTileProperty(in_core_instance, "right-image");
+	RegisterTileProperty(in_core_instance, "top-image");
+	RegisterTileProperty(in_core_instance, "bottom-image");
 
-	RegisterTileProperty("center-image");
+	RegisterTileProperty(in_core_instance, "center-image");
 
 	RegisterShorthand("decorator",
 		"top-left-image, top-image, top-right-image, left-image, center-image, right-image, bottom-left-image, bottom-image, bottom-right-image",

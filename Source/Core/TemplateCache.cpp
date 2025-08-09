@@ -30,52 +30,51 @@
 #include "../../Include/RmlUi/Core/Log.h"
 #include "StreamFile.h"
 #include "Template.h"
+#include "RmlUi/Core/CoreInstance.h"
 
 namespace Rml {
 
-static TemplateCache* instance = nullptr;
-
-TemplateCache::TemplateCache()
+TemplateCache::TemplateCache(CoreInstance& in_core_instance) : core_instance(in_core_instance)
 {
-	RMLUI_ASSERT(instance == nullptr);
-	instance = this;
+	RMLUI_ASSERT(core_instance.template_cache == nullptr);
+	core_instance.template_cache = this;
 }
 
 TemplateCache::~TemplateCache()
 {
-	for (Templates::iterator itr = instance->templates.begin(); itr != instance->templates.end(); ++itr)
+	for (Templates::iterator itr = templates.begin(); itr != templates.end(); ++itr)
 	{
 		delete (*itr).second;
 	}
 
-	instance = nullptr;
+	core_instance.template_cache = nullptr;
 }
 
-bool TemplateCache::Initialise()
+bool TemplateCache::Initialise(CoreInstance& in_core_instance)
 {
-	new TemplateCache();
+	new TemplateCache(in_core_instance);
 
 	return true;
 }
 
-void TemplateCache::Shutdown()
+void TemplateCache::Shutdown(CoreInstance& in_core_instance)
 {
-	delete instance;
+	delete in_core_instance.template_cache;
 }
 
 Template* TemplateCache::LoadTemplate(const String& name)
 {
 	// Check if the template is already loaded
-	Templates::iterator itr = instance->templates.find(name);
-	if (itr != instance->templates.end())
+	Templates::iterator itr = templates.find(name);
+	if (itr != templates.end())
 		return (*itr).second;
 
 	// Nope, we better load it
 	Template* new_template = nullptr;
-	auto stream = MakeUnique<StreamFile>();
+	auto stream = MakeUnique<StreamFile>(core_instance);
 	if (stream->Open(name))
 	{
-		new_template = new Template();
+		new_template = new Template(core_instance);
 		if (!new_template->Load(stream.get()))
 		{
 			Log::Message(Log::LT_ERROR, "Failed to load template %s.", name.c_str());
@@ -90,8 +89,8 @@ Template* TemplateCache::LoadTemplate(const String& name)
 		}
 		else
 		{
-			instance->templates[name] = new_template;
-			instance->template_ids[new_template->GetName()] = new_template;
+			templates[name] = new_template;
+			template_ids[new_template->GetName()] = new_template;
 		}
 	}
 	else
@@ -105,8 +104,8 @@ Template* TemplateCache::LoadTemplate(const String& name)
 Template* TemplateCache::GetTemplate(const String& name)
 {
 	// Check if the template is already loaded
-	Templates::iterator itr = instance->template_ids.find(name);
-	if (itr != instance->template_ids.end())
+	Templates::iterator itr = template_ids.find(name);
+	if (itr != template_ids.end())
 		return (*itr).second;
 
 	return nullptr;
@@ -114,11 +113,11 @@ Template* TemplateCache::GetTemplate(const String& name)
 
 void TemplateCache::Clear()
 {
-	for (Templates::iterator i = instance->templates.begin(); i != instance->templates.end(); ++i)
+	for (Templates::iterator i = templates.begin(); i != templates.end(); ++i)
 		delete (*i).second;
 
-	instance->templates.clear();
-	instance->template_ids.clear();
+	templates.clear();
+	template_ids.clear();
 }
 
 } // namespace Rml

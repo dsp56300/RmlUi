@@ -31,7 +31,7 @@
 
 namespace Rml {
 
-Filter::Filter() {}
+Filter::Filter(CoreInstance& core_instance) : core_instance(core_instance) {}
 
 Filter::~Filter() {}
 

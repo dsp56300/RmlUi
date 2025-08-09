@@ -211,19 +211,21 @@ void DecoratorStraightGradient::RenderElement(Element* element, DecoratorDataHan
 	data->Render(element->GetAbsoluteOffset(BoxArea::Border));
 }
 
-DecoratorStraightGradientInstancer::DecoratorStraightGradientInstancer()
+DecoratorStraightGradientInstancer::DecoratorStraightGradientInstancer(CoreInstance& in_core_instance)
 {
-	ids.direction = RegisterProperty("direction", "horizontal").AddParser("keyword", "horizontal, vertical").GetId();
-	ids.start = RegisterProperty("start-color", "#ffffff").AddParser("color").GetId();
-	ids.stop = RegisterProperty("stop-color", "#ffffff").AddParser("color").GetId();
+	ids.direction = RegisterProperty(in_core_instance, "direction", "horizontal").AddParser("keyword", "horizontal, vertical").GetId();
+	ids.start = RegisterProperty(in_core_instance, "start-color", "#ffffff").AddParser("color").GetId();
+	ids.stop = RegisterProperty(in_core_instance, "stop-color", "#ffffff").AddParser("color").GetId();
 	RegisterShorthand("decorator", "direction, start-color, stop-color", ShorthandType::FallThrough);
 }
 
 DecoratorStraightGradientInstancer::~DecoratorStraightGradientInstancer() {}
 
 SharedPtr<Decorator> DecoratorStraightGradientInstancer::InstanceDecorator(const String& name, const PropertyDictionary& properties_,
-	const DecoratorInstancerInterface& /*interface_*/)
+	const DecoratorInstancerInterface& interface_)
 {
+	auto& core_instance = interface_.GetRenderManager().GetCoreInstance();
+
 	using Direction = DecoratorStraightGradient::Direction;
 	Direction direction;
 	if (name == "horizontal-gradient")
@@ -232,14 +234,14 @@ SharedPtr<Decorator> DecoratorStraightGradientInstancer::InstanceDecorator(const
 		direction = Direction::Vertical;
 	else
 	{
-		direction = (Direction)properties_.GetProperty(ids.direction)->Get<int>();
+		direction = (Direction)properties_.GetProperty(ids.direction)->Get<int>(core_instance);
 		Log::Message(Log::LT_WARNING,
 			"Decorator syntax 'gradient(horizontal|vertical ...)' is deprecated, please replace with 'horizontal-gradient(...)' or "
 			"'vertical-gradient(...)'");
 	}
 
-	Colourb start = properties_.GetProperty(ids.start)->Get<Colourb>();
-	Colourb stop = properties_.GetProperty(ids.stop)->Get<Colourb>();
+	Colourb start = properties_.GetProperty(ids.start)->Get<Colourb>(core_instance);
+	Colourb stop = properties_.GetProperty(ids.stop)->Get<Colourb>(core_instance);
 
 	auto decorator = MakeShared<DecoratorStraightGradient>();
 	if (decorator->Initialise(direction, start, stop))
@@ -348,14 +350,14 @@ DecoratorLinearGradient::LinearGradientShape DecoratorLinearGradient::CalculateS
 	return LinearGradientShape{starting_point, ending_point, length};
 }
 
-DecoratorLinearGradientInstancer::DecoratorLinearGradientInstancer()
+DecoratorLinearGradientInstancer::DecoratorLinearGradientInstancer(CoreInstance& in_core_instance)
 {
-	ids.angle = RegisterProperty("angle", "180deg").AddParser("angle").GetId();
-	ids.direction_to = RegisterProperty("to", "unspecified").AddParser("keyword", "unspecified, to").GetId();
+	ids.angle = RegisterProperty(in_core_instance, "angle", "180deg").AddParser("angle").GetId();
+	ids.direction_to = RegisterProperty(in_core_instance, "to", "unspecified").AddParser("keyword", "unspecified, to").GetId();
 	// See Direction enum for keyword values.
-	ids.direction_x = RegisterProperty("direction-x", "unspecified").AddParser("keyword", "unspecified=0, left=8, right=2").GetId();
-	ids.direction_y = RegisterProperty("direction-y", "unspecified").AddParser("keyword", "unspecified=0, top=1, bottom=4").GetId();
-	ids.color_stop_list = RegisterProperty("color-stops", "").AddParser("color_stop_list").GetId();
+	ids.direction_x = RegisterProperty(in_core_instance, "direction-x", "unspecified").AddParser("keyword", "unspecified=0, left=8, right=2").GetId();
+	ids.direction_y = RegisterProperty(in_core_instance, "direction-y", "unspecified").AddParser("keyword", "unspecified=0, top=1, bottom=4").GetId();
+	ids.color_stop_list = RegisterProperty(in_core_instance, "color-stops", "").AddParser("color_stop_list").GetId();
 
 	RegisterShorthand("direction", "angle, to, direction-x, direction-y, direction-x", ShorthandType::FallThrough);
 	RegisterShorthand("decorator", "direction?, color-stops#", ShorthandType::RecursiveCommaSeparated);
@@ -364,7 +366,7 @@ DecoratorLinearGradientInstancer::DecoratorLinearGradientInstancer()
 DecoratorLinearGradientInstancer::~DecoratorLinearGradientInstancer() {}
 
 SharedPtr<Decorator> DecoratorLinearGradientInstancer::InstanceDecorator(const String& name, const PropertyDictionary& properties_,
-	const DecoratorInstancerInterface& /*interface_*/)
+	const DecoratorInstancerInterface& interface_)
 {
 	const Property* p_angle = properties_.GetProperty(ids.angle);
 	const Property* p_direction_to = properties_.GetProperty(ids.direction_to);
@@ -379,9 +381,11 @@ SharedPtr<Decorator> DecoratorLinearGradientInstancer::InstanceDecorator(const S
 	Corner corner = Corner::None;
 	float angle = 0.f;
 
-	if (p_direction_to->Get<bool>())
+	auto& core_instace = interface_.GetRenderManager().GetCoreInstance();
+
+	if (p_direction_to->Get<bool>(core_instace))
 	{
-		const Direction direction = (Direction)(p_direction_x->Get<int>() | p_direction_y->Get<int>());
+		const Direction direction = (Direction)(p_direction_x->Get<int>(core_instace) | p_direction_y->Get<int>(core_instace));
 		switch (direction)
 		{
 		case Direction::Top: angle = 0.f; break;
@@ -398,7 +402,7 @@ SharedPtr<Decorator> DecoratorLinearGradientInstancer::InstanceDecorator(const S
 	}
 	else
 	{
-		angle = ComputeAngle(p_angle->GetNumericValue());
+		angle = ComputeAngle(p_angle->GetNumericValue(interface_.GetRenderManager().GetCoreInstance()));
 	}
 
 	if (p_color_stop_list->unit != Unit::COLORSTOPLIST)
@@ -542,20 +546,20 @@ DecoratorRadialGradient::RadialGradientShape DecoratorRadialGradient::CalculateR
 	return result;
 }
 
-DecoratorRadialGradientInstancer::DecoratorRadialGradientInstancer()
+DecoratorRadialGradientInstancer::DecoratorRadialGradientInstancer(CoreInstance& in_core_instance)
 {
-	ids.ending_shape = RegisterProperty("ending-shape", "unspecified").AddParser("keyword", "circle, ellipse, unspecified").GetId();
-	ids.size_x = RegisterProperty("size-x", "farthest-corner")
+	ids.ending_shape = RegisterProperty(in_core_instance, "ending-shape", "unspecified").AddParser("keyword", "circle, ellipse, unspecified").GetId();
+	ids.size_x = RegisterProperty(in_core_instance, "size-x", "farthest-corner")
 					 .AddParser("keyword", "closest-side, farthest-side, closest-corner, farthest-corner")
 					 .AddParser("length_percent")
 					 .GetId();
-	ids.size_y = RegisterProperty("size-y", "unspecified").AddParser("keyword", "unspecified").AddParser("length_percent").GetId();
+	ids.size_y = RegisterProperty(in_core_instance, "size-y", "unspecified").AddParser("keyword", "unspecified").AddParser("length_percent").GetId();
 
-	RegisterProperty("at", "unspecified").AddParser("keyword", "at, unspecified");
-	ids.position_x = RegisterProperty("position-x", "center").AddParser("keyword", "left, center, right").AddParser("length_percent").GetId();
-	ids.position_y = RegisterProperty("position-y", "center").AddParser("keyword", "top, center, bottom").AddParser("length_percent").GetId();
+	RegisterProperty(in_core_instance, "at", "unspecified").AddParser("keyword", "at, unspecified");
+	ids.position_x = RegisterProperty(in_core_instance, "position-x", "center").AddParser("keyword", "left, center, right").AddParser("length_percent").GetId();
+	ids.position_y = RegisterProperty(in_core_instance, "position-y", "center").AddParser("keyword", "top, center, bottom").AddParser("length_percent").GetId();
 
-	ids.color_stop_list = RegisterProperty("color-stops", "").AddParser("color_stop_list").GetId();
+	ids.color_stop_list = RegisterProperty(in_core_instance, "color-stops", "").AddParser("color_stop_list").GetId();
 
 	RegisterShorthand("shape", "ending-shape, size-x, size-y, at, position-x, position-y, position-x", ShorthandType::FallThrough);
 
@@ -565,7 +569,7 @@ DecoratorRadialGradientInstancer::DecoratorRadialGradientInstancer()
 DecoratorRadialGradientInstancer::~DecoratorRadialGradientInstancer() {}
 
 SharedPtr<Decorator> DecoratorRadialGradientInstancer::InstanceDecorator(const String& name, const PropertyDictionary& properties_,
-	const DecoratorInstancerInterface& /*interface_*/)
+	const DecoratorInstancerInterface& interface_)
 {
 	const Property* p_ending_shape = properties_.GetProperty(ids.ending_shape);
 	const Property* p_size_x = properties_.GetProperty(ids.size_x);
@@ -579,7 +583,9 @@ SharedPtr<Decorator> DecoratorRadialGradientInstancer::InstanceDecorator(const S
 	using SizeType = DecoratorRadialGradient::SizeType;
 	using Shape = DecoratorRadialGradient::Shape;
 
-	Shape shape = (Shape)p_ending_shape->Get<int>();
+	auto& core_instance = interface_.GetRenderManager().GetCoreInstance();
+
+	Shape shape = (Shape)p_ending_shape->Get<int>(core_instance);
 	if (shape == Shape::Unspecified)
 	{
 		const bool circle_sized = (Any(p_size_x->unit & Unit::LENGTH_PERCENT) && p_size_y->unit == Unit::KEYWORD);
@@ -592,16 +598,16 @@ SharedPtr<Decorator> DecoratorRadialGradientInstancer::InstanceDecorator(const S
 	Vector2Numeric size;
 	if (p_size_x->unit == Unit::KEYWORD)
 	{
-		size_type = (SizeType)p_size_x->Get<int>();
+		size_type = (SizeType)p_size_x->Get<int>(core_instance);
 	}
 	else
 	{
 		size_type = SizeType::LengthPercentage;
-		size.x = p_size_x->GetNumericValue();
-		size.y = (p_size_y->unit == Unit::KEYWORD ? size.x : p_size_y->GetNumericValue());
+		size.x = p_size_x->GetNumericValue(core_instance);
+		size.y = (p_size_y->unit == Unit::KEYWORD ? size.x : p_size_y->GetNumericValue(core_instance));
 	}
 
-	const Vector2Numeric position = ComputePosition(p_position);
+	const Vector2Numeric position = ComputePosition(core_instance, p_position);
 	const bool repeating = (name == "repeating-radial-gradient");
 
 	if (p_color_stop_list->unit != Unit::COLORSTOPLIST)
@@ -680,16 +686,16 @@ void DecoratorConicGradient::RenderElement(Element* element, DecoratorDataHandle
 	element_data->geometry.Render(element->GetAbsoluteOffset(BoxArea::Border), {}, element_data->shader);
 }
 
-DecoratorConicGradientInstancer::DecoratorConicGradientInstancer()
+DecoratorConicGradientInstancer::DecoratorConicGradientInstancer(CoreInstance& in_core_instance)
 {
-	RegisterProperty("from", "from").AddParser("keyword", "from");
-	ids.angle = RegisterProperty("angle", "0deg").AddParser("angle").GetId();
+	RegisterProperty(in_core_instance, "from", "from").AddParser("keyword", "from");
+	ids.angle = RegisterProperty(in_core_instance, "angle", "0deg").AddParser("angle").GetId();
 
-	RegisterProperty("at", "unspecified").AddParser("keyword", "at, unspecified");
-	ids.position_x = RegisterProperty("position-x", "center").AddParser("keyword", "left, center, right").AddParser("length_percent").GetId();
-	ids.position_y = RegisterProperty("position-y", "center").AddParser("keyword", "top, center, bottom").AddParser("length_percent").GetId();
+	RegisterProperty(in_core_instance, "at", "unspecified").AddParser("keyword", "at, unspecified");
+	ids.position_x = RegisterProperty(in_core_instance, "position-x", "center").AddParser("keyword", "left, center, right").AddParser("length_percent").GetId();
+	ids.position_y = RegisterProperty(in_core_instance, "position-y", "center").AddParser("keyword", "top, center, bottom").AddParser("length_percent").GetId();
 
-	ids.color_stop_list = RegisterProperty("color-stops", "").AddParser("color_stop_list", "angle").GetId();
+	ids.color_stop_list = RegisterProperty(in_core_instance, "color-stops", "").AddParser("color_stop_list", "angle").GetId();
 
 	RegisterShorthand("shape", "from, angle, at, position-x, position-y, position-x", ShorthandType::FallThrough);
 	RegisterShorthand("decorator", "shape?, color-stops#", ShorthandType::RecursiveCommaSeparated);
@@ -698,7 +704,7 @@ DecoratorConicGradientInstancer::DecoratorConicGradientInstancer()
 DecoratorConicGradientInstancer::~DecoratorConicGradientInstancer() {}
 
 SharedPtr<Decorator> DecoratorConicGradientInstancer::InstanceDecorator(const String& name, const PropertyDictionary& properties_,
-	const DecoratorInstancerInterface& /*interface_*/)
+	const DecoratorInstancerInterface& interface_)
 {
 	const Property* p_angle = properties_.GetProperty(ids.angle);
 	Array<const Property*, 2> p_position = {properties_.GetProperty(ids.position_x), properties_.GetProperty(ids.position_y)};
@@ -707,8 +713,8 @@ SharedPtr<Decorator> DecoratorConicGradientInstancer::InstanceDecorator(const St
 	if (!p_angle || !p_position[0] || !p_position[1] || !p_color_stop_list)
 		return nullptr;
 
-	const float angle = ComputeAngle(p_angle->GetNumericValue());
-	const Vector2Numeric position = ComputePosition(p_position);
+	const float angle = ComputeAngle(p_angle->GetNumericValue(interface_.GetRenderManager().GetCoreInstance()));
+	const Vector2Numeric position = ComputePosition(interface_.GetRenderManager().GetCoreInstance(), p_position);
 	const bool repeating = (name == "repeating-conic-gradient");
 
 	if (p_color_stop_list->unit != Unit::COLORSTOPLIST)

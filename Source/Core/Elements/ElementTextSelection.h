@@ -46,7 +46,7 @@ class ElementTextSelection : public Element {
 public:
 	RMLUI_RTTI_DefineWithParent(ElementTextSelection, Element)
 
-	ElementTextSelection(const String& tag);
+	ElementTextSelection(CoreInstance& in_core_instance, const String& tag);
 	virtual ~ElementTextSelection();
 
 	/// Set the widget that this selection element was created for. This is the widget that will be

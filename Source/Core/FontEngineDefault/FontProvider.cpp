@@ -38,48 +38,43 @@
 #include "FreeTypeInterface.h"
 #include <algorithm>
 
+#include "RmlUi/Core/CoreInstance.h"
+
 namespace Rml {
 
-static FontProvider* g_font_provider = nullptr;
-
-FontProvider::FontProvider()
+FontProvider::FontProvider(CoreInstance& in_core_instance) : core_instance(in_core_instance)
 {
-	RMLUI_ASSERT(!g_font_provider);
+	RMLUI_ASSERT(!in_core_instance.font_provider);
 }
 
 FontProvider::~FontProvider()
 {
-	RMLUI_ASSERT(g_font_provider == this);
+	RMLUI_ASSERT(core_instance.font_provider == this);
 }
 
-bool FontProvider::Initialise()
+bool FontProvider::Initialise(CoreInstance& in_core_instance)
 {
-	RMLUI_ASSERT(!g_font_provider);
+	RMLUI_ASSERT(!in_core_instance.font_provider);
+	// [DSP56300] TODO: Initialize FreeType only if it has not been initialized yet or move to core instance
 	if (!FreeType::Initialise())
 		return false;
-	g_font_provider = new FontProvider;
+	in_core_instance.font_provider = new FontProvider(in_core_instance);
 	return true;
 }
 
-void FontProvider::Shutdown()
+void FontProvider::Shutdown(CoreInstance& in_core_instance)
 {
-	RMLUI_ASSERT(g_font_provider);
-	delete g_font_provider;
-	g_font_provider = nullptr;
+	RMLUI_ASSERT(in_core_instance.font_provider);
+	delete in_core_instance.font_provider;
+	in_core_instance.font_provider = nullptr;
 	FreeType::Shutdown();
-}
-
-FontProvider& FontProvider::Get()
-{
-	RMLUI_ASSERT(g_font_provider);
-	return *g_font_provider;
 }
 
 FontFaceHandleDefault* FontProvider::GetFontFaceHandle(const String& family, Style::FontStyle style, Style::FontWeight weight, int size)
 {
 	RMLUI_ASSERTMSG(family == StringUtilities::ToLower(family), "Font family name must be converted to lowercase before entering here.");
 
-	FontFamilyMap& families = Get().font_families;
+	FontFamilyMap& families = font_families;
 
 	auto it = families.find(family);
 	if (it == families.end())
@@ -90,12 +85,12 @@ FontFaceHandleDefault* FontProvider::GetFontFaceHandle(const String& family, Sty
 
 int FontProvider::CountFallbackFontFaces()
 {
-	return (int)Get().fallback_font_faces.size();
+	return (int)fallback_font_faces.size();
 }
 
 FontFaceHandleDefault* FontProvider::GetFallbackFontFace(int index, int font_size)
 {
-	auto& faces = FontProvider::Get().fallback_font_faces;
+	auto& faces = fallback_font_faces;
 
 	if (index >= 0 && index < (int)faces.size())
 		return faces[index]->GetHandle(font_size, false);
@@ -105,14 +100,13 @@ FontFaceHandleDefault* FontProvider::GetFallbackFontFace(int index, int font_siz
 
 void FontProvider::ReleaseFontResources()
 {
-	RMLUI_ASSERT(g_font_provider);
-	for (auto& name_family : g_font_provider->font_families)
+	for (auto& name_family : font_families)
 		name_family.second->ReleaseFontResources();
 }
 
 bool FontProvider::LoadFontFace(const String& file_name, int face_index, bool fallback_face, Style::FontWeight weight)
 {
-	FileInterface* file_interface = GetFileInterface();
+	FileInterface* file_interface = GetFileInterface(core_instance);
 	FileHandle handle = file_interface->Open(file_name);
 
 	if (!handle)
@@ -128,7 +122,7 @@ bool FontProvider::LoadFontFace(const String& file_name, int face_index, bool fa
 	file_interface->Read(buffer, length, handle);
 	file_interface->Close(handle);
 
-	bool result = Get().LoadFontFace({buffer, length}, face_index, fallback_face, std::move(buffer_ptr), file_name, {}, Style::FontStyle::Normal, weight);
+	bool result = LoadFontFace({buffer, length}, face_index, fallback_face, std::move(buffer_ptr), file_name, {}, Style::FontStyle::Normal, weight);
 
 	return result;
 }
@@ -138,7 +132,7 @@ bool FontProvider::LoadFontFace(Span<const byte> data, int face_index, const Str
 {
 	const String source = "memory";
 
-	bool result = Get().LoadFontFace(data, face_index, fallback_face, nullptr, source, font_family, style, weight);
+	bool result = LoadFontFace(data, face_index, fallback_face, nullptr, source, font_family, style, weight);
 
 	return result;
 }
@@ -215,7 +209,7 @@ bool FontProvider::LoadFontFace(Span<const byte> data, int face_index, bool fall
 			FreeType::GetFaceStyle(ft_face, nullptr, nullptr, &weight);
 
 		const FontWeight variation_weight = (variation.weight == FontWeight::Auto ? weight : variation.weight);
-		const String font_face_description = GetFontFaceDescription(font_family, style, variation_weight);
+		const String font_face_description = GetFontFaceDescription(core_instance, font_family, style, variation_weight);
 
 		if (!AddFace(ft_face, font_family, style, variation_weight, fallback_face, std::move(face_memory)))
 		{

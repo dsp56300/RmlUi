@@ -109,7 +109,7 @@ bool DataControllerEvent::Initialize(DataModel& model, Element* element, const S
 	expression = MakeUnique<DataExpression>(expression_str);
 	DataExpressionInterface expr_interface(&model, element);
 
-	if (!expression->Parse(expr_interface, true))
+	if (!expression->Parse(element->GetCoreInstance(), expr_interface, true))
 		return false;
 
 	id = EventSpecificationInterface::GetIdOrInsert(modifier);
@@ -134,7 +134,7 @@ void DataControllerEvent::ProcessEvent(Event& event)
 	{
 		DataExpressionInterface expr_interface(element->GetDataModel(), element, &event);
 		Variant unused_value_out;
-		expression->Run(expr_interface, unused_value_out);
+		expression->Run(element->GetCoreInstance(), expr_interface, unused_value_out);
 	}
 }
 

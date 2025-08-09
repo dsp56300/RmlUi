@@ -40,10 +40,11 @@
 #include "PropertyParserColour.h"
 #include "PropertyParserDecorator.h"
 #include "TransformUtilities.h"
+#include "RmlUi/Core/CoreInstance.h"
 
 namespace Rml {
 
-bool TypeConverter<Unit, String>::Convert(const Unit& src, String& dest)
+bool TypeConverter<Unit, String>::Convert(CoreInstance&, const Unit& src, String& dest)
 {
 	switch (src)
 	{
@@ -74,13 +75,13 @@ bool TypeConverter<Unit, String>::Convert(const Unit& src, String& dest)
 	return false;
 }
 
-bool TypeConverter<TransformPtr, TransformPtr>::Convert(const TransformPtr& src, TransformPtr& dest)
+bool TypeConverter<TransformPtr, TransformPtr>::Convert(CoreInstance&, const TransformPtr& src, TransformPtr& dest)
 {
 	dest = src;
 	return true;
 }
 
-bool TypeConverter<TransformPtr, String>::Convert(const TransformPtr& src, String& dest)
+bool TypeConverter<TransformPtr, String>::Convert(CoreInstance& core_instance, const TransformPtr& src, String& dest)
 {
 	if (src)
 	{
@@ -88,7 +89,7 @@ bool TypeConverter<TransformPtr, String>::Convert(const TransformPtr& src, Strin
 		const Transform::PrimitiveList& primitives = src->GetPrimitives();
 		for (size_t i = 0; i < primitives.size(); i++)
 		{
-			dest += TransformUtilities::ToString(primitives[i]);
+			dest += TransformUtilities::ToString(core_instance, primitives[i]);
 			if (i != primitives.size() - 1)
 				dest += ' ';
 		}
@@ -100,13 +101,13 @@ bool TypeConverter<TransformPtr, String>::Convert(const TransformPtr& src, Strin
 	return true;
 }
 
-bool TypeConverter<TransitionList, TransitionList>::Convert(const TransitionList& src, TransitionList& dest)
+bool TypeConverter<TransitionList, TransitionList>::Convert(CoreInstance&, const TransitionList& src, TransitionList& dest)
 {
 	dest = src;
 	return true;
 }
 
-bool TypeConverter<TransitionList, String>::Convert(const TransitionList& src, String& dest)
+bool TypeConverter<TransitionList, String>::Convert(CoreInstance& core_instance, const TransitionList& src, String& dest)
 {
 	if (src.none)
 	{
@@ -117,13 +118,13 @@ bool TypeConverter<TransitionList, String>::Convert(const TransitionList& src, S
 	for (size_t i = 0; i < src.transitions.size(); i++)
 	{
 		const Transition& t = src.transitions[i];
-		dest += StyleSheetSpecification::GetPropertyName(t.id) + ' ';
+		dest += core_instance.styleSheetSpecification->GetPropertyName(t.id) + ' ';
 		dest += t.tween.to_string() + ' ';
-		if (TypeConverter<float, String>::Convert(t.duration, tmp))
+		if (TypeConverter<float, String>::Convert(core_instance, t.duration, tmp))
 			dest += tmp + "s ";
-		if (t.delay > 0.0f && TypeConverter<float, String>::Convert(t.delay, tmp))
+		if (t.delay > 0.0f && TypeConverter<float, String>::Convert(core_instance, t.delay, tmp))
 			dest += tmp + "s ";
-		if (t.reverse_adjustment_factor > 0.0f && TypeConverter<float, String>::Convert(t.reverse_adjustment_factor, tmp))
+		if (t.reverse_adjustment_factor > 0.0f && TypeConverter<float, String>::Convert(core_instance, t.reverse_adjustment_factor, tmp))
 			dest += tmp + ' ';
 		if (dest.size() > 0)
 			dest.resize(dest.size() - 1);
@@ -133,22 +134,22 @@ bool TypeConverter<TransitionList, String>::Convert(const TransitionList& src, S
 	return true;
 }
 
-bool TypeConverter<AnimationList, AnimationList>::Convert(const AnimationList& src, AnimationList& dest)
+bool TypeConverter<AnimationList, AnimationList>::Convert(CoreInstance&, const AnimationList& src, AnimationList& dest)
 {
 	dest = src;
 	return true;
 }
 
-bool TypeConverter<AnimationList, String>::Convert(const AnimationList& src, String& dest)
+bool TypeConverter<AnimationList, String>::Convert(CoreInstance& core_instance, const AnimationList& src, String& dest)
 {
 	String tmp;
 	for (size_t i = 0; i < src.size(); i++)
 	{
 		const Animation& a = src[i];
-		if (TypeConverter<float, String>::Convert(a.duration, tmp))
+		if (TypeConverter<float, String>::Convert(core_instance, a.duration, tmp))
 			dest += tmp + "s ";
 		dest += a.tween.to_string() + " ";
-		if (a.delay > 0.0f && TypeConverter<float, String>::Convert(a.delay, tmp))
+		if (a.delay > 0.0f && TypeConverter<float, String>::Convert(core_instance, a.delay, tmp))
 			dest += tmp + "s ";
 		if (a.alternate)
 			dest += "alternate ";
@@ -156,7 +157,7 @@ bool TypeConverter<AnimationList, String>::Convert(const AnimationList& src, Str
 			dest += "paused ";
 		if (a.num_iterations == -1)
 			dest += "infinite ";
-		else if (TypeConverter<int, String>::Convert(a.num_iterations, tmp))
+		else if (TypeConverter<int, String>::Convert(core_instance, a.num_iterations, tmp))
 			dest += tmp + " ";
 		dest += a.name;
 		if (i != src.size() - 1)
@@ -199,35 +200,35 @@ static bool ConvertEffectToString(const EffectsPtr& src, String& dest, const Str
 	return true;
 }
 
-bool TypeConverter<DecoratorsPtr, DecoratorsPtr>::Convert(const DecoratorsPtr& src, DecoratorsPtr& dest)
+bool TypeConverter<DecoratorsPtr, DecoratorsPtr>::Convert(CoreInstance&, const DecoratorsPtr& src, DecoratorsPtr& dest)
 {
 	dest = src;
 	return true;
 }
 
-bool TypeConverter<DecoratorsPtr, String>::Convert(const DecoratorsPtr& src, String& dest)
+bool TypeConverter<DecoratorsPtr, String>::Convert(CoreInstance&, const DecoratorsPtr& src, String& dest)
 {
 	return ConvertEffectToString(src, dest, ", ");
 }
 
-bool TypeConverter<FiltersPtr, FiltersPtr>::Convert(const FiltersPtr& src, FiltersPtr& dest)
+bool TypeConverter<FiltersPtr, FiltersPtr>::Convert(CoreInstance&, const FiltersPtr& src, FiltersPtr& dest)
 {
 	dest = src;
 	return true;
 }
 
-bool TypeConverter<FiltersPtr, String>::Convert(const FiltersPtr& src, String& dest)
+bool TypeConverter<FiltersPtr, String>::Convert(CoreInstance&, const FiltersPtr& src, String& dest)
 {
 	return ConvertEffectToString(src, dest, " ");
 }
 
-bool TypeConverter<FontEffectsPtr, FontEffectsPtr>::Convert(const FontEffectsPtr& src, FontEffectsPtr& dest)
+bool TypeConverter<FontEffectsPtr, FontEffectsPtr>::Convert(CoreInstance&, const FontEffectsPtr& src, FontEffectsPtr& dest)
 {
 	dest = src;
 	return true;
 }
 
-bool TypeConverter<FontEffectsPtr, String>::Convert(const FontEffectsPtr& src, String& dest)
+bool TypeConverter<FontEffectsPtr, String>::Convert(CoreInstance&, const FontEffectsPtr& src, String& dest)
 {
 	if (!src || src->list.empty())
 		dest = "none";
@@ -236,22 +237,22 @@ bool TypeConverter<FontEffectsPtr, String>::Convert(const FontEffectsPtr& src, S
 	return true;
 }
 
-bool TypeConverter<ColorStopList, ColorStopList>::Convert(const ColorStopList& src, ColorStopList& dest)
+bool TypeConverter<ColorStopList, ColorStopList>::Convert(CoreInstance&, const ColorStopList& src, ColorStopList& dest)
 {
 	dest = src;
 	return true;
 }
 
-bool TypeConverter<ColorStopList, String>::Convert(const ColorStopList& src, String& dest)
+bool TypeConverter<ColorStopList, String>::Convert(CoreInstance& core_instance, const ColorStopList& src, String& dest)
 {
 	dest.clear();
 	for (size_t i = 0; i < src.size(); i++)
 	{
 		const ColorStop& stop = src[i];
-		dest += ToString(stop.color.ToNonPremultiplied());
+		dest += ToString(core_instance, stop.color.ToNonPremultiplied());
 
 		if (Any(stop.position.unit & Unit::NUMBER_LENGTH_PERCENT))
-			dest += " " + ToString(stop.position.number) + ToString(stop.position.unit);
+			dest += " " + ToString(core_instance, stop.position.number) + ToString(core_instance, stop.position.unit);
 
 		if (i < src.size() - 1)
 			dest += ", ";
@@ -259,13 +260,13 @@ bool TypeConverter<ColorStopList, String>::Convert(const ColorStopList& src, Str
 	return true;
 }
 
-bool TypeConverter<BoxShadowList, BoxShadowList>::Convert(const BoxShadowList& src, BoxShadowList& dest)
+bool TypeConverter<BoxShadowList, BoxShadowList>::Convert(CoreInstance&, const BoxShadowList& src, BoxShadowList& dest)
 {
 	dest = src;
 	return true;
 }
 
-bool TypeConverter<BoxShadowList, String>::Convert(const BoxShadowList& src, String& dest)
+bool TypeConverter<BoxShadowList, String>::Convert(CoreInstance& core_instance, const BoxShadowList& src, String& dest)
 {
 	dest.clear();
 	String temp, str_unit;
@@ -274,14 +275,14 @@ bool TypeConverter<BoxShadowList, String>::Convert(const BoxShadowList& src, Str
 		const BoxShadow& shadow = src[i];
 		for (const NumericValue* value : {&shadow.offset_x, &shadow.offset_y, &shadow.blur_radius, &shadow.spread_distance})
 		{
-			if (TypeConverter<Unit, String>::Convert(value->unit, str_unit))
-				temp += " " + ToString(value->number) + str_unit;
+			if (TypeConverter<Unit, String>::Convert(core_instance, value->unit, str_unit))
+				temp += " " + ToString(core_instance, value->number) + str_unit;
 		}
 
 		if (shadow.inset)
 			temp += " inset";
 
-		dest += ToString(shadow.color.ToNonPremultiplied()) + temp;
+		dest += ToString(core_instance, shadow.color.ToNonPremultiplied()) + temp;
 
 		if (i < src.size() - 1)
 		{
@@ -292,7 +293,7 @@ bool TypeConverter<BoxShadowList, String>::Convert(const BoxShadowList& src, Str
 	return true;
 }
 
-bool TypeConverter<Colourb, String>::Convert(const Colourb& src, String& dest)
+bool TypeConverter<Colourb, String>::Convert(CoreInstance&, const Colourb& src, String& dest)
 {
 	if (src.alpha == 255)
 		return FormatString(dest, "#%02hhx%02hhx%02hhx", src.red, src.green, src.blue) > 0;
@@ -300,7 +301,7 @@ bool TypeConverter<Colourb, String>::Convert(const Colourb& src, String& dest)
 		return FormatString(dest, "#%02hhx%02hhx%02hhx%02hhx", src.red, src.green, src.blue, src.alpha) > 0;
 }
 
-bool TypeConverter<String, Colourb>::Convert(const String& src, Colourb& dest)
+bool TypeConverter<String, Colourb>::Convert(CoreInstance&, const String& src, Colourb& dest)
 {
 	return PropertyParserColour::ParseColour(dest, src);
 }

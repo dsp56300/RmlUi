@@ -144,11 +144,11 @@ void DecoratorTiledVertical::RenderElement(Element* element, DecoratorDataHandle
 		data->geometry[i].Render(translation, GetTexture(i));
 }
 
-DecoratorTiledVerticalInstancer::DecoratorTiledVerticalInstancer() : DecoratorTiledInstancer(3)
+DecoratorTiledVerticalInstancer::DecoratorTiledVerticalInstancer(CoreInstance& in_core_instance) : DecoratorTiledInstancer(3)
 {
-	RegisterTileProperty("top-image");
-	RegisterTileProperty("bottom-image");
-	RegisterTileProperty("center-image");
+	RegisterTileProperty(in_core_instance, "top-image");
+	RegisterTileProperty(in_core_instance, "bottom-image");
+	RegisterTileProperty(in_core_instance, "center-image");
 	RegisterShorthand("decorator", "top-image, center-image, bottom-image", ShorthandType::RecursiveCommaSeparated);
 }
 

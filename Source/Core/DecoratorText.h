@@ -69,7 +69,7 @@ private:
 
 class DecoratorTextInstancer : public DecoratorInstancer {
 public:
-	DecoratorTextInstancer();
+	DecoratorTextInstancer(CoreInstance& in_core_instance);
 	~DecoratorTextInstancer();
 
 	SharedPtr<Decorator> InstanceDecorator(const String& name, const PropertyDictionary& properties,

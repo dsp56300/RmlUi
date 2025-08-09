@@ -54,21 +54,23 @@ public:
 	virtual ~FontEffectInstancer();
 
 	/// Instances a font effect given the property tag and attributes from the RCSS file.
+	/// @param[in] in_core_instance The core instance to use for this font effect instancer.
 	/// @param[in] name The type of font effect desired. For example, "font-effect: outline(1px black);" is declared as type "outline".
 	/// @param[in] properties All RCSS properties associated with the font effect.
 	/// @return A shared_ptr to the font-effect if it was instanced successfully.
-	virtual SharedPtr<FontEffect> InstanceFontEffect(const String& name, const PropertyDictionary& properties) = 0;
+	virtual SharedPtr<FontEffect> InstanceFontEffect(CoreInstance& in_core_instance, const String& name, const PropertyDictionary& properties) = 0;
 
 	/// Returns the property specification associated with the instancer.
 	const PropertySpecification& GetPropertySpecification() const;
 
 protected:
 	/// Registers a property for the font effect.
+	/// @param[in] in_core_instance The core instance to use for this font effect instancer.
 	/// @param[in] property_name The name of the new property (how it is specified through RCSS).
 	/// @param[in] default_value The default value to be used.
 	/// @param[in] affects_generation True if this property affects the effect's texture data or glyph size, false if not.
 	/// @return The new property definition, ready to have parsers attached.
-	PropertyDefinition& RegisterProperty(const String& property_name, const String& default_value, bool affects_generation = true);
+	PropertyDefinition& RegisterProperty(CoreInstance& in_core_instance, const String& property_name, const String& default_value, bool affects_generation = true);
 	/// Registers a shorthand property definition.
 	/// @param[in] shorthand_name The name to register the new shorthand property under.
 	/// @param[in] property_names A comma-separated list of the properties this definition is shorthand for. The order

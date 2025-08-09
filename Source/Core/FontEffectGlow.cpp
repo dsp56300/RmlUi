@@ -144,27 +144,27 @@ void FontEffectGlow::GenerateGlyphTexture(byte* destination_data, const Vector2i
 	FillColorValuesFromAlpha(destination_data, destination_dimensions, destination_stride);
 }
 
-FontEffectGlowInstancer::FontEffectGlowInstancer() :
+FontEffectGlowInstancer::FontEffectGlowInstancer(CoreInstance& in_core_instance) :
 	id_width_outline(PropertyId::Invalid), id_width_blur(PropertyId::Invalid), id_color(PropertyId::Invalid)
 {
-	id_width_outline = RegisterProperty("width-outline", "1px", true).AddParser("length").GetId();
-	id_width_blur = RegisterProperty("width-blur", "-1px", true).AddParser("length").GetId();
-	id_offset_x = RegisterProperty("offset-x", "0px", true).AddParser("length").GetId();
-	id_offset_y = RegisterProperty("offset-y", "0px", true).AddParser("length").GetId();
-	id_color = RegisterProperty("color", "white", false).AddParser("color").GetId();
+	id_width_outline = RegisterProperty(in_core_instance, "width-outline", "1px", true).AddParser("length").GetId();
+	id_width_blur = RegisterProperty(in_core_instance, "width-blur", "-1px", true).AddParser("length").GetId();
+	id_offset_x = RegisterProperty(in_core_instance, "offset-x", "0px", true).AddParser("length").GetId();
+	id_offset_y = RegisterProperty(in_core_instance, "offset-y", "0px", true).AddParser("length").GetId();
+	id_color = RegisterProperty(in_core_instance, "color", "white", false).AddParser("color").GetId();
 	RegisterShorthand("font-effect", "width-outline, width-blur, offset-x, offset-y, color", ShorthandType::FallThrough);
 }
 
 FontEffectGlowInstancer::~FontEffectGlowInstancer() {}
 
-SharedPtr<FontEffect> FontEffectGlowInstancer::InstanceFontEffect(const String& /*name*/, const PropertyDictionary& properties)
+SharedPtr<FontEffect> FontEffectGlowInstancer::InstanceFontEffect(CoreInstance& in_core_instance, const String& /*name*/, const PropertyDictionary& properties)
 {
 	Vector2i offset;
-	int width_outline = properties.GetProperty(id_width_outline)->Get<int>();
-	int width_blur = properties.GetProperty(id_width_blur)->Get<int>();
-	offset.x = properties.GetProperty(id_offset_x)->Get<int>();
-	offset.y = properties.GetProperty(id_offset_y)->Get<int>();
-	Colourb color = properties.GetProperty(id_color)->Get<Colourb>();
+	int width_outline = properties.GetProperty(id_width_outline)->Get<int>(in_core_instance);
+	int width_blur = properties.GetProperty(id_width_blur)->Get<int>(in_core_instance);
+	offset.x = properties.GetProperty(id_offset_x)->Get<int>(in_core_instance);
+	offset.y = properties.GetProperty(id_offset_y)->Get<int>(in_core_instance);
+	Colourb color = properties.GetProperty(id_color)->Get<Colourb>(in_core_instance);
 
 	if (width_blur < 0)
 		width_blur = width_outline;

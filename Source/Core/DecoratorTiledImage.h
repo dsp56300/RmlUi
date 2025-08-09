@@ -62,7 +62,7 @@ private:
 
 class DecoratorTiledImageInstancer : public DecoratorTiledInstancer {
 public:
-	DecoratorTiledImageInstancer();
+	DecoratorTiledImageInstancer(CoreInstance& in_core_instance);
 	~DecoratorTiledImageInstancer();
 
 	/// Instances an image decorator.

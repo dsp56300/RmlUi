@@ -35,6 +35,8 @@
 #include "../../Include/RmlUi/Core/Utilities.h"
 #include <algorithm>
 
+#include "RmlUi/Core/CoreInstance.h"
+
 namespace Rml {
 
 PropertyParserFontEffect::PropertyParserFontEffect(CoreInstance& core_instance) : PropertyParser(core_instance) {}
@@ -85,7 +87,7 @@ bool PropertyParserFontEffect::ParseValue(Property& property, const String& font
 			const String type = StringUtilities::StripWhitespace(font_effect_string.substr(0, shorthand_open));
 
 			// Check for valid font-effect type
-			FontEffectInstancer* instancer = Factory::GetFontEffectInstancer(type);
+			FontEffectInstancer* instancer = core_instance.factory.GetFontEffectInstancer(type);
 			if (!instancer)
 			{
 				Log::Message(Log::LT_WARNING, "Font-effect type '%s' not found.", type.c_str());
@@ -111,13 +113,13 @@ bool PropertyParserFontEffect::ParseValue(Property& property, const String& font
 			specification.SetPropertyDefaults(properties);
 
 			RMLUI_ZoneScopedN("InstanceFontEffect");
-			SharedPtr<FontEffect> font_effect = instancer->InstanceFontEffect(type, properties);
+			SharedPtr<FontEffect> font_effect = instancer->InstanceFontEffect(core_instance, type, properties);
 			if (font_effect)
 			{
 				// Create a unique hash value for the given type and values
 				size_t fingerprint = Hash<String>{}(type);
 				for (const auto& id_value : properties.GetProperties())
-					Utilities::HashCombine(fingerprint, id_value.second.Get<String>());
+					Utilities::HashCombine(fingerprint, id_value.second.Get<String>(core_instance));
 
 				font_effect->SetFingerprint(fingerprint);
 

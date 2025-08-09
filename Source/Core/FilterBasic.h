@@ -36,6 +36,10 @@ namespace Rml {
 
 class FilterBasic : public Filter {
 public:
+	FilterBasic(CoreInstance& in_core_instance) : Filter(in_core_instance)
+	{
+	}
+
 	bool Initialise(const String& name, float value);
 
 	CompiledFilter CompileFilter(Element* element) const override;
@@ -49,9 +53,9 @@ class FilterBasicInstancer : public FilterInstancer {
 public:
 	enum class ValueType { NumberPercent, Angle };
 
-	FilterBasicInstancer(ValueType value_type, const char* default_value);
+	FilterBasicInstancer(CoreInstance& in_core_instance, ValueType value_type, const char* default_value);
 
-	SharedPtr<Filter> InstanceFilter(const String& name, const PropertyDictionary& properties) override;
+	SharedPtr<Filter> InstanceFilter(CoreInstance& in_core_instance, const String& name, const PropertyDictionary& properties) override;
 
 private:
 	struct PropertyIds {

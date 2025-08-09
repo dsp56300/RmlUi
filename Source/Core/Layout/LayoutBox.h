@@ -56,9 +56,18 @@ public:
 	// Debug dump layout tree.
 	String DumpLayoutTree(int depth = 0) const { return DebugDumpTree(depth); }
 
-	void* operator new(size_t size);
-	void operator delete(void* chunk, size_t size);
+	static void* AllocateChunk(CoreInstance& coreInstance, size_t size);
 
+	template<typename T, typename... Args> static T* Create(CoreInstance& coreInstance, Args&&... args)
+	{
+		static_assert(std::is_base_of_v<LayoutBox, T>, "must be derived from LayoutBox");
+		void* chunk = AllocateChunk(coreInstance, sizeof(T));
+		T* instance = new (chunk) T(coreInstance, std::forward<Args>(args)...);
+		return instance;
+	}
+
+	void operator delete(void* chunk, size_t size) noexcept;
+	void operator delete(void*, void*) noexcept;
 protected:
 	LayoutBox(CoreInstance& core_instance, Type type) : core_instance(core_instance), type(type) {}
 
@@ -69,6 +78,9 @@ protected:
 	CoreInstance& core_instance;
 
 private:
+	void* operator new(size_t size);
+	void* operator new(std::size_t, void* p) noexcept { return p; }
+
 	Type type;
 
 	// Visible overflow size is the border size of this box, plus any overflowing content. If this is a scroll

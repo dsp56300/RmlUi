@@ -63,7 +63,7 @@ namespace TransformUtilities {
 	// Returns true on success, or false if the matrix is singular.
 	bool Decompose(Transforms::DecomposedMatrix4& decomposed_matrix, const Matrix4f& matrix) noexcept;
 
-	String ToString(const TransformPrimitive& primitive) noexcept;
+	String ToString(CoreInstance& in_core_instance, const TransformPrimitive& primitive) noexcept;
 } // namespace TransformUtilities
 
 } // namespace Rml

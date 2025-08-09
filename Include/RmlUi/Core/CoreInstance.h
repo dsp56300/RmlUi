@@ -13,6 +13,8 @@ font manager, rml plugins, file interface, etc.
 
 namespace Rml
 {
+	class FontProvider;
+	class TemplateCache;
 	struct XmlParserData;
 	struct PluginVectors;
 	struct ElementInstancerPools;
@@ -32,6 +34,9 @@ namespace Rml
 		FileInterface* file_interface = nullptr;
 		FontEngineInterface* font_interface = nullptr;
 		TextInputHandler* text_input_handler = nullptr;
+		StyleSheetSpecification* styleSheetSpecification = nullptr;
+		TemplateCache* template_cache = nullptr;
+		FontProvider* font_provider = nullptr;
 
 		struct CoreData {
 			// Default interfaces should be created and destroyed on Initialise and Shutdown, respectively.
@@ -58,8 +63,6 @@ namespace Rml
 		ControlledLifetimeResource<XmlParserData> xml_parser_data;
 
 		Factory factory;
-
-		StyleSheetSpecification* styleSheetSpecification = nullptr;
 
 		bool initialised = false;
 	};

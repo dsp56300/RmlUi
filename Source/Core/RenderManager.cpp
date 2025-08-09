@@ -35,7 +35,7 @@
 
 namespace Rml {
 
-RenderManager::RenderManager(RenderInterface* render_interface) : render_interface(render_interface), texture_database(MakeUnique<TextureDatabase>())
+RenderManager::RenderManager(CoreInstance& core_instance, RenderInterface* render_interface) : core_instance(core_instance), render_interface(render_interface), texture_database(MakeUnique<TextureDatabase>())
 {
 	RMLUI_ASSERT(render_interface);
 
@@ -102,7 +102,7 @@ Texture RenderManager::LoadTexture(const String& source, const String& document_
 	if (source.size() > 0 && source[0] == '?')
 		path = source;
 	else
-		GetSystemInterface()->JoinPath(path, StringUtilities::Replace(document_path, '|', ':'), source);
+		GetSystemInterface(core_instance)->JoinPath(path, StringUtilities::Replace(document_path, '|', ':'), source);
 
 	return Texture(this, texture_database->file_database.InsertTexture(path));
 }

@@ -36,6 +36,8 @@
 #include <ctype.h>
 #include <string.h>
 
+#include "RmlUi/Core/CoreInstance.h"
+
 namespace Rml {
 
 const char* XMLParseTools::FindTag(const char* tag, const char* string, bool closing_tag)
@@ -140,7 +142,7 @@ bool XMLParseTools::ReadAttribute(const char*& string, String& name, String& val
 Element* XMLParseTools::ParseTemplate(Element* element, const String& template_name)
 {
 	// Load the template, and parse it
-	Template* parse_template = TemplateCache::GetTemplate(template_name);
+	Template* parse_template = element->GetCoreInstance().template_cache->GetTemplate(template_name);
 	if (!parse_template)
 	{
 		Log::ParseError(element->GetOwnerDocument()->GetSourceURL(), -1, "Failed to find template '%s'.", template_name.c_str());

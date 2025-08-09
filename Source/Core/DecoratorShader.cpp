@@ -92,22 +92,22 @@ void DecoratorShader::RenderElement(Element* element, DecoratorDataHandle handle
 	element_data->geometry.Render(element->GetAbsoluteOffset(BoxArea::Border), {}, element_data->shader);
 }
 
-DecoratorShaderInstancer::DecoratorShaderInstancer()
+DecoratorShaderInstancer::DecoratorShaderInstancer(CoreInstance& in_core_instance)
 {
-	ids.value = RegisterProperty("value", String()).AddParser("string").GetId();
+	ids.value = RegisterProperty(in_core_instance, "value", String()).AddParser("string").GetId();
 	RegisterShorthand("decorator", "value", ShorthandType::FallThrough);
 }
 
 DecoratorShaderInstancer::~DecoratorShaderInstancer() {}
 
 SharedPtr<Decorator> DecoratorShaderInstancer::InstanceDecorator(const String& /*name*/, const PropertyDictionary& properties_,
-	const DecoratorInstancerInterface& /*interface_*/)
+	const DecoratorInstancerInterface& interface_)
 {
 	const Property* p_value = properties_.GetProperty(ids.value);
 	if (!p_value)
 		return nullptr;
 
-	String value = p_value->Get<String>();
+	String value = p_value->Get<String>(interface_.GetRenderManager().GetCoreInstance());
 
 	auto decorator = MakeShared<DecoratorShader>();
 	if (decorator->Initialise(std::move(value)))

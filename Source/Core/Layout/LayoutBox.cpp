@@ -45,10 +45,16 @@ float LayoutBox::GetShrinkToFitWidth() const
 {
 	return 0.f;
 }
-void* LayoutBox::operator new(size_t size)
+
+void* LayoutBox::AllocateChunk(CoreInstance& coreInstance, size_t size)
 {
-	void* memory = LayoutPools::AllocateLayoutChunk(size);
-	return memory;
+	return LayoutPools::AllocateLayoutChunk(coreInstance, size);
+}
+
+void* LayoutBox::operator new(size_t)
+{
+	RMLUI_ASSERT(false);
+	return nullptr;
 }
 
 void LayoutBox::operator delete(void* chunk, size_t size)
@@ -56,4 +62,8 @@ void LayoutBox::operator delete(void* chunk, size_t size)
 	LayoutPools::DeallocateLayoutChunk(static_cast<LayoutBox*>(chunk)->core_instance, chunk, size);
 }
 
+void LayoutBox::operator delete(void*, void*) noexcept
+{
+	RMLUI_ASSERT(false);
+}
 } // namespace Rml

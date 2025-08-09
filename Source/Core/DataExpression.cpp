@@ -114,8 +114,8 @@ namespace Parse {
 
 class DataParser {
 public:
-	DataParser(String expression, DataExpressionInterface expression_interface) :
-		expression(std::move(expression)), expression_interface(expression_interface)
+	DataParser(CoreInstance& core_instance, String expression, DataExpressionInterface expression_interface) :
+		core_instance(core_instance), expression(std::move(expression)), expression_interface(expression_interface)
 	{}
 
 	char Look()
@@ -279,6 +279,8 @@ public:
 		return true;
 	}
 
+	CoreInstance& GetCoreInstance() const { return core_instance; }
+
 private:
 	void VariableGetSet(const String& name, bool is_assignment)
 	{
@@ -293,6 +295,7 @@ private:
 		program.push_back(InstructionData{is_assignment ? Instruction::Assign : Instruction::Variable, Variant(int(index))});
 	}
 
+	CoreInstance& core_instance;
 	const String expression;
 	DataExpressionInterface expression_interface;
 
@@ -590,7 +593,7 @@ namespace Parse {
 		if (str.empty())
 			return;
 
-		const double number = FromString(str, 0.0);
+		const double number = FromString(parser.GetCoreInstance(), str, 0.0);
 
 		parser.Emit(Instruction::Literal, Variant(number));
 	}
@@ -909,12 +912,12 @@ namespace Parse {
 
 } // namespace Parse
 
-static String DumpProgram(const Program& program)
+static String DumpProgram(CoreInstance& core_instance, const Program& program)
 {
 	String str;
 	for (size_t i = 0; i < program.size(); i++)
 	{
-		String instruction_str = program[i].data.Get<String>();
+		String instruction_str = program[i].data.Get<String>(core_instance);
 		str += CreateString("  %4zu  '%c'  %s\n", i, char(program[i].instruction), instruction_str.c_str());
 	}
 	return str;
@@ -933,14 +936,14 @@ public:
 		return false;
 	}
 
-	bool Run()
+	bool Run(CoreInstance& core_instance)
 	{
 		bool success = true;
 		size_t i = 0;
 		while (i < program.size())
 		{
 			size_t next_instruction = i + 1;
-			if (!Execute(program[i].instruction, program[i].data, next_instruction))
+			if (!Execute(core_instance, program[i].instruction, program[i].data, next_instruction))
 			{
 				success = false;
 				break;
@@ -954,7 +957,7 @@ public:
 
 		if (!success)
 		{
-			String program_str = DumpProgram(program);
+			String program_str = DumpProgram(core_instance, program);
 			Log::Message(Log::LT_WARNING, "Failed to execute program with %zu instructions:", program.size());
 			Log::Message(Log::LT_WARNING, "%s", program_str.c_str());
 		}
@@ -972,7 +975,7 @@ private:
 	const AddressList& addresses;
 	DataExpressionInterface expression_interface;
 
-	bool Execute(const Instruction instruction, const Variant& data, size_t& next_instruction)
+	bool Execute(CoreInstance& core_instance, const Instruction instruction, const Variant& data, size_t& next_instruction)
 	{
 		auto AnyString = [](const Variant& v1, const Variant& v2) { return v1.GetType() == Variant::STRING || v2.GetType() == Variant::STRING; };
 
@@ -989,7 +992,7 @@ private:
 			if (stack.empty())
 				return Error("Cannot pop stack, it is empty.");
 
-			Register reg = Register(data.Get<int>(-1));
+			Register reg = Register(data.Get<int>(core_instance, - 1));
 			switch (reg)
 			{
 				// clang-format off
@@ -1007,7 +1010,7 @@ private:
 		break;
 		case Instruction::DynamicVariable:
 		{
-			auto str = R.Get<String>();
+			auto str = R.Get<String>(core_instance);
 			auto address = expression_interface.ParseAddress(str);
 			if (address.empty())
 				return Error("Variable address not found.");
@@ -1016,7 +1019,7 @@ private:
 		break;
 		case Instruction::Variable:
 		{
-			size_t variable_index = size_t(data.Get<int>(-1));
+			size_t variable_index = size_t(data.Get<int>(core_instance, -1));
 			if (variable_index < addresses.size())
 				R = expression_interface.GetValue(addresses[variable_index]);
 			else
@@ -1026,42 +1029,42 @@ private:
 		case Instruction::Add:
 		{
 			if (AnyString(L, R))
-				R = Variant(L.Get<String>() + R.Get<String>());
+				R = Variant(L.Get<String>(core_instance) + R.Get<String>(core_instance));
 			else
-				R = Variant(L.Get<double>() + R.Get<double>());
+				R = Variant(L.Get<double>(core_instance) + R.Get<double>(core_instance));
 		}
 		break;
 			// clang-format off
-		case Instruction::Subtract:  R = Variant(L.Get<double>() - R.Get<double>());  break;
-		case Instruction::Multiply:  R = Variant(L.Get<double>() * R.Get<double>());  break;
-		case Instruction::Divide:    R = Variant(L.Get<double>() / R.Get<double>());  break;
-		case Instruction::Not:       R = Variant(!R.Get<bool>());                     break;
-		case Instruction::And:       R = Variant(L.Get<bool>() && R.Get<bool>());     break;
-		case Instruction::Or:        R = Variant(L.Get<bool>() || R.Get<bool>());     break;
-		case Instruction::Less:      R = Variant(L.Get<double>() < R.Get<double>());  break;
-		case Instruction::LessEq:    R = Variant(L.Get<double>() <= R.Get<double>()); break;
-		case Instruction::Greater:   R = Variant(L.Get<double>() > R.Get<double>());  break;
-		case Instruction::GreaterEq: R = Variant(L.Get<double>() >= R.Get<double>()); break;
+		case Instruction::Subtract:  R = Variant(L.Get<double>(core_instance) - R.Get<double>(core_instance));  break;
+		case Instruction::Multiply:  R = Variant(L.Get<double>(core_instance) * R.Get<double>(core_instance));  break;
+		case Instruction::Divide:    R = Variant(L.Get<double>(core_instance) / R.Get<double>(core_instance));  break;
+		case Instruction::Not:       R = Variant(!R.Get<bool>(core_instance));                     break;
+		case Instruction::And:       R = Variant(L.Get<bool>(core_instance) && R.Get<bool>(core_instance));     break;
+		case Instruction::Or:        R = Variant(L.Get<bool>(core_instance) || R.Get<bool>(core_instance));     break;
+		case Instruction::Less:      R = Variant(L.Get<double>(core_instance) < R.Get<double>(core_instance));  break;
+		case Instruction::LessEq:    R = Variant(L.Get<double>(core_instance) <= R.Get<double>(core_instance)); break;
+		case Instruction::Greater:   R = Variant(L.Get<double>(core_instance) > R.Get<double>(core_instance));  break;
+		case Instruction::GreaterEq: R = Variant(L.Get<double>(core_instance) >= R.Get<double>(core_instance)); break;
 			// clang-format on
 		case Instruction::Equal:
 		{
 			if (AnyString(L, R))
-				R = Variant(L.Get<String>() == R.Get<String>());
+				R = Variant(L.Get<String>(core_instance) == R.Get<String>(core_instance));
 			else
-				R = Variant(L.Get<double>() == R.Get<double>());
+				R = Variant(L.Get<double>(core_instance) == R.Get<double>(core_instance));
 		}
 		break;
 		case Instruction::NotEqual:
 		{
 			if (AnyString(L, R))
-				R = Variant(L.Get<String>() != R.Get<String>());
+				R = Variant(L.Get<String>(core_instance) != R.Get<String>(core_instance));
 			else
-				R = Variant(L.Get<double>() != R.Get<double>());
+				R = Variant(L.Get<double>(core_instance) != R.Get<double>(core_instance));
 		}
 		break;
 		case Instruction::NumArguments:
 		{
-			const int num_arguments = data.Get<int>(-1);
+			const int num_arguments = data.Get<int>(core_instance, -1);
 			R = num_arguments;
 		}
 		break;
@@ -1069,10 +1072,10 @@ private:
 		case Instruction::EventFnc:
 		{
 			Vector<Variant> arguments;
-			if (!ExtractArgumentsFromStack(arguments))
+			if (!ExtractArgumentsFromStack(core_instance, arguments))
 				return false;
 
-			const String function_name = data.Get<String>();
+			const String function_name = data.Get<String>(core_instance);
 			const bool result = (instruction == Instruction::TransformFnc ? expression_interface.CallTransform(function_name, arguments, R)
 																		  : expression_interface.EventCallback(function_name, arguments));
 			if (!result)
@@ -1080,7 +1083,7 @@ private:
 				String arguments_str;
 				for (size_t i = 0; i < arguments.size(); i++)
 				{
-					arguments_str += arguments[i].Get<String>();
+					arguments_str += arguments[i].Get<String>(core_instance);
 					if (i < arguments.size() - 1)
 						arguments_str += ", ";
 				}
@@ -1092,7 +1095,7 @@ private:
 		break;
 		case Instruction::Assign:
 		{
-			size_t variable_index = size_t(data.Get<int>(-1));
+			size_t variable_index = size_t(data.Get<int>(core_instance, -1));
 			if (variable_index < addresses.size())
 			{
 				if (!expression_interface.SetValue(addresses[variable_index], R))
@@ -1105,7 +1108,7 @@ private:
 		case Instruction::CastToInt:
 		{
 			int tmp;
-			if (!R.GetInto(tmp))
+			if (!R.GetInto(core_instance, tmp))
 				return Error("Could not cast value to int.");
 			else
 				R = tmp;
@@ -1113,13 +1116,13 @@ private:
 		break;
 		case Instruction::JumpIfZero:
 		{
-			if (!R.Get<bool>())
-				next_instruction = data.Get<size_t>(0);
+			if (!R.Get<bool>(core_instance))
+				next_instruction = data.Get<size_t>(core_instance, 0);
 		}
 		break;
 		case Instruction::Jump:
 		{
-			next_instruction = data.Get<size_t>(0);
+			next_instruction = data.Get<size_t>(core_instance, 0);
 		}
 		break;
 		default: RMLUI_ERRORMSG("Instruction not implemented."); break;
@@ -1127,9 +1130,9 @@ private:
 		return true;
 	}
 
-	bool ExtractArgumentsFromStack(Vector<Variant>& out_arguments)
+	bool ExtractArgumentsFromStack(CoreInstance& core_instance, Vector<Variant>& out_arguments)
 	{
-		int num_arguments = R.Get<int>(-1);
+		int num_arguments = R.Get<int>(core_instance, -1);
 		if (num_arguments < 0)
 			return Error("Invalid number of arguments.");
 		if (stack.size() < size_t(num_arguments))
@@ -1147,9 +1150,9 @@ DataExpression::DataExpression(String expression) : expression(std::move(express
 
 DataExpression::~DataExpression() {}
 
-bool DataExpression::Parse(const DataExpressionInterface& expression_interface, bool is_assignment_expression)
+bool DataExpression::Parse(CoreInstance& core_instance, const DataExpressionInterface& expression_interface, bool is_assignment_expression)
 {
-	DataParser parser(expression, expression_interface);
+	DataParser parser(core_instance, expression, expression_interface);
 	if (!parser.Parse(is_assignment_expression))
 		return false;
 
@@ -1159,11 +1162,11 @@ bool DataExpression::Parse(const DataExpressionInterface& expression_interface, 
 	return true;
 }
 
-bool DataExpression::Run(const DataExpressionInterface& expression_interface, Variant& out_value)
+bool DataExpression::Run(CoreInstance& core_instance, const DataExpressionInterface& expression_interface, Variant& out_value)
 {
 	DataInterpreter interpreter(program, addresses, expression_interface);
 
-	if (!interpreter.Run())
+	if (!interpreter.Run(core_instance))
 		return false;
 
 	out_value = interpreter.Result();

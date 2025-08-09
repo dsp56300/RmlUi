@@ -53,9 +53,9 @@ enum class DefaultActionPhase;
  */
 
 /// Initialises RmlUi.
-RMLUICORE_API bool Initialise(CoreInstance& core_instance);
+RMLUICORE_API bool Initialise(CoreInstance& in_core_instance);
 /// Shutdown RmlUi.
-RMLUICORE_API void Shutdown(CoreInstance& core_instance);
+RMLUICORE_API void Shutdown(CoreInstance& in_core_instance);
 
 /// Returns the version of this RmlUi library.
 /// @return The version number.

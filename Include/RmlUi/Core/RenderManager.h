@@ -73,7 +73,7 @@ struct RenderState {
  */
 class RMLUICORE_API RenderManager : NonCopyMoveable {
 public:
-	RenderManager(RenderInterface* render_interface);
+	RenderManager(CoreInstance& core_instance, RenderInterface* render_interface);
 	~RenderManager();
 
 	void PrepareRender(Vector2i dimensions);
@@ -113,6 +113,8 @@ public:
 
 	CompiledFilter SaveLayerAsMaskImage();
 
+	CoreInstance& GetCoreInstance() const { return core_instance; }
+
 private:
 	void ApplyClipMask(const ClipMaskGeometryList& clip_elements);
 
@@ -136,6 +138,8 @@ private:
 		Mesh mesh;
 		CompiledGeometryHandle handle = {};
 	};
+
+	CoreInstance& core_instance;
 
 	RenderInterface* render_interface = nullptr;
 

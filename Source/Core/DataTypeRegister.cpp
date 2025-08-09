@@ -32,29 +32,29 @@
 
 namespace Rml {
 
-DataTypeRegister::DataTypeRegister()
+DataTypeRegister::DataTypeRegister(CoreInstance& core_instance) : core_instance(core_instance)
 {
 	// Add default transform functions.
 
-	transform_register.Register("to_lower", [](const VariantList& arguments) -> Variant {
+	transform_register.Register("to_lower", [&core_instance](const VariantList& arguments) -> Variant {
 		if (arguments.size() != 1)
 			return {};
 		String value;
-		if (!arguments[0].GetInto(value))
+		if (!arguments[0].GetInto(core_instance, value))
 			return {};
 		return Variant(StringUtilities::ToLower(std::move(value)));
 	});
 
-	transform_register.Register("to_upper", [](const VariantList& arguments) -> Variant {
+	transform_register.Register("to_upper", [&core_instance](const VariantList& arguments) -> Variant {
 		if (arguments.size() != 1)
 			return {};
 		String value;
-		if (!arguments[0].GetInto(value))
+		if (!arguments[0].GetInto(core_instance, value))
 			return {};
 		return Variant(StringUtilities::ToUpper(value));
 	});
 
-	transform_register.Register("format", [](const VariantList& arguments) -> Variant {
+	transform_register.Register("format", [&core_instance](const VariantList& arguments) -> Variant {
 		// Arguments in:
 		//   0 : number     Number to format.
 		//   1 : int[0,32]  Precision. Number of digits after the decimal point.
@@ -65,7 +65,7 @@ DataTypeRegister::DataTypeRegister()
 			return {};
 		}
 		int precision = 0;
-		if (!arguments[1].GetInto(precision) || precision < 0 || precision > 32)
+		if (!arguments[1].GetInto(core_instance, precision) || precision < 0 || precision > 32)
 		{
 			Log::Message(Log::LT_WARNING, "Transform function 'format': Second argument must be an integer in [0, 32].");
 			return {};
@@ -73,15 +73,15 @@ DataTypeRegister::DataTypeRegister()
 		bool remove_trailing_zeros = false;
 		if (arguments.size() >= 3)
 		{
-			if (!arguments[2].GetInto(remove_trailing_zeros))
+			if (!arguments[2].GetInto(core_instance, remove_trailing_zeros))
 				return {};
 		}
 
 		double value = 0;
-		if (!arguments[0].GetInto(value))
+		if (!arguments[0].GetInto(core_instance, value))
 			return {};
 
-		String format_specifier = String(remove_trailing_zeros ? "%#." : "%.") + ToString(precision) + 'f';
+		String format_specifier = String(remove_trailing_zeros ? "%#." : "%.") + ToString(core_instance, precision) + 'f';
 		String result;
 		if (FormatString(result, format_specifier.c_str(), value) == 0)
 			return {};
@@ -92,11 +92,11 @@ DataTypeRegister::DataTypeRegister()
 		return Variant(std::move(result));
 	});
 
-	transform_register.Register("round", [](const VariantList& arguments) -> Variant {
+	transform_register.Register("round", [&core_instance](const VariantList& arguments) -> Variant {
 		if (arguments.size() != 1)
 			return {};
 		double value;
-		if (!arguments[0].GetInto(value))
+		if (!arguments[0].GetInto(core_instance, value))
 			return {};
 		return Variant(Math::Round(value));
 	});

@@ -67,10 +67,10 @@ private:
 
 class FontEffectOutlineInstancer : public FontEffectInstancer {
 public:
-	FontEffectOutlineInstancer();
+	FontEffectOutlineInstancer(CoreInstance& in_core_instance);
 	virtual ~FontEffectOutlineInstancer();
 
-	SharedPtr<FontEffect> InstanceFontEffect(const String& name, const PropertyDictionary& properties) override;
+	SharedPtr<FontEffect> InstanceFontEffect(CoreInstance& in_core_instance, const String& name, const PropertyDictionary& properties) override;
 
 private:
 	PropertyId id_width, id_color;

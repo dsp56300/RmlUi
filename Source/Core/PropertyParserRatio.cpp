@@ -45,14 +45,14 @@ bool PropertyParserRatio::ParseValue(Property& property, const String& value, co
 	}
 
 	float first_value = 0;
-	if (!TypeConverter<String, float>::Convert(parts[0], first_value))
+	if (!TypeConverter<String, float>::Convert(core_instance, parts[0], first_value))
 	{
 		// Number conversion failed
 		return false;
 	}
 
 	float second_value = 0;
-	if (!TypeConverter<String, float>::Convert(parts[1], second_value))
+	if (!TypeConverter<String, float>::Convert(core_instance, parts[1], second_value))
 	{
 		// Number conversion failed
 		return false;

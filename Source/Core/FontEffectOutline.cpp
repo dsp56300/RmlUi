@@ -97,19 +97,19 @@ void FontEffectOutline::GenerateGlyphTexture(byte* destination_data, const Vecto
 	FillColorValuesFromAlpha(destination_data, destination_dimensions, destination_stride);
 }
 
-FontEffectOutlineInstancer::FontEffectOutlineInstancer() : id_width(PropertyId::Invalid), id_color(PropertyId::Invalid)
+FontEffectOutlineInstancer::FontEffectOutlineInstancer(CoreInstance& in_core_instance) : id_width(PropertyId::Invalid), id_color(PropertyId::Invalid)
 {
-	id_width = RegisterProperty("width", "1px", true).AddParser("length").GetId();
-	id_color = RegisterProperty("color", "white", false).AddParser("color").GetId();
+	id_width = RegisterProperty(in_core_instance, "width", "1px", true).AddParser("length").GetId();
+	id_color = RegisterProperty(in_core_instance, "color", "white", false).AddParser("color").GetId();
 	RegisterShorthand("font-effect", "width, color", ShorthandType::FallThrough);
 }
 
 FontEffectOutlineInstancer::~FontEffectOutlineInstancer() {}
 
-SharedPtr<FontEffect> FontEffectOutlineInstancer::InstanceFontEffect(const String& /*name*/, const PropertyDictionary& properties)
+SharedPtr<FontEffect> FontEffectOutlineInstancer::InstanceFontEffect(CoreInstance& in_core_instance, const String& /*name*/, const PropertyDictionary& properties)
 {
-	float width = properties.GetProperty(id_width)->Get<float>();
-	Colourb color = properties.GetProperty(id_color)->Get<Colourb>();
+	float width = properties.GetProperty(id_width)->Get<float>(in_core_instance);
+	Colourb color = properties.GetProperty(id_color)->Get<Colourb>(in_core_instance);
 
 	auto font_effect = MakeShared<FontEffectOutline>();
 	if (font_effect->Initialise(int(width)))

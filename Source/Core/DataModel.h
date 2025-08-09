@@ -45,7 +45,7 @@ class FuncDefinition;
 
 class DataModel : NonCopyMoveable {
 public:
-	DataModel(DataTypeRegister* data_type_register = nullptr);
+	DataModel(CoreInstance& in_core_instance, DataTypeRegister* data_type_register = nullptr);
 	~DataModel();
 
 	void AddView(DataViewPtr view);
@@ -82,7 +82,10 @@ public:
 
 	inline DataTypeRegister* GetDataTypeRegister() const { return data_type_register; }
 
+	CoreInstance& GetCoreInstance() const { return core_instance; }
 private:
+	CoreInstance& core_instance;
+
 	UniquePtr<DataViews> views;
 	UniquePtr<DataControllers> controllers;
 

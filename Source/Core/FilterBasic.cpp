@@ -47,30 +47,30 @@ CompiledFilter FilterBasic::CompileFilter(Element* element) const
 	return element->GetRenderManager()->CompileFilter(name, Dictionary{{"value", Variant(value)}});
 }
 
-FilterBasicInstancer::FilterBasicInstancer(ValueType value_type, const char* default_value)
+FilterBasicInstancer::FilterBasicInstancer(CoreInstance& in_core_instance, ValueType value_type, const char* default_value)
 {
 	switch (value_type)
 	{
-	case ValueType::NumberPercent: ids.value = RegisterProperty("value", default_value).AddParser("number_percent").GetId(); break;
-	case ValueType::Angle: ids.value = RegisterProperty("value", default_value).AddParser("angle").GetId(); break;
+	case ValueType::NumberPercent: ids.value = RegisterProperty(in_core_instance, "value", default_value).AddParser("number_percent").GetId(); break;
+	case ValueType::Angle: ids.value = RegisterProperty(in_core_instance, "value", default_value).AddParser("angle").GetId(); break;
 	}
 
 	RegisterShorthand("filter", "value", ShorthandType::FallThrough);
 }
 
-SharedPtr<Filter> FilterBasicInstancer::InstanceFilter(const String& name, const PropertyDictionary& properties)
+SharedPtr<Filter> FilterBasicInstancer::InstanceFilter(CoreInstance& in_core_instance, const String& name, const PropertyDictionary& properties)
 {
 	const Property* p_value = properties.GetProperty(ids.value);
 	if (!p_value)
 		return nullptr;
 
-	float value = p_value->Get<float>();
+	float value = p_value->Get<float>(in_core_instance);
 	if (p_value->unit == Unit::PERCENT)
 		value *= 0.01f;
 	else if (p_value->unit == Unit::DEG)
 		value = Rml::Math::DegreesToRadians(value);
 
-	auto filter = MakeShared<FilterBasic>();
+	auto filter = MakeShared<FilterBasic>(in_core_instance);
 	if (filter->Initialise(name, value))
 		return filter;
 

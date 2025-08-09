@@ -54,7 +54,7 @@ private:
 
 class RMLUICORE_API DataTypeRegister final : NonCopyMoveable {
 public:
-	DataTypeRegister();
+	DataTypeRegister(CoreInstance& core_instance);
 	~DataTypeRegister();
 
 	inline bool RegisterDefinition(FamilyId id, UniquePtr<VariableDefinition> definition)
@@ -141,6 +141,7 @@ private:
 		return definition.get();
 	}
 
+	CoreInstance& core_instance;
 	UnorderedMap<FamilyId, UniquePtr<VariableDefinition>> type_register;
 	TransformFuncRegister transform_register;
 };

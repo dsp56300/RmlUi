@@ -40,9 +40,9 @@ const PropertySpecification& EffectSpecification::GetPropertySpecification() con
 	return properties;
 }
 
-PropertyDefinition& EffectSpecification::RegisterProperty(const String& property_name, const String& default_value)
+PropertyDefinition& EffectSpecification::RegisterProperty(CoreInstance& in_core_instance, const String& property_name, const String& default_value)
 {
-	return properties.RegisterProperty(property_name, default_value, false, false);
+	return properties.RegisterProperty(in_core_instance, property_name, default_value, false, false);
 }
 
 ShorthandId EffectSpecification::RegisterShorthand(const String& shorthand_name, const String& property_names, ShorthandType type)

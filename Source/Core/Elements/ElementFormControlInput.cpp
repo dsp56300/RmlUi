@@ -37,7 +37,7 @@
 
 namespace Rml {
 
-ElementFormControlInput::ElementFormControlInput(const String& tag) : ElementFormControl(tag)
+ElementFormControlInput::ElementFormControlInput(CoreInstance& core_instance, const String& tag) : ElementFormControl(core_instance, tag)
 {
 	// OnAttributeChange will be called right after this, possible with a non-default type. Thus,
 	// creating the default InputTypeText here may result in it being destroyed in just a few moments.
@@ -120,7 +120,7 @@ void ElementFormControlInput::OnAttributeChange(const ElementAttributes& changed
 	auto it_type = changed_attributes.find("type");
 	if (it_type != changed_attributes.end())
 	{
-		new_type_name = it_type->second.Get<String>("text");
+		new_type_name = it_type->second.Get<String>(GetCoreInstance(), "text");
 	}
 
 	if (!type || (!new_type_name.empty() && new_type_name != type_name))

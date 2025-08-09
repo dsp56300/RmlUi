@@ -65,9 +65,9 @@ public:
 	/// script source
 	ResourceList scripts;
 
-	CoreInstance& core_instance;
+	CoreInstance* core_instance;
 
-	DocumentHeader(CoreInstance& core_instance) : core_instance(core_instance) {}
+	DocumentHeader(CoreInstance& core_instance) : core_instance(&core_instance) {}
 
 	/// Merges the specified header with this one
 	/// @param header Header to merge

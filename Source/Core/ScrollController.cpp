@@ -286,7 +286,7 @@ bool ScrollController::HasAutoscrollMoved() const
 float ScrollController::UpdateTime()
 {
 	const double previous_tick = previous_update_time;
-	previous_update_time = GetSystemInterface()->GetElapsedTime();
+	previous_update_time = GetSystemInterface(target->GetCoreInstance())->GetElapsedTime();
 
 	const float dt = float(previous_update_time - previous_tick);
 	return Math::Clamp(dt, DELTA_TIME_CLAMP_LOW, DELTA_TIME_CLAMP_HIGH);

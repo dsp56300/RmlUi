@@ -43,7 +43,7 @@ enum class RelativeTarget { None, ContainingBlockWidth, ContainingBlockHeight, F
 
 class RMLUICORE_API PropertyDefinition final : public NonCopyMoveable {
 public:
-	PropertyDefinition(PropertyId id, const String& default_value, bool inherited, bool forces_layout);
+	PropertyDefinition(CoreInstance& core_instance, PropertyId id, const String& default_value, bool inherited, bool forces_layout);
 	~PropertyDefinition();
 
 	/// Registers a parser to parse values for this definition.
@@ -82,6 +82,7 @@ public:
 	PropertyId GetId() const;
 
 private:
+	CoreInstance& core_instance;
 	PropertyId id;
 
 	Property default_value;

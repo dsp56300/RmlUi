@@ -44,20 +44,22 @@ class Template;
 class TemplateCache {
 public:
 	/// Initialisation and Shutdown
-	static bool Initialise();
-	static void Shutdown();
+	static bool Initialise(CoreInstance& in_core_instance);
+	static void Shutdown(CoreInstance& in_core_instance);
 
 	/// Load the named template from the given path, if its already loaded get the cached copy
-	static Template* LoadTemplate(const String& path);
+	Template* LoadTemplate(const String& path);
 	/// Get the template by id
-	static Template* GetTemplate(const String& id);
+	Template* GetTemplate(const String& id);
 
 	/// Clear the template cache.
-	static void Clear();
+	void Clear();
 
 private:
-	TemplateCache();
+	TemplateCache(CoreInstance& in_core_instance);
 	~TemplateCache();
+
+	CoreInstance& core_instance;
 
 	using Templates = UnorderedMap<String, Template*>;
 	Templates templates;

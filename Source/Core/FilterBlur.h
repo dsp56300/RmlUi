@@ -37,6 +37,10 @@ namespace Rml {
 
 class FilterBlur : public Filter {
 public:
+	FilterBlur(CoreInstance& in_core_instance) : Filter(in_core_instance)
+	{
+	}
+
 	bool Initialise(NumericValue sigma);
 
 	CompiledFilter CompileFilter(Element* element) const override;
@@ -49,9 +53,9 @@ private:
 
 class FilterBlurInstancer : public FilterInstancer {
 public:
-	FilterBlurInstancer();
+	FilterBlurInstancer(CoreInstance& in_core_instance);
 
-	SharedPtr<Filter> InstanceFilter(const String& name, const PropertyDictionary& properties) override;
+	SharedPtr<Filter> InstanceFilter(CoreInstance& in_core_instance, const String& name, const PropertyDictionary& properties) override;
 
 private:
 	struct PropertyIds {

@@ -230,7 +230,7 @@ static Property InterpolateProperties(const Property& p0, const Property& p1, fl
 
 	if (Any(p0.unit & Unit::NUMERIC) && Any(p1.unit & Unit::NUMERIC))
 	{
-		NumericValue v = InterpolateNumericValue(p0.GetNumericValue(), p1.GetNumericValue(), alpha, element, definition);
+		NumericValue v = InterpolateNumericValue(p0.GetNumericValue(element.GetCoreInstance()), p1.GetNumericValue(element.GetCoreInstance()), alpha, element, definition);
 		return Property{v.number, v.unit};
 	}
 
@@ -241,9 +241,9 @@ static Property InterpolateProperties(const Property& p0, const Property& p1, fl
 		//   Apply the visible property if present during the entire transition period, i.e. alpha (0,1).
 		if (definition && definition->GetId() == PropertyId::Visibility)
 		{
-			if (p0.Get<int>() == (int)Style::Visibility::Visible)
+			if (p0.Get<int>(element.GetCoreInstance()) == (int)Style::Visibility::Visible)
 				return alpha < 1.f ? p0 : p1;
-			else if (p1.Get<int>() == (int)Style::Visibility::Visible)
+			else if (p1.Get<int>(element.GetCoreInstance()) == (int)Style::Visibility::Visible)
 				return alpha <= 0.f ? p0 : p1;
 		}
 
@@ -252,7 +252,7 @@ static Property InterpolateProperties(const Property& p0, const Property& p1, fl
 
 	if (p0.unit == Unit::COLOUR && p1.unit == Unit::COLOUR)
 	{
-		Colourb c = InterpolateColour(p0.value.Get<Colourb>(), p1.value.Get<Colourb>(), alpha);
+		Colourb c = InterpolateColour(p0.value.Get<Colourb>(element.GetCoreInstance()), p1.value.Get<Colourb>(element.GetCoreInstance()), alpha);
 		return Property{c, Unit::COLOUR};
 	}
 
@@ -650,7 +650,7 @@ ElementAnimation::ElementAnimation(PropertyId property_id, ElementAnimationOrigi
 	if (!current_value.definition)
 	{
 		Log::Message(Log::LT_WARNING, "Property in animation key did not have a definition (while adding key '%s').",
-			current_value.ToString().c_str());
+			current_value.ToString(element.GetCoreInstance()).c_str());
 	}
 	InternalAddKey(0.0f, current_value, element, Tween{});
 }
@@ -663,7 +663,7 @@ bool ElementAnimation::InternalAddKey(float time, const Property& in_property, E
 	if (!Any(in_property.unit & valid_units))
 	{
 		const char* property_type = (in_property.unit == Unit::BOXSHADOWLIST ? "Box shadows do not" : "Property value does not");
-		Log::Message(Log::LT_WARNING, "%s support animations or transitions. Value: %s", property_type, in_property.ToString().c_str());
+		Log::Message(Log::LT_WARNING, "%s support animations or transitions. Value: %s", property_type, in_property.ToString(element.GetCoreInstance()).c_str());
 		return false;
 	}
 
@@ -686,7 +686,7 @@ bool ElementAnimation::InternalAddKey(float time, const Property& in_property, E
 
 	if (!result)
 	{
-		Log::Message(Log::LT_WARNING, "Could not add animation key with property '%s'.", in_property.ToString().c_str());
+		Log::Message(Log::LT_WARNING, "Could not add animation key with property '%s'.", in_property.ToString(element.GetCoreInstance()).c_str());
 		keys.pop_back();
 	}
 

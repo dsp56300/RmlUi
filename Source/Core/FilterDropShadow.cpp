@@ -72,16 +72,16 @@ void FilterDropShadow::ExtendInkOverflow(Element* element, Rectanglef& scissor_r
 		scissor_region.Extend(Math::Max(-offset, Vector2f(0.f)) + Vector2f(blur_extent), Math::Max(offset, Vector2f(0.f)) + Vector2f(blur_extent));
 }
 
-FilterDropShadowInstancer::FilterDropShadowInstancer()
+FilterDropShadowInstancer::FilterDropShadowInstancer(CoreInstance& in_core_instance)
 {
-	ids.color = RegisterProperty("color", "transparent").AddParser("color").GetId();
-	ids.offset_x = RegisterProperty("offset-x", "0px").AddParser("length").GetId();
-	ids.offset_y = RegisterProperty("offset-y", "0px").AddParser("length").GetId();
-	ids.sigma = RegisterProperty("sigma", "0px").AddParser("length").GetId();
+	ids.color = RegisterProperty(in_core_instance, "color", "transparent").AddParser("color").GetId();
+	ids.offset_x = RegisterProperty(in_core_instance, "offset-x", "0px").AddParser("length").GetId();
+	ids.offset_y = RegisterProperty(in_core_instance, "offset-y", "0px").AddParser("length").GetId();
+	ids.sigma = RegisterProperty(in_core_instance, "sigma", "0px").AddParser("length").GetId();
 	RegisterShorthand("filter", "color, offset-x, offset-y, sigma", ShorthandType::FallThrough);
 }
 
-SharedPtr<Filter> FilterDropShadowInstancer::InstanceFilter(const String& /*name*/, const PropertyDictionary& properties)
+SharedPtr<Filter> FilterDropShadowInstancer::InstanceFilter(CoreInstance& in_core_instance, const String& /*name*/, const PropertyDictionary& properties)
 {
 	const Property* p_color = properties.GetProperty(ids.color);
 	const Property* p_offset_x = properties.GetProperty(ids.offset_x);
@@ -90,8 +90,8 @@ SharedPtr<Filter> FilterDropShadowInstancer::InstanceFilter(const String& /*name
 	if (!p_color || !p_offset_x || !p_offset_y || !p_sigma)
 		return nullptr;
 
-	auto decorator = MakeShared<FilterDropShadow>();
-	if (decorator->Initialise(p_color->Get<Colourb>(), p_offset_x->GetNumericValue(), p_offset_y->GetNumericValue(), p_sigma->GetNumericValue()))
+	auto decorator = MakeShared<FilterDropShadow>(in_core_instance);
+	if (decorator->Initialise(p_color->Get<Colourb>(in_core_instance), p_offset_x->GetNumericValue(in_core_instance), p_offset_y->GetNumericValue(in_core_instance), p_sigma->GetNumericValue(in_core_instance)))
 		return decorator;
 
 	return nullptr;

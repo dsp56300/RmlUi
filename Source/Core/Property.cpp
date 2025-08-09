@@ -37,22 +37,22 @@ Property::Property() : unit(Unit::UNKNOWN), specificity(-1)
 	parser_index = -1;
 }
 
-String Property::ToString() const
+String Property::ToString(CoreInstance& core_instance) const
 {
 	if (!definition)
-		return value.Get<String>() + Rml::ToString(unit);
+		return value.Get<String>(core_instance) + Rml::ToString(core_instance, unit);
 
 	String string;
 	definition->GetValue(string, *this);
 	return string;
 }
 
-NumericValue Property::GetNumericValue() const
+NumericValue Property::GetNumericValue(CoreInstance& core_instance) const
 {
 	NumericValue result;
 	if (Any(unit & Unit::NUMERIC))
 	{
-		if (value.GetInto(result.number))
+		if (value.GetInto(core_instance, result.number))
 			result.unit = unit;
 	}
 	return result;

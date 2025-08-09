@@ -29,11 +29,12 @@
 #include "../../Include/RmlUi/Core/PropertyDefinition.h"
 #include "../../Include/RmlUi/Core/Log.h"
 #include "../../Include/RmlUi/Core/StyleSheetSpecification.h"
+#include "RmlUi/Core/CoreInstance.h"
 
 namespace Rml {
 
-PropertyDefinition::PropertyDefinition(PropertyId id, const String& _default_value, bool _inherited, bool _forces_layout) :
-	id(id), default_value(_default_value, Unit::UNKNOWN), relative_target(RelativeTarget::None)
+PropertyDefinition::PropertyDefinition(CoreInstance& core_instance, PropertyId id, const String& _default_value, bool _inherited, bool _forces_layout) :
+	core_instance(core_instance), id(id), default_value(_default_value, Unit::UNKNOWN), relative_target(RelativeTarget::None)
 {
 	inherited = _inherited;
 	forces_layout = _forces_layout;
@@ -47,7 +48,7 @@ PropertyDefinition& PropertyDefinition::AddParser(const String& parser_name, con
 	ParserState new_parser;
 
 	// Fetch the parser.
-	new_parser.parser = StyleSheetSpecification::GetParser(parser_name);
+	new_parser.parser = core_instance.styleSheetSpecification->GetParser(parser_name);
 	if (new_parser.parser == nullptr)
 	{
 		Log::Message(Log::LT_ERROR, "Property was registered with invalid parser '%s'.", parser_name.c_str());
@@ -67,7 +68,7 @@ PropertyDefinition& PropertyDefinition::AddParser(const String& parser_name, con
 			const size_t i_equal = parameter.find('=');
 			if (i_equal != String::npos)
 			{
-				if (!TypeConverter<String, int>::Convert(parameter.substr(i_equal + 1), parameter_value))
+				if (!TypeConverter<String, int>::Convert(core_instance, parameter.substr(i_equal + 1), parameter_value))
 				{
 					Log::Message(Log::LT_ERROR, "Parser was added with invalid parameter '%s'.", parameter.c_str());
 					return *this;
@@ -85,7 +86,7 @@ PropertyDefinition& PropertyDefinition::AddParser(const String& parser_name, con
 	// If the default value has not been parsed successfully yet, run it through the new parser.
 	if (default_value.unit == Unit::UNKNOWN)
 	{
-		String unparsed_value = default_value.value.Get<String>();
+		String unparsed_value = default_value.value.Get<String>(core_instance);
 		if (new_parser.parser->ParseValue(default_value, unparsed_value, new_parser.parameters))
 		{
 			default_value.parser_index = parser_index;
@@ -118,7 +119,7 @@ bool PropertyDefinition::ParseValue(Property& property, const String& value) con
 
 bool PropertyDefinition::GetValue(String& value, const Property& property) const
 {
-	value = property.value.Get<String>();
+	value = property.value.Get<String>(core_instance);
 
 	switch (property.unit)
 	{
@@ -128,7 +129,7 @@ bool PropertyDefinition::GetValue(String& value, const Property& property) const
 		if (parser_index < 0 || parser_index >= (int)parsers.size())
 		{
 			// Look for the keyword parser in the property's list of parsers
-			const auto* keyword_parser = StyleSheetSpecification::GetParser("keyword");
+			const auto* keyword_parser = core_instance.styleSheetSpecification->GetParser("keyword");
 			for (int i = 0; i < (int)parsers.size(); i++)
 			{
 				if (parsers[i].parser == keyword_parser)
@@ -142,7 +143,7 @@ bool PropertyDefinition::GetValue(String& value, const Property& property) const
 				return false;
 		}
 
-		int keyword = property.value.Get<int>();
+		int keyword = property.value.Get<int>(core_instance);
 		for (const auto& name_keyword : parsers[parser_index].parameters)
 		{
 			if (name_keyword.second == keyword)
@@ -156,7 +157,7 @@ bool PropertyDefinition::GetValue(String& value, const Property& property) const
 	}
 	break;
 
-	default: value += ToString(property.unit); break;
+	default: value += ToString(core_instance, property.unit); break;
 	}
 
 	return true;

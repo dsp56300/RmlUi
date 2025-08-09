@@ -46,6 +46,8 @@
 #include "XMLParseTools.h"
 #include <limits.h>
 
+#include "RmlUi/Core/CoreInstance.h"
+
 namespace Rml {
 
 enum class NavigationSearchDirection { Up, Down, Left, Right };
@@ -201,7 +203,7 @@ void ElementDocument::ProcessHeader(const DocumentHeader* document_header)
 	// Merge in any templates, note a merge may cause more templates to merge
 	for (size_t i = 0; i < header.template_resources.size(); i++)
 	{
-		Template* merge_template = TemplateCache::LoadTemplate(URL(header.template_resources[i]).GetURL());
+		Template* merge_template = GetCoreInstance().template_cache->LoadTemplate(URL(header.template_resources[i]).GetURL());
 
 		if (merge_template)
 			header.MergeHeader(*merge_template->GetHeader());
@@ -802,7 +804,7 @@ Element* ElementDocument::FindNextNavigationElement(Element* current_element, Na
 	case Unit::STRING:
 	{
 		const PropertySource* source = property.source.get();
-		const String value = property.Get<String>();
+		const String value = property.Get<String>(GetCoreInstance());
 		if (value[0] != '#')
 		{
 			Log::Message(Log::LT_WARNING,
@@ -825,7 +827,7 @@ Element* ElementDocument::FindNextNavigationElement(Element* current_element, Na
 	{
 		const bool direction_is_horizontal = (direction == NavigationSearchDirection::Left || direction == NavigationSearchDirection::Right);
 		const bool direction_is_vertical = (direction == NavigationSearchDirection::Up || direction == NavigationSearchDirection::Down);
-		switch (static_cast<Style::Nav>(property.value.Get<int>()))
+		switch (static_cast<Style::Nav>(property.value.Get<int>(GetCoreInstance())))
 		{
 		case Style::Nav::None: return nullptr;
 		case Style::Nav::Auto: break;

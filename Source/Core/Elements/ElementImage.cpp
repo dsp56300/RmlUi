@@ -282,8 +282,8 @@ void ElementImage::UpdateRect()
 			}
 			else
 			{
-				const Vector2f position = {FromString(coords_list[0], 0.f), FromString(coords_list[1], 0.f)};
-				const Vector2f size = {FromString(coords_list[2], 0.f), FromString(coords_list[3], 0.f)};
+				const Vector2f position = {FromString(GetCoreInstance(), coords_list[0], 0.f), FromString(GetCoreInstance(), coords_list[1], 0.f)};
+				const Vector2f size = {FromString(GetCoreInstance(), coords_list[2], 0.f), FromString(GetCoreInstance(), coords_list[3], 0.f)};
 				rect = Rectanglef::FromPositionSize(position, size);
 
 				// We have new, valid coordinates; force the geometry to be regenerated.

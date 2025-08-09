@@ -418,14 +418,14 @@ namespace Style {
 		inline T GetLocalPropertyKeyword(PropertyId id, T default_value) const
 		{
 			if (auto p = element->GetLocalProperty(id))
-				return static_cast<T>(p->Get<int>());
+				return static_cast<T>(p->Get<int>(element->GetCoreInstance()));
 			return default_value;
 		}
 		template <typename T>
 		inline T GetLocalProperty(PropertyId id, T default_value) const
 		{
 			if (auto p = element->GetLocalProperty(id))
-				return p->Get<T>();
+				return p->Get<T>(element->GetCoreInstance());
 			return default_value;
 		}
 

@@ -415,7 +415,7 @@ void WidgetTextInput::UpdateSelectionColours()
 	Colourb colour;
 	const Property* colour_property = selection_element->GetLocalProperty(PropertyId::Color);
 	if (colour_property)
-		colour = colour_property->Get<Colourb>();
+		colour = colour_property->Get<Colourb>(selection_element->GetCoreInstance());
 	else
 	{
 		colour = parent->GetComputedValues().color();
@@ -432,7 +432,7 @@ void WidgetTextInput::UpdateSelectionColours()
 	// colour.
 	colour_property = selection_element->GetLocalProperty(PropertyId::BackgroundColor);
 	if (colour_property)
-		colour = colour_property->Get<Colourb>();
+		colour = colour_property->Get<Colourb>(selection_element->GetCoreInstance());
 	else
 		colour = Colourb(255 - colour.red, 255 - colour.green, 255 - colour.blue, colour.alpha);
 
@@ -1427,7 +1427,7 @@ void WidgetTextInput::GenerateCursor()
 	if (const Property* property = parent->GetProperty(PropertyId::CaretColor))
 	{
 		if (property->unit == Unit::COLOUR)
-			color = property->Get<Colourb>();
+			color = property->Get<Colourb>(parent->GetCoreInstance());
 	}
 
 	Mesh mesh = cursor_geometry.Release(Geometry::ReleaseMode::ClearMesh);

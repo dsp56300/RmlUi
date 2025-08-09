@@ -54,7 +54,7 @@ void DocumentHeader::MergePaths(StringList& target, const StringList& source, co
 	for (size_t i = 0; i < source.size(); i++)
 	{
 		String joined_path;
-		::Rml::GetSystemInterface(core_instance)->JoinPath(joined_path, StringUtilities::Replace(source_path, '|', ':'),
+		::Rml::GetSystemInterface(*core_instance)->JoinPath(joined_path, StringUtilities::Replace(source_path, '|', ':'),
 			StringUtilities::Replace(source[i], '|', ':'));
 
 		target.push_back(StringUtilities::Replace(joined_path, ':', '|'));

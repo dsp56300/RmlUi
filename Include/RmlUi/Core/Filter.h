@@ -44,7 +44,7 @@ class CompiledFilter;
  */
 class RMLUICORE_API Filter {
 public:
-	Filter();
+	Filter(CoreInstance& core_instance);
 	virtual ~Filter();
 
 	/// Called to compile the filter for a given element.
@@ -58,6 +58,8 @@ public:
 	/// @note Modifying the ink overflow rectangle affects the rendering of all filters active on the current element.
 	/// @note Only affects the 'filter' property, not 'backdrop-filter'.
 	virtual void ExtendInkOverflow(Element* element, Rectanglef& overflow) const;
+
+	CoreInstance& core_instance;
 };
 
 /**
@@ -69,10 +71,11 @@ public:
 	virtual ~FilterInstancer();
 
 	/// Instances a filter given the name and attributes from the RCSS file.
+	/// @param[in] in_core_instance The core instance to use for instancing the filter.
 	/// @param[in] name The type of filter desired. For example, "filter: simple(...)" is declared as type "simple".
 	/// @param[in] properties All RCSS properties associated with the filter.
 	/// @return A shared_ptr to the filter if it was instanced successfully.
-	virtual SharedPtr<Filter> InstanceFilter(const String& name, const PropertyDictionary& properties) = 0;
+	virtual SharedPtr<Filter> InstanceFilter(CoreInstance& in_core_instance, const String& name, const PropertyDictionary& properties) = 0;
 };
 
 } // namespace Rml

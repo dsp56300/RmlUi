@@ -48,7 +48,7 @@ PropertySpecification::PropertySpecification(size_t reserve_num_properties, size
 
 PropertySpecification::~PropertySpecification() {}
 
-PropertyDefinition& PropertySpecification::RegisterProperty(const String& property_name, const String& default_value, bool inherited,
+PropertyDefinition& PropertySpecification::RegisterProperty(CoreInstance& in_core_instance, const String& property_name, const String& default_value, bool inherited,
 	bool forces_layout, PropertyId id)
 {
 	if (id == PropertyId::Invalid)
@@ -83,7 +83,7 @@ PropertyDefinition& PropertySpecification::RegisterProperty(const String& proper
 	}
 
 	// Create and insert the new property
-	properties[index] = MakeUnique<PropertyDefinition>(id, default_value, inherited, forces_layout);
+	properties[index] = MakeUnique<PropertyDefinition>(in_core_instance, id, default_value, inherited, forces_layout);
 	property_ids.Insert(id);
 	if (inherited)
 		property_ids_inherited.Insert(id);
@@ -450,7 +450,7 @@ void PropertySpecification::SetPropertyDefaults(PropertyDictionary& dictionary) 
 	}
 }
 
-String PropertySpecification::PropertiesToString(const PropertyDictionary& dictionary, bool include_name, char delimiter) const
+String PropertySpecification::PropertiesToString(CoreInstance& in_core_instance, const PropertyDictionary& dictionary, bool include_name, char delimiter) const
 {
 	const PropertyMap& properties = dictionary.GetProperties();
 
@@ -468,7 +468,7 @@ String PropertySpecification::PropertiesToString(const PropertyDictionary& dicti
 		const Property& p = properties.find(id)->second;
 		if (include_name)
 			result += property_map->GetName(id) + ": ";
-		result += p.ToString() + delimiter;
+		result += p.ToString(in_core_instance) + delimiter;
 	}
 
 	if (!result.empty())

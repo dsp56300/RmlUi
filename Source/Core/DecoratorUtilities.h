@@ -37,7 +37,7 @@ namespace Rml {
 using Vector2Numeric = Vector2<NumericValue>;
 
 // Compute a 2d-position property value into a percentage-length vector.
-Vector2Numeric ComputePosition(Array<const Property*, 2> p_position);
+Vector2Numeric ComputePosition(CoreInstance& core_instance, Array<const Property*, 2> p_position);
 
 } // namespace Rml
 #endif

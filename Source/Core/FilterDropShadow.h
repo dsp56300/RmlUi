@@ -50,9 +50,9 @@ private:
 
 class FilterDropShadowInstancer : public FilterInstancer {
 public:
-	FilterDropShadowInstancer();
+	FilterDropShadowInstancer(CoreInstance& in_core_instance);
 
-	SharedPtr<Filter> InstanceFilter(const String& name, const PropertyDictionary& properties) override;
+	SharedPtr<Filter> InstanceFilter(CoreInstance& in_core_instance, const String& name, const PropertyDictionary& properties) override;
 
 private:
 	struct PropertyIds {

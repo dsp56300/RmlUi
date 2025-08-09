@@ -65,26 +65,26 @@ bool InputTypeRange::OnAttributeChange(const ElementAttributes& changed_attribut
 	auto it_orientation = changed_attributes.find("orientation");
 	if (it_orientation != changed_attributes.end())
 	{
-		bool is_vertical = (it_orientation->second.Get<String>() == "vertical");
+		bool is_vertical = (it_orientation->second.Get<String>(element->GetCoreInstance()) == "vertical");
 		widget->SetOrientation(is_vertical ? WidgetSlider::VERTICAL : WidgetSlider::HORIZONTAL);
 		dirty_layout = true;
 	}
 
 	auto it_step = changed_attributes.find("step");
 	if (it_step != changed_attributes.end())
-		widget->SetStep(it_step->second.Get(1.0f));
+		widget->SetStep(it_step->second.Get(element->GetCoreInstance(), 1.0f));
 
 	auto it_min = changed_attributes.find("min");
 	if (it_min != changed_attributes.end())
-		widget->SetMinValue(it_min->second.Get(0.0f));
+		widget->SetMinValue(it_min->second.Get(element->GetCoreInstance(), 0.0f));
 
 	auto it_max = changed_attributes.find("max");
 	if (it_max != changed_attributes.end())
-		widget->SetMaxValue(it_max->second.Get(100.f));
+		widget->SetMaxValue(it_max->second.Get(element->GetCoreInstance(), 100.f));
 
 	auto it_value = changed_attributes.find("value");
 	if (it_value != changed_attributes.end())
-		widget->SetValue(it_value->second.Get(0.0f));
+		widget->SetValue(it_value->second.Get(element->GetCoreInstance(), 0.0f));
 
 	return !dirty_layout;
 }

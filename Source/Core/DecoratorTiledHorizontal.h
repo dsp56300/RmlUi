@@ -64,7 +64,7 @@ private:
 
 class DecoratorTiledHorizontalInstancer : public DecoratorTiledInstancer {
 public:
-	DecoratorTiledHorizontalInstancer();
+	DecoratorTiledHorizontalInstancer(CoreInstance& in_core_instance);
 	~DecoratorTiledHorizontalInstancer();
 
 	/// Instances a horizontal decorator.

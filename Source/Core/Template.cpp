@@ -111,7 +111,7 @@ Element* Template::ParseTemplate(Element* element)
 {
 	body->Seek(0, SEEK_SET);
 
-	XMLParser parser(element);
+	XMLParser parser(element->GetCoreInstance(), element);
 	parser.Parse(body.get());
 
 	// If theres an inject attribute on the template,

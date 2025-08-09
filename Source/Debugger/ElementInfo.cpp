@@ -44,6 +44,8 @@
 #include "InfoSource.h"
 #include <algorithm>
 
+#include "RmlUi/Core/CoreInstance.h"
+
 namespace Rml {
 namespace Debugger {
 
@@ -75,7 +77,7 @@ bool ElementInfo::Initialise()
 	AddEventListener(EventId::Mouseover, this);
 	AddEventListener(EventId::Mouseout, this);
 
-	SharedPtr<StyleSheetContainer> style_sheet = Factory::InstanceStyleSheetString(String(common_rcss) + String(info_rcss));
+	SharedPtr<StyleSheetContainer> style_sheet = GetFactory().InstanceStyleSheetString(String(common_rcss) + String(info_rcss));
 	if (!style_sheet)
 		return false;
 
@@ -96,7 +98,7 @@ void ElementInfo::OnUpdate()
 {
 	if (source_element && (update_source_element || force_update_once) && IsVisible())
 	{
-		const double t = GetSystemInterface()->GetElapsedTime();
+		const double t = GetSystemInterface(GetCoreInstance())->GetElapsedTime();
 		const float dt = (float)(t - previous_update_time);
 
 		constexpr float update_interval = 0.3f;
@@ -378,7 +380,7 @@ void ElementInfo::SetSourceElement(Element* new_source_element)
 
 void ElementInfo::UpdateSourceElement()
 {
-	previous_update_time = GetSystemInterface()->GetElapsedTime();
+	previous_update_time = GetSystemInterface(GetCoreInstance())->GetElapsedTime();
 	title_dirty = true;
 
 	// Set the pseudo classes
@@ -642,10 +644,12 @@ void ElementInfo::BuildElementPropertiesRML(String& property_rml, Element* eleme
 {
 	NamedPropertyList property_list;
 
+	auto& style_sheet_specification = *element->GetCoreInstance().styleSheetSpecification;
+
 	for (auto it = element->IterateLocalProperties(); !it.AtEnd(); ++it)
 	{
 		PropertyId property_id = it.GetId();
-		const String& property_name = it.GetName();
+		const String& property_name = it.GetName(style_sheet_specification);
 		const Property* prop = &it.GetProperty();
 
 		// Check that this property isn't overridden or just not inherited.
@@ -655,7 +659,7 @@ void ElementInfo::BuildElementPropertiesRML(String& property_rml, Element* eleme
 		property_list.push_back(NamedProperty{property_name, prop});
 	}
 
-	std::sort(property_list.begin(), property_list.end(), [](const NamedProperty& a, const NamedProperty& b) {
+	std::sort(property_list.begin(), property_list.end(), [&style_sheet_specification](const NamedProperty& a, const NamedProperty& b) {
 		if (a.second->source && !b.second->source)
 			return false;
 		if (!a.second->source && b.second->source)
@@ -668,8 +672,8 @@ void ElementInfo::BuildElementPropertiesRML(String& property_rml, Element* eleme
 			return false;
 		if (!a.second->definition && b.second->definition)
 			return true;
-		const String& a_name = StyleSheetSpecification::GetPropertyName(a.second->definition->GetId());
-		const String& b_name = StyleSheetSpecification::GetPropertyName(b.second->definition->GetId());
+		const String& a_name = style_sheet_specification.GetPropertyName(a.second->definition->GetId());
+		const String& b_name = style_sheet_specification.GetPropertyName(b.second->definition->GetId());
 		return a_name < b_name;
 	});
 

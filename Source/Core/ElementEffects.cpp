@@ -77,7 +77,7 @@ void ElementEffects::InstanceEffects()
 			if (!property || property->unit != Unit::DECORATOR)
 				continue;
 
-			DecoratorsPtr decorators_ptr = property->Get<DecoratorsPtr>();
+			DecoratorsPtr decorators_ptr = property->Get<DecoratorsPtr>(element->GetCoreInstance());
 			if (!decorators_ptr)
 				continue;
 
@@ -126,7 +126,7 @@ void ElementEffects::InstanceEffects()
 			if (!property || property->unit != Unit::FILTER)
 				continue;
 
-			FiltersPtr filters_ptr = property->Get<FiltersPtr>();
+			FiltersPtr filters_ptr = property->Get<FiltersPtr>(element->GetCoreInstance());
 			if (!filters_ptr)
 				continue;
 
@@ -135,7 +135,7 @@ void ElementEffects::InstanceEffects()
 
 			for (const FilterDeclaration& declaration : filters_ptr->list)
 			{
-				SharedPtr<const Filter> filter = declaration.instancer->InstanceFilter(declaration.type, declaration.properties);
+				SharedPtr<const Filter> filter = declaration.instancer->InstanceFilter(element->GetCoreInstance(), declaration.type, declaration.properties);
 				if (filter)
 				{
 					list.push_back({std::move(filter), CompiledFilter{}});

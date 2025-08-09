@@ -225,18 +225,18 @@ private:
 	ShorthandId id_constraint;
 
 public:
-	HandleEdgeMarginParser() : specification(4, 1)
+	HandleEdgeMarginParser(CoreInstance& in_core_instance) : specification(4, 1)
 	{
 		ids = {
-			specification.RegisterProperty("edge-t", "", false, false).AddParser("length_percent").GetId(),
-			specification.RegisterProperty("edge-r", "", false, false).AddParser("length_percent").GetId(),
-			specification.RegisterProperty("edge-b", "", false, false).AddParser("length_percent").GetId(),
-			specification.RegisterProperty("edge-l", "", false, false).AddParser("length_percent").GetId(),
+			specification.RegisterProperty(in_core_instance, "edge-t", "", false, false).AddParser("length_percent").GetId(),
+			specification.RegisterProperty(in_core_instance, "edge-r", "", false, false).AddParser("length_percent").GetId(),
+			specification.RegisterProperty(in_core_instance, "edge-b", "", false, false).AddParser("length_percent").GetId(),
+			specification.RegisterProperty(in_core_instance, "edge-l", "", false, false).AddParser("length_percent").GetId(),
 		};
 		id_constraint = specification.RegisterShorthand("edge-margin", "edge-t, edge-r, edge-b, edge-l", ShorthandType::Box);
 	}
 
-	bool Parse(const String& value, Array<NumericValue, 4>& out_constraints)
+	bool Parse(CoreInstance& in_core_instance, const String& value, Array<NumericValue, 4>& out_constraints)
 	{
 		PropertyDictionary properties;
 		if (!specification.ParseShorthandDeclaration(properties, id_constraint, value))
@@ -246,7 +246,7 @@ public:
 		for (int i = 0; i < 4; i++)
 		{
 			if (const Property* p = properties.GetProperty(ids[i]))
-				out_constraints[i] = p->GetNumericValue();
+				out_constraints[i] = p->GetNumericValue(in_core_instance);
 		}
 		return true;
 	}
@@ -298,8 +298,8 @@ void ElementHandle::ProcessDefaultAction(Event& event)
 			edge_margin = {};
 			if (edge_margin_str != "none")
 			{
-				HandleEdgeMarginParser parser;
-				if (!parser.Parse(edge_margin_str, edge_margin))
+				HandleEdgeMarginParser parser(GetCoreInstance());
+				if (!parser.Parse(GetOwnerDocument()->GetCoreInstance(), edge_margin_str, edge_margin))
 					Log::Message(Log::LT_WARNING, "Failed to parse 'edge_margin' attribute for element '%s'.", GetAddress().c_str());
 			}
 

@@ -98,21 +98,23 @@ public:
 
 	/// Templatised data accessor. TypeConverters will be used to attempt to convert from the internal representation to
 	/// the requested representation.
+	/// @param[in] core_instance The core instance to use for conversion.
 	/// @param[in] default_value The value returned if the conversion failed.
 	/// @return Data in the requested type.
 	template <typename T>
-	T Get(T default_value = T()) const;
+	T Get(CoreInstance& core_instance, T default_value = T()) const;
 
 	/// Templatised data accessor. TypeConverters will be used to attempt to convert from the internal representation to
 	/// the requested representation.
+	/// @param[in] core_instance The core instance to use for conversion.
 	/// @param[out] value Data in the requested type.
 	/// @return True if the value was converted and returned, false if no data was stored in the variant.
 	template <typename T, typename std::enable_if_t<!std::is_enum<T>::value, int> = 0>
-	bool GetInto(T& value) const;
+	bool GetInto(CoreInstance& core_instance, T& value) const;
 
 	/// Enum overload for the data accessor, will convert any stored integral value to the requested enum type.
 	template <typename T, typename std::enable_if_t<std::is_enum<T>::value, int> = 0>
-	bool GetInto(T& value) const;
+	bool GetInto(CoreInstance& core_instance, T& value) const;
 
 	/// Returns a reference to the variant's underlying type.
 	/// @warning: Undefined behavior if T does not represent the underlying type of the variant.

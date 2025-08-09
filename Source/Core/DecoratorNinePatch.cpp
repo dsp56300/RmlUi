@@ -181,14 +181,14 @@ void DecoratorNinePatch::RenderElement(Element* element, DecoratorDataHandle ele
 	data->Render(element->GetAbsoluteOffset(BoxArea::Border), GetTexture());
 }
 
-DecoratorNinePatchInstancer::DecoratorNinePatchInstancer()
+DecoratorNinePatchInstancer::DecoratorNinePatchInstancer(CoreInstance& in_core_instance)
 {
-	sprite_outer_id = RegisterProperty("outer", "").AddParser("string").GetId();
-	sprite_inner_id = RegisterProperty("inner", "").AddParser("string").GetId();
-	edge_ids[0] = RegisterProperty("edge-top", "0px").AddParser("number_length_percent").GetId();
-	edge_ids[1] = RegisterProperty("edge-right", "0px").AddParser("number_length_percent").GetId();
-	edge_ids[2] = RegisterProperty("edge-bottom", "0px").AddParser("number_length_percent").GetId();
-	edge_ids[3] = RegisterProperty("edge-left", "0px").AddParser("number_length_percent").GetId();
+	sprite_outer_id = RegisterProperty(in_core_instance, "outer", "").AddParser("string").GetId();
+	sprite_inner_id = RegisterProperty(in_core_instance, "inner", "").AddParser("string").GetId();
+	edge_ids[0] = RegisterProperty(in_core_instance, "edge-top", "0px").AddParser("number_length_percent").GetId();
+	edge_ids[1] = RegisterProperty(in_core_instance, "edge-right", "0px").AddParser("number_length_percent").GetId();
+	edge_ids[2] = RegisterProperty(in_core_instance, "edge-bottom", "0px").AddParser("number_length_percent").GetId();
+	edge_ids[3] = RegisterProperty(in_core_instance, "edge-left", "0px").AddParser("number_length_percent").GetId();
 
 	RegisterShorthand("edge", "edge-top, edge-right, edge-bottom, edge-left", ShorthandType::Box);
 
@@ -202,11 +202,13 @@ DecoratorNinePatchInstancer::~DecoratorNinePatchInstancer() {}
 SharedPtr<Decorator> DecoratorNinePatchInstancer::InstanceDecorator(const String& /*name*/, const PropertyDictionary& properties,
 	const DecoratorInstancerInterface& instancer_interface)
 {
+	auto& core_instance = instancer_interface.GetRenderManager().GetCoreInstance();
+
 	bool edges_set = false;
 	Array<NumericValue, 4> edges;
 	for (int i = 0; i < 4; i++)
 	{
-		edges[i] = properties.GetProperty(edge_ids[i])->GetNumericValue();
+		edges[i] = properties.GetProperty(edge_ids[i])->GetNumericValue(core_instance);
 		if (edges[i].number != 0.0f)
 		{
 			edges_set = true;
@@ -217,7 +219,7 @@ SharedPtr<Decorator> DecoratorNinePatchInstancer::InstanceDecorator(const String
 	const Sprite* sprite_inner = nullptr;
 
 	{
-		const String sprite_name = properties.GetProperty(sprite_outer_id)->Get<String>();
+		const String sprite_name = properties.GetProperty(sprite_outer_id)->Get<String>(core_instance);
 		sprite_outer = instancer_interface.GetSprite(sprite_name);
 		if (!sprite_outer)
 		{
@@ -226,7 +228,7 @@ SharedPtr<Decorator> DecoratorNinePatchInstancer::InstanceDecorator(const String
 		}
 	}
 	{
-		const String sprite_name = properties.GetProperty(sprite_inner_id)->Get<String>();
+		const String sprite_name = properties.GetProperty(sprite_inner_id)->Get<String>(core_instance);
 		sprite_inner = instancer_interface.GetSprite(sprite_name);
 		if (!sprite_inner)
 		{

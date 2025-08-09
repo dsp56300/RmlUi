@@ -40,9 +40,9 @@ const PropertySpecification& FontEffectInstancer::GetPropertySpecification() con
 	return properties;
 }
 
-PropertyDefinition& FontEffectInstancer::RegisterProperty(const String& property_name, const String& default_value, bool affects_generation)
+PropertyDefinition& FontEffectInstancer::RegisterProperty(CoreInstance& in_core_instance, const String& property_name, const String& default_value, bool affects_generation)
 {
-	PropertyDefinition& definition = properties.RegisterProperty(property_name, default_value, false, false);
+	PropertyDefinition& definition = properties.RegisterProperty(in_core_instance, property_name, default_value, false, false);
 	if (affects_generation)
 		volatile_properties.insert(definition.GetId());
 

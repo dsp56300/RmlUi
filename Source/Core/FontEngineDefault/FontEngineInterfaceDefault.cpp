@@ -30,33 +30,38 @@
 #include "../../../Include/RmlUi/Core/StringUtilities.h"
 #include "FontFaceHandleDefault.h"
 #include "FontProvider.h"
+#include "RmlUi/Core/CoreInstance.h"
 
 namespace Rml {
 
+FontEngineInterfaceDefault::FontEngineInterfaceDefault(CoreInstance& in_core_instance): core_instance(in_core_instance)
+{
+}
+
 void FontEngineInterfaceDefault::Initialize()
 {
-	FontProvider::Initialise();
+	FontProvider::Initialise(core_instance);
 }
 
 void FontEngineInterfaceDefault::Shutdown()
 {
-	FontProvider::Shutdown();
+	FontProvider::Shutdown(core_instance);
 }
 
 bool FontEngineInterfaceDefault::LoadFontFace(const String& file_name, int face_index, bool fallback_face, Style::FontWeight weight)
 {
-	return FontProvider::LoadFontFace(file_name, face_index, fallback_face, weight);
+	core_instance.font_provider->LoadFontFace(file_name, face_index, fallback_face, weight);
 }
 
 bool FontEngineInterfaceDefault::LoadFontFace(Span<const byte> data, int face_index, const String& font_family, Style::FontStyle style, Style::FontWeight weight,
 	bool fallback_face)
 {
-	return FontProvider::LoadFontFace(data, face_index, font_family, style, weight, fallback_face);
+	return core_instance.font_provider->LoadFontFace(data, face_index, font_family, style, weight, fallback_face);
 }
 
 FontFaceHandle FontEngineInterfaceDefault::GetFontFaceHandle(const String& family, Style::FontStyle style, Style::FontWeight weight, int size)
 {
-	auto handle = FontProvider::GetFontFaceHandle(family, style, weight, size);
+	auto handle = core_instance.font_provider->GetFontFaceHandle(family, style, weight, size);
 	return reinterpret_cast<FontFaceHandle>(handle);
 }
 
@@ -96,7 +101,7 @@ int FontEngineInterfaceDefault::GetVersion(FontFaceHandle handle)
 
 void FontEngineInterfaceDefault::ReleaseFontResources()
 {
-	FontProvider::ReleaseFontResources();
+	core_instance.font_provider->ReleaseFontResources();
 }
 
 } // namespace Rml

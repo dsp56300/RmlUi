@@ -32,6 +32,7 @@
 #include "../../Include/RmlUi/Core/StringUtilities.h"
 #include "../../Include/RmlUi/Core/StyleSheetSpecification.h"
 #include "PropertyShorthandDefinition.h"
+#include "RmlUi/Core/CoreInstance.h"
 
 namespace Rml {
 
@@ -135,7 +136,7 @@ bool PropertyParserAnimation::ParseValue(Property& property, const String& value
 	}
 	else if (type == TRANSITION_PARSER)
 	{
-		result = ParseTransition(property, list_of_values);
+		result = ParseTransition(core_instance, property, list_of_values);
 	}
 
 	return result;
@@ -247,7 +248,7 @@ bool PropertyParserAnimation::ParseAnimation(Property& property, const StringLis
 	return true;
 }
 
-bool PropertyParserAnimation::ParseTransition(Property& property, const StringList& transition_values)
+bool PropertyParserAnimation::ParseTransition(CoreInstance& in_core_instance, Property& property, const StringList& transition_values)
 {
 	TransitionList transition_list{false, false, {}};
 
@@ -330,12 +331,12 @@ bool PropertyParserAnimation::ParseTransition(Property& property, const StringLi
 				else
 				{
 					// Must be a property name or shorthand, expand now
-					if (auto shorthand = StyleSheetSpecification::GetShorthand(argument))
+					if (auto shorthand = in_core_instance.styleSheetSpecification->GetShorthand(argument))
 					{
-						PropertyIdSet underlying_properties = StyleSheetSpecification::GetShorthandUnderlyingProperties(shorthand->id);
+						PropertyIdSet underlying_properties = in_core_instance.styleSheetSpecification->GetShorthandUnderlyingProperties(shorthand->id);
 						target_property_ids |= underlying_properties;
 					}
-					else if (auto definition = StyleSheetSpecification::GetProperty(argument))
+					else if (auto definition = in_core_instance.styleSheetSpecification->GetProperty(argument))
 					{
 						// Single property
 						target_property_ids.Insert(definition->GetId());

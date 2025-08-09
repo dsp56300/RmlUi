@@ -37,7 +37,7 @@ T Element::GetProperty(const String& name)
 		Log::Message(Log::LT_WARNING, "Invalid property name %s.", name.c_str());
 		return T{};
 	}
-	return property->Get<T>();
+	return property->Get<T>(GetCoreInstance());
 }
 
 template <typename T>
@@ -53,7 +53,7 @@ void Element::SetAttribute(const String& name, const T& value)
 template <typename T>
 T Element::GetAttribute(const String& name, const T& default_value) const
 {
-	return Get(attributes, name, default_value);
+	return Get(GetCoreInstance(), attributes, name, default_value);
 }
 
 } // namespace Rml

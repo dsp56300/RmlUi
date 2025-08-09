@@ -67,10 +67,10 @@ private:
 
 class FontEffectGlowInstancer : public FontEffectInstancer {
 public:
-	FontEffectGlowInstancer();
+	FontEffectGlowInstancer(CoreInstance& in_core_instance);
 	virtual ~FontEffectGlowInstancer();
 
-	SharedPtr<FontEffect> InstanceFontEffect(const String& name, const PropertyDictionary& properties) override;
+	SharedPtr<FontEffect> InstanceFontEffect(CoreInstance& in_core_instance, const String& name, const PropertyDictionary& properties) override;
 
 private:
 	PropertyId id_width_outline, id_width_blur, id_offset_x, id_offset_y, id_color;

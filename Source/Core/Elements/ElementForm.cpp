@@ -74,7 +74,7 @@ void ElementForm::Submit(const String& name, const String& submit_value)
 		// If the item already exists, append to it.
 		Variant* value = GetIf(values, control_name);
 		if (value != nullptr)
-			*value = value->Get<String>() + ", " + control_value;
+			*value = value->Get<String>(GetCoreInstance()) + ", " + control_value;
 		else
 			values[control_name] = control_value;
 	}

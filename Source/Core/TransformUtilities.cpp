@@ -574,7 +574,7 @@ bool TransformUtilities::InterpolateWith(TransformPrimitive& target, const Trans
 }
 
 template <size_t N>
-static String ToString(const Transforms::ResolvedPrimitive<N>& p, const String& unit, bool rad_to_deg = false,
+static String ToString(CoreInstance& in_core_instance, const Transforms::ResolvedPrimitive<N>& p, const String& unit, bool rad_to_deg = false,
 	bool only_unit_on_last_value = false) noexcept
 {
 	float multiplier = 1.0f;
@@ -587,7 +587,7 @@ static String ToString(const Transforms::ResolvedPrimitive<N>& p, const String& 
 		else if (rad_to_deg)
 			multiplier = 180.f / Math::RMLUI_PI;
 
-		if (TypeConverter<float, String>::Convert(p.values[i] * multiplier, tmp))
+		if (TypeConverter<float, String>::Convert(in_core_instance, p.values[i] * multiplier, tmp))
 			result += tmp;
 
 		if (!unit.empty() && (!only_unit_on_last_value || (i == N - 1)))
@@ -600,18 +600,18 @@ static String ToString(const Transforms::ResolvedPrimitive<N>& p, const String& 
 	return result;
 }
 
-static inline String ToString(NumericValue value) noexcept
+static inline String ToString(CoreInstance& in_core_instance, NumericValue value) noexcept
 {
-	return ToString(value.number) + ToString(value.unit);
+	return ToString(in_core_instance, value.number) + ToString(in_core_instance, value.unit);
 }
 
 template <size_t N>
-static inline String ToString(const Transforms::UnresolvedPrimitive<N>& p) noexcept
+static inline String ToString(CoreInstance& in_core_instance, const Transforms::UnresolvedPrimitive<N>& p) noexcept
 {
 	String result = "(";
 	for (size_t i = 0; i < N; i++)
 	{
-		result += ToString(p.values[i]);
+		result += ToString(in_core_instance, p.values[i]);
 		if (i != N - 1)
 			result += ", ";
 	}
@@ -619,21 +619,21 @@ static inline String ToString(const Transforms::UnresolvedPrimitive<N>& p) noexc
 	return result;
 }
 
-static inline String ToString(const Transforms::DecomposedMatrix4& p) noexcept
+static inline String ToString(CoreInstance& in_core_instance, const Transforms::DecomposedMatrix4& p) noexcept
 {
 	static const Transforms::DecomposedMatrix4 d{Vector4f(0, 0, 0, 1), Vector4f(0, 0, 0, 1), Vector3f(0, 0, 0), Vector3f(1, 1, 1), Vector3f(0, 0, 0)};
 	String tmp;
 	String result;
 
-	if (p.perspective != d.perspective && TypeConverter<Vector4f, String>::Convert(p.perspective, tmp))
+	if (p.perspective != d.perspective && TypeConverter<Vector4f, String>::Convert(in_core_instance, p.perspective, tmp))
 		result += "perspective(" + tmp + "), ";
-	if (p.quaternion != d.quaternion && TypeConverter<Vector4f, String>::Convert(p.quaternion, tmp))
+	if (p.quaternion != d.quaternion && TypeConverter<Vector4f, String>::Convert(in_core_instance, p.quaternion, tmp))
 		result += "quaternion(" + tmp + "), ";
-	if (p.translation != d.translation && TypeConverter<Vector3f, String>::Convert(p.translation, tmp))
+	if (p.translation != d.translation && TypeConverter<Vector3f, String>::Convert(in_core_instance, p.translation, tmp))
 		result += "translation(" + tmp + "), ";
-	if (p.scale != d.scale && TypeConverter<Vector3f, String>::Convert(p.scale, tmp))
+	if (p.scale != d.scale && TypeConverter<Vector3f, String>::Convert(in_core_instance, p.scale, tmp))
 		result += "scale(" + tmp + "), ";
-	if (p.skew != d.skew && TypeConverter<Vector3f, String>::Convert(p.skew, tmp))
+	if (p.skew != d.skew && TypeConverter<Vector3f, String>::Convert(in_core_instance, p.skew, tmp))
 		result += "skew(" + tmp + "), ";
 
 	if (result.size() > 2)
@@ -645,65 +645,65 @@ static inline String ToString(const Transforms::DecomposedMatrix4& p) noexcept
 }
 
 // clang-format off
-static inline String ToString(const Transforms::Matrix2D& p)    noexcept { return "matrix"      + ToString(static_cast<const Transforms::ResolvedPrimitive< 6 >&>(p), ""); }
-static inline String ToString(const Transforms::Matrix3D& p)    noexcept { return "matrix3d"    + ToString(static_cast<const Transforms::ResolvedPrimitive< 16 >&>(p), ""); }
-static inline String ToString(const Transforms::TranslateX& p)  noexcept { return "translateX"  + ToString(static_cast<const Transforms::UnresolvedPrimitive< 1 >&>(p)); }
-static inline String ToString(const Transforms::TranslateY& p)  noexcept { return "translateY"  + ToString(static_cast<const Transforms::UnresolvedPrimitive< 1 >&>(p)); }
-static inline String ToString(const Transforms::TranslateZ& p)  noexcept { return "translateZ"  + ToString(static_cast<const Transforms::UnresolvedPrimitive< 1 >&>(p)); }
-static inline String ToString(const Transforms::Translate2D& p) noexcept { return "translate"   + ToString(static_cast<const Transforms::UnresolvedPrimitive< 2 >&>(p)); }
-static inline String ToString(const Transforms::Translate3D& p) noexcept { return "translate3d" + ToString(static_cast<const Transforms::UnresolvedPrimitive< 3 >&>(p)); }
-static inline String ToString(const Transforms::ScaleX& p)      noexcept { return "scaleX"      + ToString(static_cast<const Transforms::ResolvedPrimitive< 1 >&>(p), ""); }
-static inline String ToString(const Transforms::ScaleY& p)      noexcept { return "scaleY"      + ToString(static_cast<const Transforms::ResolvedPrimitive< 1 >&>(p), ""); }
-static inline String ToString(const Transforms::ScaleZ& p)      noexcept { return "scaleZ"      + ToString(static_cast<const Transforms::ResolvedPrimitive< 1 >&>(p), ""); }
-static inline String ToString(const Transforms::Scale2D& p)     noexcept { return "scale"       + ToString(static_cast<const Transforms::ResolvedPrimitive< 2 >&>(p), ""); }
-static inline String ToString(const Transforms::Scale3D& p)     noexcept { return "scale3d"     + ToString(static_cast<const Transforms::ResolvedPrimitive< 3 >&>(p), ""); }
-static inline String ToString(const Transforms::RotateX& p)     noexcept { return "rotateX"     + ToString(static_cast<const Transforms::ResolvedPrimitive< 1 >&>(p), "deg", true); }
-static inline String ToString(const Transforms::RotateY& p)     noexcept { return "rotateY"     + ToString(static_cast<const Transforms::ResolvedPrimitive< 1 >&>(p), "deg", true); }
-static inline String ToString(const Transforms::RotateZ& p)     noexcept { return "rotateZ"     + ToString(static_cast<const Transforms::ResolvedPrimitive< 1 >&>(p), "deg", true); }
-static inline String ToString(const Transforms::Rotate2D& p)    noexcept { return "rotate"      + ToString(static_cast<const Transforms::ResolvedPrimitive< 1 >&>(p), "deg", true); }
-static inline String ToString(const Transforms::Rotate3D& p)    noexcept { return "rotate3d"    + ToString(static_cast<const Transforms::ResolvedPrimitive< 4 >&>(p), "deg", true, true); }
-static inline String ToString(const Transforms::SkewX& p)       noexcept { return "skewX"       + ToString(static_cast<const Transforms::ResolvedPrimitive< 1 >&>(p), "deg", true); }
-static inline String ToString(const Transforms::SkewY& p)       noexcept { return "skewY"       + ToString(static_cast<const Transforms::ResolvedPrimitive< 1 >&>(p), "deg", true); }
-static inline String ToString(const Transforms::Skew2D& p)      noexcept { return "skew"        + ToString(static_cast<const Transforms::ResolvedPrimitive< 2 >&>(p), "deg", true); }
-static inline String ToString(const Transforms::Perspective& p) noexcept { return "perspective" + ToString(static_cast<const Transforms::UnresolvedPrimitive< 1 >&>(p)); }
+static inline String ToString(CoreInstance& in_core_instance, const Transforms::Matrix2D& p)    noexcept { return "matrix"      + ToString(in_core_instance, static_cast<const Transforms::ResolvedPrimitive< 6 >&>(p), ""); }
+static inline String ToString(CoreInstance& in_core_instance, const Transforms::Matrix3D& p)    noexcept { return "matrix3d"    + ToString(in_core_instance, static_cast<const Transforms::ResolvedPrimitive< 16 >&>(p), ""); }
+static inline String ToString(CoreInstance& in_core_instance, const Transforms::TranslateX& p)  noexcept { return "translateX"  + ToString(in_core_instance, static_cast<const Transforms::UnresolvedPrimitive< 1 >&>(p)); }
+static inline String ToString(CoreInstance& in_core_instance, const Transforms::TranslateY& p)  noexcept { return "translateY"  + ToString(in_core_instance, static_cast<const Transforms::UnresolvedPrimitive< 1 >&>(p)); }
+static inline String ToString(CoreInstance& in_core_instance, const Transforms::TranslateZ& p)  noexcept { return "translateZ"  + ToString(in_core_instance, static_cast<const Transforms::UnresolvedPrimitive< 1 >&>(p)); }
+static inline String ToString(CoreInstance& in_core_instance, const Transforms::Translate2D& p) noexcept { return "translate"   + ToString(in_core_instance, static_cast<const Transforms::UnresolvedPrimitive< 2 >&>(p)); }
+static inline String ToString(CoreInstance& in_core_instance, const Transforms::Translate3D& p) noexcept { return "translate3d" + ToString(in_core_instance, static_cast<const Transforms::UnresolvedPrimitive< 3 >&>(p)); }
+static inline String ToString(CoreInstance& in_core_instance, const Transforms::ScaleX& p)      noexcept { return "scaleX"      + ToString(in_core_instance, static_cast<const Transforms::ResolvedPrimitive< 1 >&>(p), ""); }
+static inline String ToString(CoreInstance& in_core_instance, const Transforms::ScaleY& p)      noexcept { return "scaleY"      + ToString(in_core_instance, static_cast<const Transforms::ResolvedPrimitive< 1 >&>(p), ""); }
+static inline String ToString(CoreInstance& in_core_instance, const Transforms::ScaleZ& p)      noexcept { return "scaleZ"      + ToString(in_core_instance, static_cast<const Transforms::ResolvedPrimitive< 1 >&>(p), ""); }
+static inline String ToString(CoreInstance& in_core_instance, const Transforms::Scale2D& p)     noexcept { return "scale"       + ToString(in_core_instance, static_cast<const Transforms::ResolvedPrimitive< 2 >&>(p), ""); }
+static inline String ToString(CoreInstance& in_core_instance, const Transforms::Scale3D& p)     noexcept { return "scale3d"     + ToString(in_core_instance, static_cast<const Transforms::ResolvedPrimitive< 3 >&>(p), ""); }
+static inline String ToString(CoreInstance& in_core_instance, const Transforms::RotateX& p)     noexcept { return "rotateX"     + ToString(in_core_instance, static_cast<const Transforms::ResolvedPrimitive< 1 >&>(p), "deg", true); }
+static inline String ToString(CoreInstance& in_core_instance, const Transforms::RotateY& p)     noexcept { return "rotateY"     + ToString(in_core_instance, static_cast<const Transforms::ResolvedPrimitive< 1 >&>(p), "deg", true); }
+static inline String ToString(CoreInstance& in_core_instance, const Transforms::RotateZ& p)     noexcept { return "rotateZ"     + ToString(in_core_instance, static_cast<const Transforms::ResolvedPrimitive< 1 >&>(p), "deg", true); }
+static inline String ToString(CoreInstance& in_core_instance, const Transforms::Rotate2D& p)    noexcept { return "rotate"      + ToString(in_core_instance, static_cast<const Transforms::ResolvedPrimitive< 1 >&>(p), "deg", true); }
+static inline String ToString(CoreInstance& in_core_instance, const Transforms::Rotate3D& p)    noexcept { return "rotate3d"    + ToString(in_core_instance, static_cast<const Transforms::ResolvedPrimitive< 4 >&>(p), "deg", true, true); }
+static inline String ToString(CoreInstance& in_core_instance, const Transforms::SkewX& p)       noexcept { return "skewX"       + ToString(in_core_instance, static_cast<const Transforms::ResolvedPrimitive< 1 >&>(p), "deg", true); }
+static inline String ToString(CoreInstance& in_core_instance, const Transforms::SkewY& p)       noexcept { return "skewY"       + ToString(in_core_instance, static_cast<const Transforms::ResolvedPrimitive< 1 >&>(p), "deg", true); }
+static inline String ToString(CoreInstance& in_core_instance, const Transforms::Skew2D& p)      noexcept { return "skew"        + ToString(in_core_instance, static_cast<const Transforms::ResolvedPrimitive< 2 >&>(p), "deg", true); }
+static inline String ToString(CoreInstance& in_core_instance, const Transforms::Perspective& p) noexcept { return "perspective" + ToString(in_core_instance, static_cast<const Transforms::UnresolvedPrimitive< 1 >&>(p)); }
 // clang-format on
 
 struct ToStringVisitor {
-	String run(const TransformPrimitive& variant)
+	String run(CoreInstance& in_core_instance, const TransformPrimitive& variant)
 	{
 		switch (variant.type)
 		{
-		case TransformPrimitive::MATRIX2D: return ToString(variant.matrix_2d);
-		case TransformPrimitive::MATRIX3D: return ToString(variant.matrix_3d);
-		case TransformPrimitive::TRANSLATEX: return ToString(variant.translate_x);
-		case TransformPrimitive::TRANSLATEY: return ToString(variant.translate_y);
-		case TransformPrimitive::TRANSLATEZ: return ToString(variant.translate_z);
-		case TransformPrimitive::TRANSLATE2D: return ToString(variant.translate_2d);
-		case TransformPrimitive::TRANSLATE3D: return ToString(variant.translate_3d);
-		case TransformPrimitive::SCALEX: return ToString(variant.scale_x);
-		case TransformPrimitive::SCALEY: return ToString(variant.scale_y);
-		case TransformPrimitive::SCALEZ: return ToString(variant.scale_z);
-		case TransformPrimitive::SCALE2D: return ToString(variant.scale_2d);
-		case TransformPrimitive::SCALE3D: return ToString(variant.scale_3d);
-		case TransformPrimitive::ROTATEX: return ToString(variant.rotate_x);
-		case TransformPrimitive::ROTATEY: return ToString(variant.rotate_y);
-		case TransformPrimitive::ROTATEZ: return ToString(variant.rotate_z);
-		case TransformPrimitive::ROTATE2D: return ToString(variant.rotate_2d);
-		case TransformPrimitive::ROTATE3D: return ToString(variant.rotate_3d);
-		case TransformPrimitive::SKEWX: return ToString(variant.skew_x);
-		case TransformPrimitive::SKEWY: return ToString(variant.skew_y);
-		case TransformPrimitive::SKEW2D: return ToString(variant.skew_2d);
-		case TransformPrimitive::PERSPECTIVE: return ToString(variant.perspective);
-		case TransformPrimitive::DECOMPOSEDMATRIX4: return ToString(variant.decomposed_matrix_4);
+		case TransformPrimitive::MATRIX2D: return ToString(in_core_instance, variant.matrix_2d);
+		case TransformPrimitive::MATRIX3D: return ToString(in_core_instance, variant.matrix_3d);
+		case TransformPrimitive::TRANSLATEX: return ToString(in_core_instance, variant.translate_x);
+		case TransformPrimitive::TRANSLATEY: return ToString(in_core_instance, variant.translate_y);
+		case TransformPrimitive::TRANSLATEZ: return ToString(in_core_instance, variant.translate_z);
+		case TransformPrimitive::TRANSLATE2D: return ToString(in_core_instance, variant.translate_2d);
+		case TransformPrimitive::TRANSLATE3D: return ToString(in_core_instance, variant.translate_3d);
+		case TransformPrimitive::SCALEX: return ToString(in_core_instance, variant.scale_x);
+		case TransformPrimitive::SCALEY: return ToString(in_core_instance, variant.scale_y);
+		case TransformPrimitive::SCALEZ: return ToString(in_core_instance, variant.scale_z);
+		case TransformPrimitive::SCALE2D: return ToString(in_core_instance, variant.scale_2d);
+		case TransformPrimitive::SCALE3D: return ToString(in_core_instance, variant.scale_3d);
+		case TransformPrimitive::ROTATEX: return ToString(in_core_instance, variant.rotate_x);
+		case TransformPrimitive::ROTATEY: return ToString(in_core_instance, variant.rotate_y);
+		case TransformPrimitive::ROTATEZ: return ToString(in_core_instance, variant.rotate_z);
+		case TransformPrimitive::ROTATE2D: return ToString(in_core_instance, variant.rotate_2d);
+		case TransformPrimitive::ROTATE3D: return ToString(in_core_instance, variant.rotate_3d);
+		case TransformPrimitive::SKEWX: return ToString(in_core_instance, variant.skew_x);
+		case TransformPrimitive::SKEWY: return ToString(in_core_instance, variant.skew_y);
+		case TransformPrimitive::SKEW2D: return ToString(in_core_instance, variant.skew_2d);
+		case TransformPrimitive::PERSPECTIVE: return ToString(in_core_instance, variant.perspective);
+		case TransformPrimitive::DECOMPOSEDMATRIX4: return ToString(in_core_instance, variant.decomposed_matrix_4);
 		}
 		RMLUI_ASSERT(false);
 		return String();
 	}
 };
 
-String TransformUtilities::ToString(const TransformPrimitive& p) noexcept
+String TransformUtilities::ToString(CoreInstance& in_core_instance, const TransformPrimitive& p) noexcept
 {
-	String result = ToStringVisitor{}.run(p);
+	String result = ToStringVisitor{}.run(in_core_instance, p);
 	return result;
 }
 

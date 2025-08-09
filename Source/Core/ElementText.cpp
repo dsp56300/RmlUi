@@ -59,7 +59,7 @@ void LogMissingFontFace(Element* element)
 	else
 	{
 		const ComputedValues& computed = element->GetComputedValues();
-		const String font_face_description = GetFontFaceDescription(font_family_property, computed.font_style(), computed.font_weight());
+		const String font_face_description = GetFontFaceDescription(element->GetCoreInstance(), font_family_property, computed.font_style(), computed.font_weight());
 		Log::Message(Log::LT_WARNING,
 			"No font face defined. Ensure (1) that Context::Update is run after new elements are constructed, before Context::Render, "
 			"and (2) that the specified font face %s has been successfully loaded. "
@@ -432,7 +432,7 @@ bool ElementText::UpdateFontEffects()
 	if (GetComputedValues().has_font_effect())
 	{
 		if (const Property* p = GetProperty(PropertyId::FontEffect))
-			if (FontEffectsPtr effects = p->Get<FontEffectsPtr>())
+			if (FontEffectsPtr effects = p->Get<FontEffectsPtr>(GetCoreInstance()))
 				font_effects = &effects->list;
 	}
 

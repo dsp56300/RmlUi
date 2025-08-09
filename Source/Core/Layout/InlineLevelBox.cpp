@@ -36,14 +36,17 @@
 
 namespace Rml {
 
-void* InlineLevelBox::operator new(size_t size)
+void* InlineLevelBox::operator new(size_t)
 {
-	return LayoutPools::AllocateLayoutChunk(size);
+	RMLUI_ASSERT(false);
+	return nullptr;
 }
 
 void InlineLevelBox::operator delete(void* chunk, size_t size)
 {
-	LayoutPools::DeallocateLayoutChunk(chunk, size);
+	InlineLevelBox* inline_box = static_cast<InlineLevelBox*>(chunk);
+	CoreInstance& core_instance = inline_box->GetElement()->GetCoreInstance();
+	LayoutPools::DeallocateLayoutChunk(core_instance, chunk, size);
 }
 
 InlineLevelBox::~InlineLevelBox() {}
@@ -56,7 +59,7 @@ void InlineLevelBox::SubmitElementOnLayout()
 const FontMetrics& InlineLevelBox::GetFontMetrics() const
 {
 	if (FontFaceHandle handle = element->GetFontFaceHandle())
-		return GetFontEngineInterface()->GetFontMetrics(handle);
+		return GetFontEngineInterface(element->GetCoreInstance())->GetFontMetrics(handle);
 
 	// If there is no font face defined then we provide zero'd out font metrics. This situation can affect the layout,
 	// in particular in terms of inline box sizing and vertical alignment. Thus, this is potentially a situation where
@@ -129,6 +132,11 @@ String InlineLevelBox::DebugDumpTree(int depth) const
 {
 	String value = String(depth * 2, ' ') + DebugDumpNameValue() + " | " + LayoutDetails::GetDebugElementName(GetElement()) + '\n';
 	return value;
+}
+
+void* InlineLevelBox::AllocateChunk(CoreInstance& core_instance, size_t size)
+{
+	return LayoutPools::AllocateLayoutChunk(core_instance, size);
 }
 
 InlineLevelBox_Atomic::InlineLevelBox_Atomic(const InlineLevelBox* parent, Element* element, const Box& box) : InlineLevelBox(element), box(box)

@@ -63,9 +63,9 @@ public:
 	DataExpression(String expression);
 	~DataExpression();
 
-	bool Parse(const DataExpressionInterface& expression_interface, bool is_assignment_expression);
+	bool Parse(CoreInstance& core_instance, const DataExpressionInterface& expression_interface, bool is_assignment_expression);
 
-	bool Run(const DataExpressionInterface& expression_interface, Variant& out_value);
+	bool Run(CoreInstance& core_instance, const DataExpressionInterface& expression_interface, Variant& out_value);
 
 	// Available after Parse()
 	StringList GetVariableNameList() const;

@@ -1698,11 +1698,11 @@ void Element::OnAttributeChange(const ElementAttributes& changed_attributes)
 		const auto& value = element_attribute.second;
 		if (attribute == "id")
 		{
-			id = value.Get<String>();
+			id = value.Get<String>(GetCoreInstance());
 		}
 		else if (attribute == "class")
 		{
-			meta->style.SetClassNames(value.Get<String>());
+			meta->style.SetClassNames(value.Get<String>(GetCoreInstance()));
 		}
 		else if (((attribute == "colspan" || attribute == "rowspan") && meta->computed_values.display() == Style::Display::TableCell) ||
 			(attribute == "span" &&
@@ -1731,7 +1731,7 @@ void Element::OnAttributeChange(const ElementAttributes& changed_attributes)
 			{
 				remove_event_listener_if_exists();
 
-				const auto value_as_string = value.Get<String>();
+				const auto value_as_string = value.Get<String>(GetCoreInstance());
 				auto insertion_result = attribute_event_listeners.emplace(event_id, core_instance.factory.InstanceEventListener(value_as_string, this));
 				if (auto* listener = insertion_result.first->second)
 					event_dispatcher.AttachEvent(event_id, listener, IN_CAPTURE_PHASE);
@@ -2055,7 +2055,7 @@ void Element::GetRML(String& content)
 
 		const Variant& variant = pair.second;
 		String value;
-		if (variant.GetInto(value))
+		if (variant.GetInto(GetCoreInstance(), value))
 		{
 			content += ' ';
 			content += name;
@@ -2076,7 +2076,7 @@ void Element::GetRML(String& content)
 
 		content += GetCoreInstance().styleSheetSpecification->GetPropertyName(id);
 		content += ": ";
-		content += StringUtilities::EncodeRml(property.ToString());
+		content += StringUtilities::EncodeRml(property.ToString(GetCoreInstance()));
 		content += "; ";
 	}
 
@@ -2182,7 +2182,7 @@ void Element::SetParent(Element* _parent)
 		}
 		else if (Context* context = GetContext())
 		{
-			String name = it->second.Get<String>();
+			String name = it->second.Get<String>(GetCoreInstance());
 
 			if (DataModel* model = context->GetDataModelPtr(name))
 			{

@@ -264,7 +264,7 @@ ElementDocument* Context::CreateDocument(const String& instancer_name)
 
 ElementDocument* Context::LoadDocument(const String& document_path)
 {
-	auto stream = MakeUnique<StreamFile>();
+	auto stream = MakeUnique<StreamFile>(GetCoreInstance());
 
 	if (!stream->Open(document_path))
 		return nullptr;
@@ -876,11 +876,11 @@ DataModelConstructor Context::CreateDataModel(const String& name, DataTypeRegist
 	if (!data_type_register)
 	{
 		if (!default_data_type_register)
-			default_data_type_register = MakeUnique<DataTypeRegister>();
+			default_data_type_register = MakeUnique<DataTypeRegister>(GetCoreInstance());
 		data_type_register = default_data_type_register.get();
 	}
 
-	auto result = data_models.emplace(name, MakeUnique<DataModel>(data_type_register));
+	auto result = data_models.emplace(name, MakeUnique<DataModel>(GetCoreInstance(), data_type_register));
 	bool inserted = result.second;
 	if (inserted)
 		return DataModelConstructor(result.first->second.get());

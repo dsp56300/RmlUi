@@ -131,13 +131,13 @@ bool DecoratorText::GenerateGeometry(Element* element, ElementData& element_data
 	return true;
 }
 
-DecoratorTextInstancer::DecoratorTextInstancer()
+DecoratorTextInstancer::DecoratorTextInstancer(CoreInstance& in_core_instance)
 {
 	ids = {};
-	ids.text = RegisterProperty("text", "").AddParser("string").GetId();
-	ids.color = RegisterProperty("color", "inherit-color").AddParser("keyword", "inherit-color").AddParser("color").GetId();
-	ids.align_x = RegisterProperty("align-x", "center").AddParser("keyword", "left, center, right").AddParser("length_percent").GetId();
-	ids.align_y = RegisterProperty("align-y", "center").AddParser("keyword", "top, center, bottom").AddParser("length_percent").GetId();
+	ids.text = RegisterProperty(in_core_instance, "text", "").AddParser("string").GetId();
+	ids.color = RegisterProperty(in_core_instance, "color", "inherit-color").AddParser("keyword", "inherit-color").AddParser("color").GetId();
+	ids.align_x = RegisterProperty(in_core_instance, "align-x", "center").AddParser("keyword", "left, center, right").AddParser("length_percent").GetId();
+	ids.align_y = RegisterProperty(in_core_instance, "align-y", "center").AddParser("keyword", "top, center, bottom").AddParser("length_percent").GetId();
 
 	RegisterShorthand("decorator", "text, color, align-x, align-y, align-x", ShorthandType::FallThrough);
 }
@@ -145,7 +145,7 @@ DecoratorTextInstancer::DecoratorTextInstancer()
 DecoratorTextInstancer::~DecoratorTextInstancer() {}
 
 SharedPtr<Decorator> DecoratorTextInstancer::InstanceDecorator(const String& /*name*/, const PropertyDictionary& properties,
-	const DecoratorInstancerInterface& /*instancer_interface*/)
+	const DecoratorInstancerInterface& instancer_interface)
 {
 	const Property* p_text = properties.GetProperty(ids.text);
 	const Property* p_color = properties.GetProperty(ids.color);
@@ -153,13 +153,15 @@ SharedPtr<Decorator> DecoratorTextInstancer::InstanceDecorator(const String& /*n
 	if (!p_text || !p_color || !p_align[0] || !p_align[1])
 		return nullptr;
 
-	String text = StringUtilities::DecodeRml(p_text->Get<String>());
+	auto& core_instance = instancer_interface.GetRenderManager().GetCoreInstance();
+
+	String text = StringUtilities::DecodeRml(p_text->Get<String>(core_instance));
 	if (text.empty())
 		return nullptr;
 
 	const bool inherit_color = (p_color->unit == Unit::KEYWORD);
-	const Colourb color = (p_color->unit == Unit::COLOUR ? p_color->Get<Colourb>() : Colourb{});
-	const Vector2Numeric align = ComputePosition(p_align);
+	const Colourb color = (p_color->unit == Unit::COLOUR ? p_color->Get<Colourb>(core_instance) : Colourb{});
+	const Vector2Numeric align = ComputePosition(core_instance, p_align);
 
 	auto decorator = MakeShared<DecoratorText>();
 	decorator->Initialise(std::move(text), inherit_color, color, align);

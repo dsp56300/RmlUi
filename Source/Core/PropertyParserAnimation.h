@@ -57,7 +57,7 @@ public:
 
 private:
 	static bool ParseAnimation(Property& property, const StringList& animation_values);
-	static bool ParseTransition(Property& property, const StringList& transition_values);
+	static bool ParseTransition(CoreInstance& in_core_instance, Property& property, const StringList& transition_values);
 
 	static ControlledLifetimeResource<struct PropertyParserAnimationData> parser_data;
 };

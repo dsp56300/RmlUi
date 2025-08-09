@@ -65,16 +65,16 @@ public:
 	{}
 
 	/// Get the value of the property as a string.
-	String ToString() const;
+	String ToString(CoreInstance& core_instance) const;
 
 	/// Get the value of the property as a numeric value, if applicable.
-	NumericValue GetNumericValue() const;
+	NumericValue GetNumericValue(CoreInstance& core_instance) const;
 
 	/// Templatised accessor.
 	template <typename T>
-	T Get() const
+	T Get(CoreInstance& core_instance) const
 	{
-		return value.Get<T>();
+		return value.Get<T>(core_instance);
 	}
 
 	bool operator==(const Property& other) const { return unit == other.unit && value == other.value; }

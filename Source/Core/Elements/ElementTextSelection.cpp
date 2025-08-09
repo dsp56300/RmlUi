@@ -32,7 +32,7 @@
 
 namespace Rml {
 
-ElementTextSelection::ElementTextSelection(const String& tag) : Element(tag)
+ElementTextSelection::ElementTextSelection(CoreInstance& in_core_instance, const String& tag) : Element(in_core_instance, tag)
 {
 	widget = nullptr;
 }

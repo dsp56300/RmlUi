@@ -55,7 +55,7 @@ const TransitionList* Style::ComputedValues::transition() const
 String Style::ComputedValues::font_family() const
 {
 	if (auto p = element->GetProperty(PropertyId::FontFamily))
-		return ComputeFontFamily(p->Get<String>());
+		return ComputeFontFamily(p->Get<String>(element->GetCoreInstance()));
 
 	return String();
 }
@@ -63,7 +63,7 @@ String Style::ComputedValues::font_family() const
 String Style::ComputedValues::cursor() const
 {
 	if (auto p = element->GetProperty(PropertyId::Cursor))
-		return p->Get<String>();
+		return p->Get<String>(element->GetCoreInstance());
 
 	return String();
 }
@@ -73,7 +73,7 @@ float Style::ComputedValues::letter_spacing() const
 	if (inherited.has_letter_spacing)
 	{
 		if (auto p = element->GetProperty(PropertyId::LetterSpacing))
-			return element->ResolveLength(p->GetNumericValue());
+			return element->ResolveLength(p->GetNumericValue(element->GetCoreInstance()));
 	}
 	return 0.f;
 }

@@ -33,10 +33,11 @@
 #include "../../../Include/RmlUi/Core/PropertyIdSet.h"
 #include "../../../Include/RmlUi/Core/StyleSheetSpecification.h"
 #include "WidgetTextInputMultiLine.h"
+#include "RmlUi/Core/CoreInstance.h"
 
 namespace Rml {
 
-ElementFormControlTextArea::ElementFormControlTextArea(const String& tag) : ElementFormControl(tag)
+ElementFormControlTextArea::ElementFormControlTextArea(CoreInstance& core_instance, const String& tag) : ElementFormControl(core_instance, tag)
 {
 	widget = MakeUnique<WidgetTextInputMultiLine>(this);
 	SetWordWrapProperties();
@@ -172,9 +173,11 @@ void ElementFormControlTextArea::OnPropertyChange(const PropertyIdSet& changed_p
 {
 	ElementFormControl::OnPropertyChange(changed_properties);
 
+	auto& style_sheet_specification = *GetCoreInstance().styleSheetSpecification;
+
 	// Some inherited properties require text formatting update, mainly font and line-height properties.
 	const PropertyIdSet changed_inherited_layout_properties = changed_properties &
-		(StyleSheetSpecification::GetRegisteredInheritedProperties() & StyleSheetSpecification::GetRegisteredPropertiesForcingLayout());
+		(style_sheet_specification.GetRegisteredInheritedProperties() & style_sheet_specification.GetRegisteredPropertiesForcingLayout());
 
 	if (!changed_inherited_layout_properties.Empty())
 		widget->ForceFormattingOnNextLayout();

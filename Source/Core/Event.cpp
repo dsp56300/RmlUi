@@ -42,8 +42,8 @@ Event::Event(Element* _target_element, EventId id, const String& type, const Dic
 	if (mouse_x && mouse_y)
 	{
 		has_mouse_position = true;
-		mouse_x->GetInto(mouse_screen_position.x);
-		mouse_y->GetInto(mouse_screen_position.y);
+		mouse_x->GetInto(GetCoreInstance(), mouse_screen_position.x);
+		mouse_y->GetInto(GetCoreInstance(), mouse_screen_position.y);
 	}
 }
 
@@ -146,6 +146,12 @@ void Event::Release()
 EventId Event::GetId() const
 {
 	return id;
+}
+
+CoreInstance& Event::GetCoreInstance() const
+{
+	RMLUI_ASSERT(target_element);
+	return target_element->GetCoreInstance();
 }
 
 void Event::ProjectMouse(Element* element)

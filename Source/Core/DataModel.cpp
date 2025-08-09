@@ -34,7 +34,7 @@
 
 namespace Rml {
 
-static DataAddress ParseAddress(const String& address_str)
+static DataAddress ParseAddress(CoreInstance& in_core_instance, const String& address_str)
 {
 	StringList list;
 	StringUtilities::ExpandString(list, address_str, '.');
@@ -59,7 +59,7 @@ static DataAddress ParseAddress(const String& address_str)
 			if (i_close == String::npos)
 				return DataAddress();
 
-			int index = FromString<int>(item.substr(i_open + 1, i_close - i_open), -1);
+			int index = FromString<int>(in_core_instance, item.substr(i_open + 1, i_close - i_open), -1);
 			if (index < 0)
 				return DataAddress();
 
@@ -101,14 +101,14 @@ static const char* LegalVariableName(const String& name)
 	return nullptr;
 }
 
-static String DataAddressToString(const DataAddress& address)
+static String DataAddressToString(CoreInstance& in_core_instance, const DataAddress& address)
 {
 	String result;
 	bool is_first = true;
 	for (auto& entry : address)
 	{
 		if (entry.index >= 0)
-			result += '[' + ToString(entry.index) + ']';
+			result += '[' + ToString(in_core_instance, entry.index) + ']';
 		else
 		{
 			if (!is_first)
@@ -120,7 +120,7 @@ static String DataAddressToString(const DataAddress& address)
 	return result;
 }
 
-DataModel::DataModel(DataTypeRegister* data_type_register) : data_type_register(data_type_register)
+DataModel::DataModel(CoreInstance& in_core_instance, DataTypeRegister* data_type_register) : core_instance(in_core_instance), data_type_register(data_type_register)
 {
 	views = MakeUnique<DataViews>();
 	controllers = MakeUnique<DataControllers>();
@@ -251,7 +251,7 @@ void DataModel::CopyAliases(Element* from_element, Element* to_element)
 
 DataAddress DataModel::ResolveAddress(const String& address_str, Element* element) const
 {
-	DataAddress address = ParseAddress(address_str);
+	DataAddress address = ParseAddress(core_instance, address_str);
 
 	if (address.empty())
 		return address;
@@ -342,7 +342,7 @@ bool DataModel::GetVariableInto(const DataAddress& address, Variant& out_value) 
 	DataVariable variable = GetVariable(address);
 	bool result = (variable && variable.Get(out_value));
 	if (!result)
-		Log::Message(Log::LT_WARNING, "Could not get value from data variable '%s'.", DataAddressToString(address).c_str());
+		Log::Message(Log::LT_WARNING, "Could not get value from data variable '%s'.", DataAddressToString(core_instance, address).c_str());
 	return result;
 }
 

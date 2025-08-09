@@ -49,7 +49,7 @@ Element* XMLNodeHandlerTemplate::ElementStart(XMLParser* parser, const String& n
 	// Tell the parser to use the default handler for all child nodes
 	parser->PushDefaultHandler();
 
-	const String template_name = Get<String>(attributes, "src", "");
+	const String template_name = Get<String>(parser->GetCoreInstance(), attributes, "src", "");
 	Element* element = parser->GetParseFrame()->element;
 
 	if (template_name.empty())

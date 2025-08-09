@@ -149,9 +149,9 @@ String ComputeFontFamily(String font_family)
 	return StringUtilities::ToLower(std::move(font_family));
 }
 
-Style::Clip ComputeClip(const Property* property)
+Style::Clip ComputeClip(CoreInstance& core_instance, const Property* property)
 {
-	const int value = property->Get<int>();
+	const int value = property->Get<int>(core_instance);
 	if (property->unit == Unit::KEYWORD)
 		return Style::Clip(static_cast<Style::Clip::Type>(value));
 	else if (property->unit == Unit::NUMBER)
@@ -160,11 +160,11 @@ Style::Clip ComputeClip(const Property* property)
 	return Style::Clip();
 }
 
-Style::LineHeight ComputeLineHeight(const Property* property, float font_size, float document_font_size, float dp_ratio, Vector2f vp_dimensions)
+Style::LineHeight ComputeLineHeight(CoreInstance& core_instance, const Property* property, float font_size, float document_font_size, float dp_ratio, Vector2f vp_dimensions)
 {
 	if (Any(property->unit & Unit::LENGTH))
 	{
-		float value = ComputeLength(property->GetNumericValue(), font_size, document_font_size, dp_ratio, vp_dimensions);
+		float value = ComputeLength(property->GetNumericValue(core_instance), font_size, document_font_size, dp_ratio, vp_dimensions);
 		return Style::LineHeight(value, Style::LineHeight::Length, value);
 	}
 
@@ -172,8 +172,8 @@ Style::LineHeight ComputeLineHeight(const Property* property, float font_size, f
 
 	switch (property->unit)
 	{
-	case Unit::NUMBER: scale_factor = property->value.Get<float>(); break;
-	case Unit::PERCENT: scale_factor = property->value.Get<float>() * 0.01f; break;
+	case Unit::NUMBER: scale_factor = property->value.Get<float>(core_instance); break;
+	case Unit::PERCENT: scale_factor = property->value.Get<float>(core_instance) * 0.01f; break;
 	default: RMLUI_ERRORMSG("Invalid unit for line-height");
 	}
 
@@ -181,48 +181,48 @@ Style::LineHeight ComputeLineHeight(const Property* property, float font_size, f
 	return Style::LineHeight(value, Style::LineHeight::Number, scale_factor);
 }
 
-Style::VerticalAlign ComputeVerticalAlign(const Property* property, float line_height, float font_size, float document_font_size, float dp_ratio,
+Style::VerticalAlign ComputeVerticalAlign(CoreInstance& core_instance, const Property* property, float line_height, float font_size, float document_font_size, float dp_ratio,
 	Vector2f vp_dimensions)
 {
 	if (Any(property->unit & Unit::LENGTH))
 	{
-		float value = ComputeLength(property->GetNumericValue(), font_size, document_font_size, dp_ratio, vp_dimensions);
+		float value = ComputeLength(property->GetNumericValue(core_instance), font_size, document_font_size, dp_ratio, vp_dimensions);
 		return Style::VerticalAlign(value);
 	}
 	else if (property->unit == Unit::PERCENT)
 	{
-		return Style::VerticalAlign(property->Get<float>() * line_height * 0.01f);
+		return Style::VerticalAlign(property->Get<float>(core_instance) * line_height * 0.01f);
 	}
 
 	RMLUI_ASSERT(property->unit == Unit::KEYWORD);
-	return Style::VerticalAlign((Style::VerticalAlign::Type)property->Get<int>());
+	return Style::VerticalAlign((Style::VerticalAlign::Type)property->Get<int>(core_instance));
 }
 
-Style::LengthPercentage ComputeLengthPercentage(const Property* property, float font_size, float document_font_size, float dp_ratio,
+Style::LengthPercentage ComputeLengthPercentage(CoreInstance& core_instance, const Property* property, float font_size, float document_font_size, float dp_ratio,
 	Vector2f vp_dimensions)
 {
 	using namespace Style;
 	if (property->unit == Unit::PERCENT)
-		return LengthPercentage(LengthPercentage::Percentage, property->Get<float>());
+		return LengthPercentage(LengthPercentage::Percentage, property->Get<float>(core_instance));
 
 	return LengthPercentage(LengthPercentage::Length,
-		ComputeLength(property->GetNumericValue(), font_size, document_font_size, dp_ratio, vp_dimensions));
+		ComputeLength(property->GetNumericValue(core_instance), font_size, document_font_size, dp_ratio, vp_dimensions));
 }
 
-Style::LengthPercentageAuto ComputeLengthPercentageAuto(const Property* property, float font_size, float document_font_size, float dp_ratio,
+Style::LengthPercentageAuto ComputeLengthPercentageAuto(CoreInstance& core_instance, const Property* property, float font_size, float document_font_size, float dp_ratio,
 	Vector2f vp_dimensions)
 {
 	using namespace Style;
 	if (property->unit == Unit::PERCENT)
-		return LengthPercentageAuto(LengthPercentageAuto::Percentage, property->Get<float>());
+		return LengthPercentageAuto(LengthPercentageAuto::Percentage, property->Get<float>(core_instance));
 	else if (property->unit == Unit::KEYWORD)
 		return LengthPercentageAuto(LengthPercentageAuto::Auto);
 
 	return LengthPercentageAuto(LengthPercentageAuto::Length,
-		ComputeLength(property->GetNumericValue(), font_size, document_font_size, dp_ratio, vp_dimensions));
+		ComputeLength(property->GetNumericValue(core_instance), font_size, document_font_size, dp_ratio, vp_dimensions));
 }
 
-Style::LengthPercentage ComputeOrigin(const Property* property, float font_size, float document_font_size, float dp_ratio, Vector2f vp_dimensions)
+Style::LengthPercentage ComputeOrigin(CoreInstance& core_instance, const Property* property, float font_size, float document_font_size, float dp_ratio, Vector2f vp_dimensions)
 {
 	using namespace Style;
 	static_assert(
@@ -231,7 +231,7 @@ Style::LengthPercentage ComputeOrigin(const Property* property, float font_size,
 	if (property->unit == Unit::KEYWORD)
 	{
 		float percent = 0.0f;
-		OriginX origin = (OriginX)property->Get<int>();
+		OriginX origin = (OriginX)property->Get<int>(core_instance);
 		switch (origin)
 		{
 		case OriginX::Left: percent = 0.0f; break;
@@ -241,21 +241,21 @@ Style::LengthPercentage ComputeOrigin(const Property* property, float font_size,
 		return LengthPercentage(LengthPercentage::Percentage, percent);
 	}
 	else if (property->unit == Unit::PERCENT)
-		return LengthPercentage(LengthPercentage::Percentage, property->Get<float>());
+		return LengthPercentage(LengthPercentage::Percentage, property->Get<float>(core_instance));
 
 	return LengthPercentage(LengthPercentage::Length,
-		ComputeLength(property->GetNumericValue(), font_size, document_font_size, dp_ratio, vp_dimensions));
+		ComputeLength(property->GetNumericValue(core_instance), font_size, document_font_size, dp_ratio, vp_dimensions));
 }
 
-Style::LengthPercentage ComputeMaxSize(const Property* property, float font_size, float document_font_size, float dp_ratio, Vector2f vp_dimensions)
+Style::LengthPercentage ComputeMaxSize(CoreInstance& core_instance, const Property* property, float font_size, float document_font_size, float dp_ratio, Vector2f vp_dimensions)
 {
 	using namespace Style;
 	if (Any(property->unit & Unit::KEYWORD))
 		return LengthPercentage(LengthPercentage::Length, FLT_MAX);
 	else if (Any(property->unit & Unit::PERCENT))
-		return LengthPercentage(LengthPercentage::Percentage, property->Get<float>());
+		return LengthPercentage(LengthPercentage::Percentage, property->Get<float>(core_instance));
 
-	const float length = ComputeLength(property->GetNumericValue(), font_size, document_font_size, dp_ratio, vp_dimensions);
+	const float length = ComputeLength(property->GetNumericValue(core_instance), font_size, document_font_size, dp_ratio, vp_dimensions);
 	return LengthPercentage(LengthPercentage::Length, length < 0.f ? FLT_MAX : length);
 }
 
@@ -270,7 +270,7 @@ uint16_t ComputeBorderWidth(float computed_length)
 	return uint16_t(computed_length + 0.5f);
 }
 
-String GetFontFaceDescription(const String& font_family, Style::FontStyle style, Style::FontWeight weight)
+String GetFontFaceDescription(CoreInstance& core_instance, const String& font_family, Style::FontStyle style, Style::FontWeight weight)
 {
 	String font_attributes;
 
@@ -279,7 +279,7 @@ String GetFontFaceDescription(const String& font_family, Style::FontStyle style,
 	if (weight == Style::FontWeight::Bold)
 		font_attributes += "bold, ";
 	else if (weight != Style::FontWeight::Auto && weight != Style::FontWeight::Normal)
-		font_attributes += "weight=" + ToString((int)weight) + ", ";
+		font_attributes += "weight=" + ToString(core_instance, (int)weight) + ", ";
 
 	if (font_attributes.empty())
 		font_attributes = "regular";

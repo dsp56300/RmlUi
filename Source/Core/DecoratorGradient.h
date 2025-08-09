@@ -65,7 +65,7 @@ private:
 
 class DecoratorStraightGradientInstancer : public DecoratorInstancer {
 public:
-	DecoratorStraightGradientInstancer();
+	DecoratorStraightGradientInstancer(CoreInstance& in_core_instance);
 	virtual ~DecoratorStraightGradientInstancer();
 
 	SharedPtr<Decorator> InstanceDecorator(const String& name, const PropertyDictionary& properties,
@@ -112,7 +112,7 @@ private:
 
 class DecoratorLinearGradientInstancer : public DecoratorInstancer {
 public:
-	DecoratorLinearGradientInstancer();
+	DecoratorLinearGradientInstancer(CoreInstance& in_core_instance);
 	virtual ~DecoratorLinearGradientInstancer();
 
 	SharedPtr<Decorator> InstanceDecorator(const String& name, const PropertyDictionary& properties,
@@ -173,7 +173,7 @@ private:
 
 class DecoratorRadialGradientInstancer : public DecoratorInstancer {
 public:
-	DecoratorRadialGradientInstancer();
+	DecoratorRadialGradientInstancer(CoreInstance& in_core_instance);
 	virtual ~DecoratorRadialGradientInstancer();
 
 	SharedPtr<Decorator> InstanceDecorator(const String& name, const PropertyDictionary& properties,
@@ -213,7 +213,7 @@ private:
 
 class DecoratorConicGradientInstancer : public DecoratorInstancer {
 public:
-	DecoratorConicGradientInstancer();
+	DecoratorConicGradientInstancer(CoreInstance& in_core_instance);
 	virtual ~DecoratorConicGradientInstancer();
 
 	SharedPtr<Decorator> InstanceDecorator(const String& name, const PropertyDictionary& properties,

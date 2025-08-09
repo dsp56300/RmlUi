@@ -34,6 +34,8 @@ namespace Rml {
 
 class RMLUICORE_API FontEngineInterfaceDefault : public FontEngineInterface {
 public:
+	FontEngineInterfaceDefault(CoreInstance& in_core_instance);
+
 	/// Called when RmlUi is being initialized.
 	void Initialize() override;
 
@@ -71,6 +73,9 @@ public:
 
 	/// Releases resources owned by sized font faces, including their textures and rendered glyphs.
 	void ReleaseFontResources() override;
+
+private:
+	CoreInstance& core_instance;
 };
 
 } // namespace Rml

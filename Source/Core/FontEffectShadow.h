@@ -63,10 +63,10 @@ private:
 
 class FontEffectShadowInstancer : public FontEffectInstancer {
 public:
-	FontEffectShadowInstancer();
+	FontEffectShadowInstancer(CoreInstance& in_core_instance);
 	virtual ~FontEffectShadowInstancer();
 
-	SharedPtr<FontEffect> InstanceFontEffect(const String& name, const PropertyDictionary& properties) override;
+	SharedPtr<FontEffect> InstanceFontEffect(CoreInstance& in_core_instance, const String& name, const PropertyDictionary& properties) override;
 
 private:
 	PropertyId id_offset_x, id_offset_y, id_color;

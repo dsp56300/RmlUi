@@ -76,9 +76,9 @@ void DecoratorTiledImage::RenderElement(Element* element, DecoratorDataHandle el
 	data->Render(element->GetAbsoluteOffset(BoxArea::Border), GetTexture());
 }
 
-DecoratorTiledImageInstancer::DecoratorTiledImageInstancer() : DecoratorTiledInstancer(1)
+DecoratorTiledImageInstancer::DecoratorTiledImageInstancer(CoreInstance& in_core_instance) : DecoratorTiledInstancer(1)
 {
-	RegisterTileProperty("image", true);
+	RegisterTileProperty(in_core_instance, "image", true);
 	RegisterShorthand("decorator", "image", ShorthandType::RecursiveRepeat);
 }
 
