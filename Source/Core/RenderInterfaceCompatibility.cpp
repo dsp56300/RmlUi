@@ -40,7 +40,7 @@ static void UnPremultiplyAlpha(const byte* source, byte* destination)
 	destination[3] = alpha;
 }
 
-RenderInterfaceCompatibility::RenderInterfaceCompatibility() : adapter(new RenderInterfaceAdapter(*this)) {}
+RenderInterfaceCompatibility::RenderInterfaceCompatibility(CoreInstance& in_core_instance) : adapter(new RenderInterfaceAdapter(in_core_instance, *this)) {}
 
 RenderInterfaceCompatibility::~RenderInterfaceCompatibility() {}
 
@@ -73,7 +73,7 @@ RenderInterface* RenderInterfaceCompatibility::GetAdaptedInterface()
 	return static_cast<RenderInterface*>(adapter.get());
 }
 
-RenderInterfaceAdapter::RenderInterfaceAdapter(RenderInterfaceCompatibility& legacy) : legacy(legacy) {}
+RenderInterfaceAdapter::RenderInterfaceAdapter(CoreInstance& in_core_instance, RenderInterfaceCompatibility& legacy) : RenderInterface(in_core_instance), legacy(legacy) {}
 
 CompiledGeometryHandle RenderInterfaceAdapter::CompileGeometry(Span<const Vertex> vertices, Span<const int> indices)
 {

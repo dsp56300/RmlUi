@@ -58,7 +58,7 @@ UniquePtr<LayoutBox> ReplacedFormattingContext::Format(ContainerBox* parent_cont
 	// own rendering, this could cause conflicting or strange layout results, and is done at the user's own risk.
 	if (element->HasChildNodes())
 	{
-		RootBox root(box);
+		RootBox root(element->GetCoreInstance(), box);
 		BlockFormattingContext::Format(&root, element, &box);
 	}
 

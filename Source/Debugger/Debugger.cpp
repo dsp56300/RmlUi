@@ -29,6 +29,7 @@
 #include "../../Include/RmlUi/Debugger/Debugger.h"
 #include "../../Include/RmlUi/Core/Core.h"
 #include "DebuggerPlugin.h"
+#include "RmlUi/Core/Context.h"
 
 namespace Rml {
 namespace Debugger {
@@ -51,7 +52,7 @@ bool Initialise(Context* context)
 	}
 
 	SetContext(context);
-	RegisterPlugin(plugin);
+	RegisterPlugin(context->GetCoreInstance(), plugin);
 
 	return true;
 }
@@ -65,7 +66,7 @@ void Shutdown()
 		return;
 	}
 
-	UnregisterPlugin(plugin);
+	UnregisterPlugin(plugin->GetDebugContext()->GetCoreInstance(), plugin);
 }
 
 bool SetContext(Context* context)

@@ -35,9 +35,9 @@ bool DataVariable::Get(Variant& variant)
 	return definition->Get(ptr, variant);
 }
 
-bool DataVariable::Set(const Variant& variant)
+bool DataVariable::Set(CoreInstance& in_core_instance, const Variant& variant)
 {
-	return definition->Set(ptr, variant);
+	return definition->Set(in_core_instance, ptr, variant);
 }
 
 int DataVariable::Size()
@@ -60,7 +60,7 @@ bool VariableDefinition::Get(void* /*ptr*/, Variant& /*variant*/)
 	Log::Message(Log::LT_WARNING, "Values can only be retrieved from scalar data types.");
 	return false;
 }
-bool VariableDefinition::Set(void* /*ptr*/, const Variant& /*variant*/)
+bool VariableDefinition::Set(CoreInstance&, void* /*ptr*/, const Variant& /*variant*/)
 {
 	Log::Message(Log::LT_WARNING, "Values can only be assigned to scalar data types.");
 	return false;
@@ -136,7 +136,7 @@ bool FuncDefinition::Get(void* /*ptr*/, Variant& variant)
 	return true;
 }
 
-bool FuncDefinition::Set(void* /*ptr*/, const Variant& variant)
+bool FuncDefinition::Set(CoreInstance&, void* /*ptr*/, const Variant& variant)
 {
 	if (!set)
 		return false;
@@ -155,11 +155,11 @@ bool BasePointerDefinition::Get(void* ptr, Variant& variant)
 	return underlying_definition->Get(DereferencePointer(ptr), variant);
 }
 
-bool BasePointerDefinition::Set(void* ptr, const Variant& variant)
+bool BasePointerDefinition::Set(CoreInstance& in_core_instance, void* ptr, const Variant& variant)
 {
 	if (!ptr)
 		return false;
-	return underlying_definition->Set(DereferencePointer(ptr), variant);
+	return underlying_definition->Set(in_core_instance, DereferencePointer(ptr), variant);
 }
 
 int BasePointerDefinition::Size(void* ptr)

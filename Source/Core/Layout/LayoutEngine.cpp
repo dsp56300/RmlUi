@@ -39,7 +39,7 @@ void LayoutEngine::FormatElement(Element* element, Vector2f containing_block)
 {
 	RMLUI_ASSERT(element && containing_block.x >= 0 && containing_block.y >= 0);
 
-	RootBox root(containing_block);
+	RootBox root(element->GetCoreInstance(), containing_block);
 
 	auto layout_box = FormattingContext::FormatIndependent(&root, element, nullptr, FormattingContextType::Block);
 	if (!layout_box)

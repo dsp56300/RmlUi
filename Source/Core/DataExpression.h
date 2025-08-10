@@ -48,7 +48,7 @@ public:
 
 	DataAddress ParseAddress(const String& address_str) const;
 	Variant GetValue(const DataAddress& address) const;
-	bool SetValue(const DataAddress& address, const Variant& value) const;
+	bool SetValue(CoreInstance& in_core_instance, const DataAddress& address, const Variant& value) const;
 	bool CallTransform(const String& name, const VariantList& arguments, Variant& out_result);
 	bool EventCallback(const String& name, const VariantList& arguments);
 

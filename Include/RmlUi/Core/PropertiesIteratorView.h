@@ -34,6 +34,7 @@
 namespace Rml {
 
 class PropertiesIterator;
+class StyleSheetSpecification;
 
 /**
     Provides an iterator for properties defined in the element's style or definition.

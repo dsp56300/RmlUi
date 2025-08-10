@@ -81,7 +81,7 @@ void DataControllerValue::ProcessEvent(Event& event)
 			return;
 
 		if (DataVariable variable = model->GetVariable(address))
-			if (variable.Set(value_to_set))
+			if (variable.Set(element->GetCoreInstance(), value_to_set))
 				model->DirtyVariable(address.front().name);
 	}
 }

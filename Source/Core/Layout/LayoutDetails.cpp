@@ -274,7 +274,7 @@ float LayoutDetails::GetShrinkToFitWidth(Element* element, Vector2f containing_b
 	// width. For block containers, this is essentially its largest line or child box.
 	// @performance. Some formatting can be simplified, e.g. absolute elements do not contribute to the shrink-to-fit
 	// width. Also, children of elements with a fixed width and height don't need to be formatted further.
-	RootBox root(Math::Max(containing_block, Vector2f(0.f)));
+	RootBox root(element->GetCoreInstance(), Math::Max(containing_block, Vector2f(0.f)));
 	UniquePtr<LayoutBox> layout_box = FormattingContext::FormatIndependent(&root, element, &box, FormattingContextType::Block);
 
 	float shrink_to_fit_width = layout_box->GetShrinkToFitWidth();

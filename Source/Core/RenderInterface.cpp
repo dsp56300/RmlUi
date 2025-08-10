@@ -31,16 +31,16 @@
 namespace Rml {
 
 namespace CoreInternal {
-	bool HasRenderManager(RenderInterface* render_interface);
+	bool HasRenderManager(CoreInstance& in_core_instance, RenderInterface* render_interface);
 }
 
-RenderInterface::RenderInterface() {}
+RenderInterface::RenderInterface(CoreInstance& in_core_instance) : core_instance(in_core_instance) {}
 
 RenderInterface::~RenderInterface()
 {
 	// Note: We cannot automatically release render resources here, because that involves a virtual call to this interface during its destruction
 	// which is illegal.
-	RMLUI_ASSERTMSG(!CoreInternal::HasRenderManager(this),
+	RMLUI_ASSERTMSG(!CoreInternal::HasRenderManager(core_instance, this),
 		"RenderInterface is being destroyed, but it is still actively referenced and used within the RmlUi library. This may lead to use-after-free "
 		"or nullptr dereference when releasing render resources. Ensure that the render interface is destroyed *after* the call to Rml::Shutdown.");
 }

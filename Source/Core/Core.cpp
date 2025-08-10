@@ -155,7 +155,7 @@ bool Initialise(CoreInstance& in_core_instance)
 
 	TemplateCache::Initialise(in_core_instance);
 
-	in_core_instance.factory.Initialise();
+	in_core_instance.factory->Initialise();
 
 	// Initialise plugins integrated with Core.
 #ifdef RMLUI_LOTTIE_PLUGIN
@@ -192,7 +192,7 @@ void Shutdown(CoreInstance& in_core_instance)
 	// Notify all plugins we're being shutdown.
 	PluginRegistry::NotifyShutdown(in_core_instance);
 
-	in_core_instance.factory.Shutdown();
+	in_core_instance.factory->Shutdown();
 	TemplateCache::Shutdown(in_core_instance);
 	StyleSheetFactory::Shutdown(in_core_instance);
 	StyleSheetParser::Shutdown(in_core_instance);
@@ -305,7 +305,7 @@ Context* CreateContext(CoreInstance& instance, const String& name, const Vector2
 	if (!render_manager)
 		render_manager = MakeUnique<RenderManager>(instance, render_interface_for_context);
 
-	ContextPtr new_context = instance.factory.InstanceContext(name, render_manager.get(), text_input_handler_for_context);
+	ContextPtr new_context = instance.factory->InstanceContext(name, render_manager.get(), text_input_handler_for_context);
 	if (!new_context)
 	{
 		Log::Message(Log::LT_WARNING, "Failed to instance context '%s', instancer returned nullptr.", name.c_str());

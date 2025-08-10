@@ -82,7 +82,7 @@ bool PropertyParserFilter::ParseValue(Property& property, const String& filter_s
 			const String type = StringUtilities::StripWhitespace(filter_string.substr(0, shorthand_open));
 
 			// Check for valid filter type
-			FilterInstancer* instancer = core_instance.factory.GetFilterInstancer(type);
+			FilterInstancer* instancer = core_instance.factory->GetFilterInstancer(type);
 			if (!instancer)
 			{
 				Log::Message(Log::LT_WARNING, "Filter type '%s' not found.", type.c_str());

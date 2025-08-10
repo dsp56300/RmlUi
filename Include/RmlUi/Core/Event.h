@@ -30,7 +30,6 @@
 #define RMLUI_CORE_EVENT_H
 
 #include "Dictionary.h"
-#include "Element.h"
 #include "Header.h"
 #include "ID.h"
 #include "ScriptInterface.h"

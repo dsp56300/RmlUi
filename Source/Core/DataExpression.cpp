@@ -1098,7 +1098,7 @@ private:
 			size_t variable_index = size_t(data.Get<int>(core_instance, -1));
 			if (variable_index < addresses.size())
 			{
-				if (!expression_interface.SetValue(addresses[variable_index], R))
+				if (!expression_interface.SetValue(core_instance, addresses[variable_index], R))
 					return Error("Could not assign to variable.");
 			}
 			else
@@ -1213,13 +1213,13 @@ Variant DataExpressionInterface::GetValue(const DataAddress& address) const
 	return result;
 }
 
-bool DataExpressionInterface::SetValue(const DataAddress& address, const Variant& value) const
+bool DataExpressionInterface::SetValue(CoreInstance& in_core_instance, const DataAddress& address, const Variant& value) const
 {
 	bool result = false;
 	if (data_model && !address.empty())
 	{
 		if (DataVariable variable = data_model->GetVariable(address))
-			result = variable.Set(value);
+			result = variable.Set(in_core_instance, value);
 
 		if (result)
 			data_model->DirtyVariable(address.front().name);

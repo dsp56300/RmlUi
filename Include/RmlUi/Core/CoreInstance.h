@@ -13,9 +13,11 @@ font manager, rml plugins, file interface, etc.
 
 namespace Rml
 {
+	class Factory;
 	struct ObserverPtrData;
 	struct EventSpecificationData;
 	struct StyleSheetParserData;
+	class StyleSheetSpecification;
 	class StyleSheetFactory;
 	class FontProvider;
 	class TemplateCache;
@@ -26,6 +28,11 @@ namespace Rml
 	struct LayoutPoolsData;
 	struct FactoryData;
 	struct ElementMetaPool;
+	class RenderInterface;
+	class TextInputHandler;
+	class SystemInterface;
+	class FileInterface;
+	class FontEngineInterface;
 
 	class CoreInstance final : NonCopyMoveable
 	{
@@ -71,7 +78,7 @@ namespace Rml
 
 		ControlledLifetimeResource<EventSpecificationData> event_specification_data;
 
-		Factory factory;
+		Factory* factory;
 
 		bool initialised = false;
 	};

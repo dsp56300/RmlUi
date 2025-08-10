@@ -60,7 +60,7 @@ public:
 	bool IsAbsolutePositioningContainingBlock() const { return is_absolute_positioning_containing_block; }
 
 protected:
-	ContainerBox(Type type, Element* element, ContainerBox* parent_container);
+	ContainerBox(CoreInstance& in_core_instance, Type type, Element* element, ContainerBox* parent_container);
 
 	/// Checks if we have a new overflow on an auto-scrolling element. If so, our vertical scrollbar will be enabled and
 	/// our block boxes will be destroyed. All content will need to be re-formatted.
@@ -110,8 +110,8 @@ private:
 */
 class RootBox final : public ContainerBox {
 public:
-	RootBox(Vector2f containing_block) : ContainerBox(Type::Root, nullptr, nullptr), box(containing_block) {}
-	RootBox(const Box& box) : ContainerBox(Type::Root, nullptr, nullptr), box(box) {}
+	RootBox(CoreInstance& in_core_instance, Vector2f containing_block) : ContainerBox(in_core_instance, Type::Root, nullptr, nullptr), box(containing_block) {}
+	RootBox(CoreInstance& in_core_instance, const Box& box) : ContainerBox(in_core_instance, Type::Root, nullptr, nullptr), box(box) {}
 
 	const Box* GetIfBox() const override { return &box; }
 	String DebugDumpTree(int depth) const override;

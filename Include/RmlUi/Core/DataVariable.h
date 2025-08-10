@@ -54,7 +54,7 @@ public:
 	explicit operator bool() const { return definition; }
 
 	bool Get(Variant& variant);
-	bool Set(const Variant& variant);
+	bool Set(CoreInstance& in_core_instance, const Variant& variant);
 	int Size();
 	DataVariable Child(const DataAddressEntry& address);
 	DataVariableType Type();
@@ -76,7 +76,7 @@ public:
 	DataVariableType Type() const { return type; }
 
 	virtual bool Get(void* ptr, Variant& variant);
-	virtual bool Set(void* ptr, const Variant& variant);
+	virtual bool Set(CoreInstance&, void* ptr, const Variant& variant);
 
 	virtual int Size(void* ptr);
 	virtual DataVariable Child(void* ptr, const DataAddressEntry& address);
@@ -101,7 +101,7 @@ public:
 		variant = *static_cast<const T*>(ptr);
 		return true;
 	}
-	bool Set(void* ptr, const Variant& variant) override { return variant.GetInto<T>(*static_cast<T*>(ptr)); }
+	bool Set(CoreInstance& in_core_instance, void* ptr, const Variant& variant) override { return variant.GetInto<T>(in_core_instance, *static_cast<T*>(ptr)); }
 };
 
 class RMLUICORE_API FuncDefinition final : public VariableDefinition {
@@ -109,7 +109,7 @@ public:
 	FuncDefinition(DataGetFunc get, DataSetFunc set);
 
 	bool Get(void* ptr, Variant& variant) override;
-	bool Set(void* ptr, const Variant& variant) override;
+	bool Set(CoreInstance&, void* ptr, const Variant& variant) override;
 
 private:
 	DataGetFunc get;
@@ -128,7 +128,7 @@ public:
 		get(*static_cast<const T*>(ptr), variant);
 		return true;
 	}
-	bool Set(void* ptr, const Variant& variant) override
+	bool Set(CoreInstance&, void* ptr, const Variant& variant) override
 	{
 		if (!set)
 			return false;
@@ -194,7 +194,7 @@ public:
 	BasePointerDefinition(VariableDefinition* underlying_definition);
 
 	bool Get(void* ptr, Variant& variant) override;
-	bool Set(void* ptr, const Variant& variant) override;
+	bool Set(CoreInstance&, void* ptr, const Variant& variant) override;
 	int Size(void* ptr) override;
 	DataVariable Child(void* ptr, const DataAddressEntry& address) override;
 
@@ -258,7 +258,7 @@ public:
 	{}
 
 	bool Get(void* ptr, Variant& variant) override { return GetDetail(ptr, variant); }
-	bool Set(void* ptr, const Variant& variant) override { return SetDetail(ptr, variant); }
+	bool Set(CoreInstance&, void* ptr, const Variant& variant) override { return SetDetail(ptr, variant); }
 
 private:
 	template <typename T = MemberGetType, typename std::enable_if_t<IsVoidMemberFunc<T>::value, int> = 0>
@@ -278,18 +278,18 @@ private:
 	}
 
 	template <typename T = MemberSetType, typename std::enable_if_t<IsVoidMemberFunc<T>::value, int> = 0>
-	bool SetDetail(void* /*ptr*/, const Variant& /*variant*/)
+	bool SetDetail(CoreInstance& /*in_core_instance*/, void* /*ptr*/, const Variant& /*variant*/)
 	{
 		return false;
 	}
 
 	template <typename T = MemberSetType, typename std::enable_if_t<!IsVoidMemberFunc<T>::value, int> = 0>
-	bool SetDetail(void* ptr, const Variant& variant)
+	bool SetDetail(CoreInstance& in_core_instance, void* ptr, const Variant& variant)
 	{
 		RMLUI_ASSERT(member_set_func_ptr);
 
 		UnderlyingType result;
-		if (!underlying_definition->Set(static_cast<void*>(&result), variant))
+		if (!underlying_definition->Set(in_core_instance, static_cast<void*>(&result), variant))
 			return false;
 
 		(static_cast<Object*>(ptr)->*member_set_func_ptr)(result);

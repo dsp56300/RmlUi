@@ -44,9 +44,9 @@
 #include "Types.h"
 
 namespace Rml {
-	class CoreInstance;
+class CoreInstance;
 
-	class Context;
+class Context;
 class DataModel;
 class Decorator;
 class ElementInstancer;
@@ -57,6 +57,7 @@ class ElementDefinition;
 class ElementDocument;
 class ElementScroll;
 class ElementStyle;
+class Factory;
 class LayoutEngine;
 class ContainerBox;
 class InlineLevelBox;

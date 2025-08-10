@@ -50,7 +50,7 @@ XMLParser::XMLParser(CoreInstance& core_instance, Element* root) : core_instance
 	RegisterCDATATag("script");
 	RegisterCDATATag("style");
 
-	for (const String& name : core_instance.factory.GetStructuralDataViewAttributeNames())
+	for (const String& name : core_instance.factory->GetStructuralDataViewAttributeNames())
 		RegisterInnerXMLAttribute(name);
 
 	// Add the first frame.

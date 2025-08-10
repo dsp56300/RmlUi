@@ -2,12 +2,13 @@
 
 namespace Rml
 {
-	CoreInstance::CoreInstance() : factory(*this)
+	CoreInstance::CoreInstance() : factory(new Factory(*this))
 	{
 	}
 
 	CoreInstance::~CoreInstance()
 	{
+		delete factory;
 		ElementInstancerElement::CheckPoolsOnShutdown(*this);
 	}
 }

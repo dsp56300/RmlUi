@@ -254,7 +254,7 @@ ElementPtr Element::Clone() const
 			clone->SetInstancer(instancer);
 	}
 	else
-		clone = core_instance.factory.InstanceElement(nullptr, GetTagName(), GetTagName(), attributes);
+		clone = core_instance.factory->InstanceElement(nullptr, GetTagName(), GetTagName(), attributes);
 
 	if (clone)
 	{
@@ -1163,7 +1163,7 @@ void Element::SetInnerRML(const String& rml)
 		RemoveChild(children.front().get());
 
 	if (!rml.empty())
-		core_instance.factory.InstanceElementText(this, rml);
+		core_instance.factory->InstanceElementText(this, rml);
 }
 
 bool Element::Focus(bool focus_visible)
@@ -1732,7 +1732,7 @@ void Element::OnAttributeChange(const ElementAttributes& changed_attributes)
 				remove_event_listener_if_exists();
 
 				const auto value_as_string = value.Get<String>(GetCoreInstance());
-				auto insertion_result = attribute_event_listeners.emplace(event_id, core_instance.factory.InstanceEventListener(value_as_string, this));
+				auto insertion_result = attribute_event_listeners.emplace(event_id, core_instance.factory->InstanceEventListener(value_as_string, this));
 				if (auto* listener = insertion_result.first->second)
 					event_dispatcher.AttachEvent(event_id, listener, IN_CAPTURE_PHASE);
 			}
@@ -2037,7 +2037,7 @@ CoreInstance& Element::GetCoreInstance() const
 
 Factory& Element::GetFactory() const
 {
-	return GetCoreInstance().factory;
+	return *GetCoreInstance().factory;
 }
 
 void Element::GetRML(String& content)

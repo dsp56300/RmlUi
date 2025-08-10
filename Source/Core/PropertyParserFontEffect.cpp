@@ -87,7 +87,7 @@ bool PropertyParserFontEffect::ParseValue(Property& property, const String& font
 			const String type = StringUtilities::StripWhitespace(font_effect_string.substr(0, shorthand_open));
 
 			// Check for valid font-effect type
-			FontEffectInstancer* instancer = core_instance.factory.GetFontEffectInstancer(type);
+			FontEffectInstancer* instancer = core_instance.factory->GetFontEffectInstancer(type);
 			if (!instancer)
 			{
 				Log::Message(Log::LT_WARNING, "Font-effect type '%s' not found.", type.c_str());

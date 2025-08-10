@@ -94,6 +94,10 @@ public:
 	/// @return nullptr or an instance of the plugin
 	static DebuggerPlugin* GetInstance();
 
+	/// Access the context being debugged.
+	/// @return The context being debugged, or nullptr if no context is set.
+	Context* GetDebugContext() const;
+
 private:
 	bool LoadFont();
 	bool LoadMenuElement();

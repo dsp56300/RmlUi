@@ -43,6 +43,8 @@
 #include "MenuSource.h"
 #include <stack>
 
+#include "RmlUi/Core/CoreInstance.h"
+
 namespace Rml {
 namespace Debugger {
 
@@ -89,7 +91,7 @@ bool DebuggerPlugin::Initialise(Context* context)
 	}
 
 	hook_element_instancer = MakeUnique<ElementInstancerGeneric<ElementContextHook>>();
-	Factory::RegisterElementInstancer("debug-hook", hook_element_instancer.get());
+	context->GetCoreInstance().factory->RegisterElementInstancer("debug-hook", hook_element_instancer.get());
 
 	return true;
 }
@@ -263,19 +265,29 @@ DebuggerPlugin* DebuggerPlugin::GetInstance()
 	return instance;
 }
 
+Context* DebuggerPlugin::GetDebugContext() const
+{
+	return debug_context;
+}
+
 bool DebuggerPlugin::LoadFont()
 {
 	const String font_family_name = "rmlui-debugger-font";
 
-	return (LoadFontFace({courier_prime_code, sizeof(courier_prime_code)}, font_family_name, Style::FontStyle::Normal, Style::FontWeight::Normal) &&
-		LoadFontFace({courier_prime_code_italic, sizeof(courier_prime_code_italic)}, font_family_name, Style::FontStyle::Italic,
+	auto& core_instance = host_context->GetCoreInstance();
+
+	return (LoadFontFace(core_instance, {courier_prime_code, sizeof(courier_prime_code)}, font_family_name, Style::FontStyle::Normal, Style::FontWeight::Normal) &&
+		LoadFontFace(core_instance, {courier_prime_code_italic, sizeof(courier_prime_code_italic)}, font_family_name, Style::FontStyle::Italic,
 			Style::FontWeight::Normal));
 }
 
 bool DebuggerPlugin::LoadMenuElement()
 {
 	debug_document_instancer = MakeUnique<ElementInstancerGeneric<ElementDebugDocument>>();
-	Factory::RegisterElementInstancer("debug-document", debug_document_instancer.get());
+
+	auto& core_instance = host_context->GetCoreInstance();
+
+	core_instance.factory->RegisterElementInstancer("debug-document", debug_document_instancer.get());
 	menu_element = host_context->CreateDocument("debug-document");
 	if (!menu_element)
 		return false;
@@ -284,7 +296,7 @@ bool DebuggerPlugin::LoadMenuElement()
 	menu_element->SetProperty(PropertyId::Visibility, Property(Style::Visibility::Hidden));
 	menu_element->SetInnerRML(menu_rml);
 
-	SharedPtr<StyleSheetContainer> style_sheet = Factory::InstanceStyleSheetString(menu_rcss);
+	SharedPtr<StyleSheetContainer> style_sheet = core_instance.factory->InstanceStyleSheetString(menu_rcss);
 	if (!style_sheet)
 	{
 		host_context->UnloadDocument(menu_element);
@@ -312,8 +324,10 @@ bool DebuggerPlugin::LoadMenuElement()
 
 bool DebuggerPlugin::LoadInfoElement()
 {
+	auto& core_instance = host_context->GetCoreInstance();
+
 	info_element_instancer = MakeUnique<ElementInstancerGeneric<ElementInfo>>();
-	Factory::RegisterElementInstancer("debug-info", info_element_instancer.get());
+	core_instance.factory->RegisterElementInstancer("debug-info", info_element_instancer.get());
 	info_element = rmlui_dynamic_cast<ElementInfo*>(host_context->CreateDocument("debug-info"));
 	if (!info_element)
 		return false;
@@ -334,7 +348,8 @@ bool DebuggerPlugin::LoadInfoElement()
 bool DebuggerPlugin::LoadLogElement()
 {
 	log_element_instancer = MakeUnique<ElementInstancerGeneric<ElementLog>>();
-	Factory::RegisterElementInstancer("debug-log", log_element_instancer.get());
+	auto& core_instance = host_context->GetCoreInstance();
+	core_instance.factory->RegisterElementInstancer("debug-log", log_element_instancer.get());
 	log_element = rmlui_dynamic_cast<ElementLog*>(host_context->CreateDocument("debug-log"));
 	if (!log_element)
 		return false;
@@ -350,9 +365,9 @@ bool DebuggerPlugin::LoadLogElement()
 	}
 
 	// Make the system interface; this will trap the log messages for us.
-	application_interface = Rml::GetSystemInterface();
+	application_interface = Rml::GetSystemInterface(core_instance);
 	log_interface = MakeUnique<DebuggerSystemInterface>(application_interface, log_element);
-	Rml::SetSystemInterface(log_interface.get());
+	Rml::SetSystemInterface(core_instance, log_interface.get());
 
 	return true;
 }
@@ -400,7 +415,7 @@ void DebuggerPlugin::ReleaseElements()
 		{
 			host_context->UnloadDocument(log_element);
 			log_element = nullptr;
-			Rml::SetSystemInterface(application_interface);
+			Rml::SetSystemInterface(host_context->GetCoreInstance(), application_interface);
 			application_interface = nullptr;
 			log_interface.reset();
 		}

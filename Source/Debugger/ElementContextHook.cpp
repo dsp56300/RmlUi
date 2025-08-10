@@ -32,7 +32,7 @@
 namespace Rml {
 namespace Debugger {
 
-ElementContextHook::ElementContextHook(const String& tag) : ElementDebugDocument(tag)
+ElementContextHook::ElementContextHook(CoreInstance& core_instance, const String& tag) : ElementDebugDocument(core_instance, tag)
 {
 	debugger = nullptr;
 }

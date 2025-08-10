@@ -464,7 +464,7 @@ void ElementInfo::UpdateSourceElement()
 			{
 				auto& name = pair.first;
 				auto& variant = pair.second;
-				String value = StringUtilities::EncodeRml(variant.Get<String>());
+				String value = StringUtilities::EncodeRml(variant.Get<String>(GetCoreInstance()));
 				if (name != "class" && name != "style" && name != "id")
 					attributes += CreateString("%s: <em>%s</em><br />", name.c_str(), value.c_str());
 			}
@@ -542,21 +542,21 @@ void ElementInfo::UpdateSourceElement()
 			const String offset_parent_rml =
 				(offset_parent ? StringUtilities::EncodeRml(offset_parent->GetAddress(false, false)) : String("<em>none</em>"));
 
-			auto box_string = [&box](BoxDirection direction) {
+			auto box_string = [this, &box](BoxDirection direction) {
 				const BoxEdge edge1 = (direction == BoxDirection::Horizontal ? BoxEdge::Left : BoxEdge::Top);
 				const BoxEdge edge2 = (direction == BoxDirection::Horizontal ? BoxEdge::Right : BoxEdge::Bottom);
 				const float content_size = (direction == BoxDirection::Horizontal ? box.GetSize().x : box.GetSize().y);
-				const String edge1_str = ToString(box.GetEdge(BoxArea::Margin, edge1)) + "|" + ToString(box.GetEdge(BoxArea::Border, edge1)) + "|" +
-					ToString(box.GetEdge(BoxArea::Padding, edge1));
-				const String edge2_str = ToString(box.GetEdge(BoxArea::Padding, edge2)) + "|" + ToString(box.GetEdge(BoxArea::Border, edge2)) + "|" +
-					ToString(box.GetEdge(BoxArea::Margin, edge2));
-				return CreateString("%s &lt;%s&gt; %s", edge1_str.c_str(), ToString(content_size).c_str(), edge2_str.c_str());
+				const String edge1_str = ToString(GetCoreInstance(), box.GetEdge(BoxArea::Margin, edge1)) + "|" + ToString(GetCoreInstance(), box.GetEdge(BoxArea::Border, edge1)) + "|" +
+					ToString(GetCoreInstance(), box.GetEdge(BoxArea::Padding, edge1));
+				const String edge2_str = ToString(GetCoreInstance(), box.GetEdge(BoxArea::Padding, edge2)) + "|" + ToString(GetCoreInstance(), box.GetEdge(BoxArea::Border, edge2)) + "|" +
+					ToString(GetCoreInstance(), box.GetEdge(BoxArea::Margin, edge2));
+				return CreateString("%s &lt;%s&gt; %s", edge1_str.c_str(), ToString(GetCoreInstance(), content_size).c_str(), edge2_str.c_str());
 			};
 
-			position = "<span class='name'>left: </span><em>" + ToString(element_offset.x) + "px</em><br/>" +                                 //
-				"<span class='name'>top: </span><em>" + ToString(element_offset.y) + "px</em><br/>" +                                         //
-				"<span class='name'>width: </span><em>" + ToString(element_size.x) + "px</em><br/>" +                                         //
-				"<span class='name'>height: </span><em>" + ToString(element_size.y) + "px</em><br/>" +                                        //
+			position = "<span class='name'>left: </span><em>" + ToString(GetCoreInstance(), element_offset.x) + "px</em><br/>" +              //
+				"<span class='name'>top: </span><em>" + ToString(GetCoreInstance(), element_offset.y) + "px</em><br/>" +                      //
+				"<span class='name'>width: </span><em>" + ToString(GetCoreInstance(), element_size.x) + "px</em><br/>" +                      //
+				"<span class='name'>height: </span><em>" + ToString(GetCoreInstance(), element_size.y) + "px</em><br/>" +                     //
 				"<span class='name'>offset parent: </span><p style='display: inline' id='offset_parent'>" + offset_parent_rml + "</p><br/>" + //
 				"<span class='name'>box-x (px): </span>" + box_string(BoxDirection::Horizontal) + "<br/>" +                                   //
 				"<span class='name'>box-y (px): </span>" + box_string(BoxDirection::Vertical);
@@ -700,7 +700,7 @@ void ElementInfo::BuildElementPropertiesRML(String& property_rml, Element* eleme
 				if (source)
 				{
 					String str_line_number;
-					TypeConverter<int, String>::Convert(source->line_number, str_line_number);
+					TypeConverter<int, String>::Convert(GetCoreInstance(), source->line_number, str_line_number);
 					property_rml += "<h3>" + source->rule_name + "</h3>";
 					property_rml += "<h4><span class='break-all'>" + source->path + "</span> : " + str_line_number + "</h4>";
 				}
@@ -720,7 +720,7 @@ void ElementInfo::BuildElementPropertiesRML(String& property_rml, Element* eleme
 
 void ElementInfo::BuildPropertyRML(String& property_rml, const String& name, const Property* property)
 {
-	const String property_value = property->ToString();
+	const String property_value = property->ToString(GetCoreInstance());
 
 	property_rml += "<span class='name'>" + name + "</span>: " + property_value + "<br/>";
 }

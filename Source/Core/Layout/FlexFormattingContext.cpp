@@ -119,7 +119,7 @@ Vector2f FlexFormattingContext::GetMaxContentSize(Element* element)
 {
 	// A large but finite number is used here, since layouting doesn't always work well with infinities.
 	const Vector2f infinity(10000.0f, 10000.0f);
-	RootBox root(infinity);
+	RootBox root(element->GetCoreInstance(), infinity);
 	auto flex_container_box = UniquePtr<FlexContainer>(FlexContainer::Create<FlexContainer>(element->GetCoreInstance(), element, &root));
 
 	FlexFormattingContext context;

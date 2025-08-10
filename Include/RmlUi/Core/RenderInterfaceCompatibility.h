@@ -54,7 +54,7 @@ class RenderInterfaceAdapter;
 
 class RMLUICORE_API RenderInterfaceCompatibility : public NonCopyMoveable {
 public:
-	RenderInterfaceCompatibility();
+	RenderInterfaceCompatibility(CoreInstance& in_core_instance);
 	virtual ~RenderInterfaceCompatibility();
 
 	virtual void RenderGeometry(Vertex* vertices, int num_vertices, int* indices, int num_indices, TextureHandle texture,
@@ -110,11 +110,11 @@ private:
 		SmallUnorderedMap<TextureHandle, LegacyCompiledGeometryHandle> textures;
 	};
 
-	RenderInterfaceAdapter(RenderInterfaceCompatibility& legacy);
+	RenderInterfaceAdapter(CoreInstance& in_core_instance, RenderInterfaceCompatibility& legacy);
 
 	RenderInterfaceCompatibility& legacy;
 
-	friend Rml::RenderInterfaceCompatibility::RenderInterfaceCompatibility();
+	friend Rml::RenderInterfaceCompatibility::RenderInterfaceCompatibility(CoreInstance&);
 };
 
 } // namespace Rml

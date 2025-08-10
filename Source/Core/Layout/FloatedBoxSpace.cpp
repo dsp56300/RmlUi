@@ -261,6 +261,11 @@ void FloatedBoxSpace::operator delete(void* chunk, size_t size)
 	LayoutPools::DeallocateLayoutChunk(static_cast<FloatedBoxSpace*>(chunk)->core_instance, chunk, size);
 }
 
+void FloatedBoxSpace::operator delete(void*, void*)
+{
+	RMLUI_ASSERT(false);
+}
+
 void* FloatedBoxSpace::AllocateChunk(CoreInstance& in_core_instance, size_t size)
 {
 	return LayoutPools::AllocateLayoutChunk(in_core_instance, size);

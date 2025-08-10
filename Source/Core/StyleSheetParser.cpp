@@ -370,7 +370,7 @@ bool StyleSheetParser::ParseDecoratorBlock(CoreInstance& in_core_instance, const
 	}
 
 	// Get the instancer associated with the decorator type
-	DecoratorInstancer* decorator_instancer = in_core_instance.factory.GetDecoratorInstancer(decorator_type);
+	DecoratorInstancer* decorator_instancer = in_core_instance.factory->GetDecoratorInstancer(decorator_type);
 	PropertyDictionary properties;
 
 	if (!decorator_instancer)
@@ -380,7 +380,7 @@ bool StyleSheetParser::ParseDecoratorBlock(CoreInstance& in_core_instance, const
 		if (it != named_decorator_map.end())
 		{
 			// Yes, try to retrieve the instancer from the parent type, and add its property values.
-			decorator_instancer = in_core_instance.factory.GetDecoratorInstancer(it->second.type);
+			decorator_instancer = in_core_instance.factory->GetDecoratorInstancer(it->second.type);
 			properties = it->second.properties;
 			decorator_type = it->second.type;
 		}

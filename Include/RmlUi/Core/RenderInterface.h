@@ -55,7 +55,7 @@ enum class BlendMode {
 
 class RMLUICORE_API RenderInterface : public NonCopyMoveable {
 public:
-	RenderInterface();
+	RenderInterface(CoreInstance& in_core_instance);
 	virtual ~RenderInterface();
 
 	/**
@@ -169,6 +169,9 @@ public:
 	/// Called by RmlUi when it no longer needs a previously compiled shader.
 	/// @param[in] shader The handle to a previously compiled shader.
 	virtual void ReleaseShader(CompiledShaderHandle shader);
+
+protected:
+	CoreInstance& core_instance;
 };
 
 } // namespace Rml

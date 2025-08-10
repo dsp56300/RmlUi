@@ -61,12 +61,12 @@ Context::Context(CoreInstance& core_instance, const String& name, RenderManager*
 {
 	instancer = nullptr;
 
-	root = core_instance.factory.InstanceElement(nullptr, "*", "#root", XMLAttributes());
+	root = core_instance.factory->InstanceElement(nullptr, "*", "#root", XMLAttributes());
 	root->SetId(name);
 	root->SetOffset(Vector2f(0, 0), nullptr);
 	root->SetProperty(PropertyId::ZIndex, Property(0, Unit::NUMBER));
 
-	cursor_proxy = core_instance.factory.InstanceElement(nullptr, documents_base_tag, documents_base_tag, XMLAttributes());
+	cursor_proxy = core_instance.factory->InstanceElement(nullptr, documents_base_tag, documents_base_tag, XMLAttributes());
 	ElementDocument* cursor_proxy_document = rmlui_dynamic_cast<ElementDocument*>(cursor_proxy.get());
 	RMLUI_ASSERT(cursor_proxy_document);
 	cursor_proxy_document->context = this;
@@ -238,7 +238,7 @@ bool Context::Render()
 
 ElementDocument* Context::CreateDocument(const String& instancer_name)
 {
-	ElementPtr element = core_instance.factory.InstanceElement(nullptr, instancer_name, documents_base_tag, XMLAttributes());
+	ElementPtr element = core_instance.factory->InstanceElement(nullptr, instancer_name, documents_base_tag, XMLAttributes());
 	if (!element)
 	{
 		Log::Message(Log::LT_ERROR, "Failed to instance document on instancer_name '%s', instancer returned nullptr.", instancer_name.c_str());
@@ -278,7 +278,7 @@ ElementDocument* Context::LoadDocument(Stream* stream)
 {
 	PluginRegistry::NotifyDocumentOpen(this, stream->GetSourceURL().GetURL());
 
-	ElementPtr element = core_instance.factory.InstanceDocumentStream(this, stream, GetDocumentsBaseTag());
+	ElementPtr element = core_instance.factory->InstanceDocumentStream(this, stream, GetDocumentsBaseTag());
 	if (!element)
 		return nullptr;
 

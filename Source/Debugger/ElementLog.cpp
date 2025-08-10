@@ -34,6 +34,8 @@
 #include "LogSource.h"
 #include <limits.h>
 
+#include "RmlUi/Core/CoreInstance.h"
+
 namespace Rml {
 namespace Debugger {
 
@@ -105,7 +107,7 @@ bool ElementLog::Initialise()
 		message_content->AddEventListener(EventId::Resize, this);
 	}
 
-	SharedPtr<StyleSheetContainer> style_sheet = Factory::InstanceStyleSheetString(String(common_rcss) + String(log_rcss));
+	SharedPtr<StyleSheetContainer> style_sheet = GetCoreInstance().factory->InstanceStyleSheetString(String(common_rcss) + String(log_rcss));
 	if (!style_sheet)
 		return false;
 
@@ -127,7 +129,7 @@ bool ElementLog::Initialise()
 	if (button)
 		beacon->GetFirstChild()->AddEventListener(EventId::Click, this);
 
-	style_sheet = Factory::InstanceStyleSheetString(String(common_rcss) + String(beacon_rcss));
+	style_sheet = GetCoreInstance().factory->InstanceStyleSheetString(String(common_rcss) + String(beacon_rcss));
 	if (!style_sheet)
 	{
 		GetContext()->UnloadDocument(beacon);
