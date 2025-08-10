@@ -13,6 +13,8 @@ font manager, rml plugins, file interface, etc.
 
 namespace Rml
 {
+	struct ObserverPtrData;
+	struct EventSpecificationData;
 	struct StyleSheetParserData;
 	class StyleSheetFactory;
 	class FontProvider;
@@ -41,6 +43,7 @@ namespace Rml
 		FontProvider* font_provider = nullptr;
 		StyleSheetFactory* style_sheet_factory = nullptr;
 		StyleSheetParserData* style_sheet_property_parsers = nullptr;
+		ObserverPtrData* observer_ptr_data = nullptr;
 
 		struct CoreData {
 			// Default interfaces should be created and destroyed on Initialise and Shutdown, respectively.
@@ -65,6 +68,8 @@ namespace Rml
 		ControlledLifetimeResource<PluginVectors> plugin_vectors;
 
 		ControlledLifetimeResource<XmlParserData> xml_parser_data;
+
+		ControlledLifetimeResource<EventSpecificationData> event_specification_data;
 
 		Factory factory;
 

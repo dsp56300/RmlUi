@@ -32,7 +32,7 @@
 
 namespace Rml {
 
-DataController::DataController(Element* element) : attached_element(element->GetObserverPtr()) {}
+DataController::DataController(Element* element) : attached_element(element->GetObserverPtr(element->GetCoreInstance())) {}
 
 DataController::~DataController() {}
 Element* DataController::GetElement() const

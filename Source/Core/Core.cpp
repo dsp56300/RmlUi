@@ -140,9 +140,9 @@ bool Initialise(CoreInstance& in_core_instance)
 		text_input_handler = core_data->default_text_input_handler.get();
 	}
 
-	EventSpecificationInterface::Initialize();
+	EventSpecificationInterface::Initialize(in_core_instance);
 
-	Detail::InitializeObserverPtrPool();
+	Detail::InitializeObserverPtrPool(in_core_instance);
 
 	if (render_interface)
 		core_data->render_managers[render_interface] = MakeUnique<RenderManager>(in_core_instance, render_interface);
@@ -202,7 +202,7 @@ void Shutdown(CoreInstance& in_core_instance)
 
 	core_data->render_managers.clear();
 
-	Detail::ShutdownObserverPtrPool();
+	Detail::ShutdownObserverPtrPool(in_core_instance);
 
 	initialised = false;
 
@@ -214,7 +214,7 @@ void Shutdown(CoreInstance& in_core_instance)
 
 	core_data.Shutdown();
 
-	EventSpecificationInterface::Shutdown();
+	EventSpecificationInterface::Shutdown(in_core_instance);
 
 	ShutdownComputeProperty(in_core_instance);
 	ReleaseMemoryPools(in_core_instance);
@@ -381,9 +381,9 @@ void UnregisterPlugin(CoreInstance& core_instance, Plugin* plugin)
 		plugin->OnShutdown();
 }
 
-EventId RegisterEventType(CoreInstance&, const String& type, bool interruptible, bool bubbles, DefaultActionPhase default_action_phase)
+EventId RegisterEventType(CoreInstance& in_core_instance, const String& type, bool interruptible, bool bubbles, DefaultActionPhase default_action_phase)
 {
-	return EventSpecificationInterface::InsertOrReplaceCustom(type, interruptible, bubbles, default_action_phase);
+	return EventSpecificationInterface::InsertOrReplaceCustom(in_core_instance, type, interruptible, bubbles, default_action_phase);
 }
 
 StringList GetTextureSourceList(CoreInstance& core_instance)

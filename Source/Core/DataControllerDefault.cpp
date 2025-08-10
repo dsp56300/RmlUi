@@ -112,7 +112,7 @@ bool DataControllerEvent::Initialize(DataModel& model, Element* element, const S
 	if (!expression->Parse(element->GetCoreInstance(), expr_interface, true))
 		return false;
 
-	id = EventSpecificationInterface::GetIdOrInsert(modifier);
+	id = EventSpecificationInterface::GetIdOrInsert(element->GetCoreInstance(), modifier);
 	if (id == EventId::Invalid)
 	{
 		Log::Message(Log::LT_WARNING, "Event type '%s' could not be recognized, while adding 'data-event' to %s", modifier.c_str(),

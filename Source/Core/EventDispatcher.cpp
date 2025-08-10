@@ -108,7 +108,7 @@ void EventDispatcher::DetachAllEvents()
 */
 struct CollectedListener {
 	CollectedListener(Element* _element, EventListener* _listener, int dom_distance_from_target, bool in_capture_phase) :
-		element(_element->GetObserverPtr()), listener(_listener->GetObserverPtr())
+		element(_element->GetObserverPtr(_element->GetCoreInstance())), listener(_listener->GetObserverPtr(_element->GetCoreInstance()))
 	{
 		sort = dom_distance_from_target * (in_capture_phase ? -1 : 1);
 	}
@@ -148,11 +148,11 @@ bool EventDispatcher::DispatchEvent(Element* target_element, const EventId id, c
 		if (dom_distance_from_target == 0)
 		{
 			if ((int)default_action_phase & (int)EventPhase::Target)
-				default_action_elements.push_back(walk_element->GetObserverPtr());
+				default_action_elements.push_back(walk_element->GetObserverPtr(walk_element->GetCoreInstance()));
 		}
 		else if ((int)default_action_phase & (int)EventPhase::Bubble)
 		{
-			default_action_elements.push_back(walk_element->GetObserverPtr());
+			default_action_elements.push_back(walk_element->GetObserverPtr(walk_element->GetCoreInstance()));
 		}
 
 		walk_element = walk_element->GetParentNode();
@@ -248,15 +248,15 @@ void EventDispatcher::CollectListeners(int dom_distance_from_target, const Event
 	}
 }
 
-String EventDispatcher::ToString() const
+String EventDispatcher::ToString(CoreInstance& in_core_instance) const
 {
 	String result;
 
 	if (listeners.empty())
 		return result;
 
-	auto add_to_result = [&result](EventId id, int count) {
-		const EventSpecification& specification = EventSpecificationInterface::Get(id);
+	auto add_to_result = [&in_core_instance, &result](EventId id, int count) {
+		const EventSpecification& specification = EventSpecificationInterface::Get(in_core_instance, id);
 		result += CreateString("%s (%d), ", specification.type.c_str(), count);
 	};
 

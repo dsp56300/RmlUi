@@ -33,17 +33,23 @@
 #include <type_traits>
 #include <utility>
 
+namespace Rml
+{
+	class CoreInstance;
+}
+
 namespace Rml {
 
 namespace Detail {
 	struct RMLUICORE_API ObserverPtrBlock {
 		int num_observers;
 		void* pointed_to_object;
+		CoreInstance* core_instance = nullptr;
 	};
-	RMLUICORE_API ObserverPtrBlock* AllocateObserverPtrBlock();
-	RMLUICORE_API void DeallocateObserverPtrBlockIfEmpty(ObserverPtrBlock* block);
-	void InitializeObserverPtrPool();
-	void ShutdownObserverPtrPool();
+	RMLUICORE_API ObserverPtrBlock* AllocateObserverPtrBlock(CoreInstance& in_core_instance);
+	RMLUICORE_API void DeallocateObserverPtrBlockIfEmpty(CoreInstance& in_core_instance, ObserverPtrBlock* block);
+	void InitializeObserverPtrPool(CoreInstance& in_core_instance);
+	void ShutdownObserverPtrPool(CoreInstance& in_core_instance);
 } // namespace Detail
 
 template <typename T>
@@ -121,7 +127,7 @@ public:
 		if (block)
 		{
 			block->num_observers -= 1;
-			Detail::DeallocateObserverPtrBlockIfEmpty(block);
+			Detail::DeallocateObserverPtrBlockIfEmpty(*block->core_instance, block);
 			block = nullptr;
 		}
 	}
@@ -141,9 +147,9 @@ private:
 template <typename T>
 class RMLUICORE_API EnableObserverPtr {
 public:
-	ObserverPtr<T> GetObserverPtr()
+	ObserverPtr<T> GetObserverPtr(CoreInstance& in_core_instance)
 	{
-		InitializeBlock();
+		InitializeBlock(in_core_instance);
 		return ObserverPtr<T>(block);
 	}
 
@@ -155,7 +161,8 @@ protected:
 		if (block)
 		{
 			block->pointed_to_object = nullptr;
-			Detail::DeallocateObserverPtrBlockIfEmpty(block);
+			Detail::DeallocateObserverPtrBlockIfEmpty(*block->core_instance, block);
+			block = nullptr;
 		}
 	}
 
@@ -180,11 +187,11 @@ protected:
 	}
 
 private:
-	inline void InitializeBlock()
+	inline void InitializeBlock(CoreInstance& in_core_instance)
 	{
 		if (!block)
 		{
-			block = Detail::AllocateObserverPtrBlock();
+			block = Detail::AllocateObserverPtrBlock(in_core_instance);
 			block->num_observers = 0;
 			block->pointed_to_object = static_cast<void*>(static_cast<T*>(this));
 		}

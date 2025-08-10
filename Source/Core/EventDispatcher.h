@@ -93,7 +93,7 @@ public:
 
 	/// Returns event types with number of listeners for debugging.
 	/// @return Summary of attached listeners.
-	String ToString() const;
+	String ToString(CoreInstance& in_core_instance) const;
 
 private:
 	Element* element;

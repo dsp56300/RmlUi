@@ -1225,7 +1225,7 @@ void Element::Click()
 
 void Element::AddEventListener(const String& event, EventListener* listener, const bool in_capture_phase)
 {
-	const EventId id = EventSpecificationInterface::GetIdOrInsert(event);
+	const EventId id = EventSpecificationInterface::GetIdOrInsert(GetCoreInstance(), event);
 	meta->event_dispatcher.AttachEvent(id, listener, in_capture_phase);
 }
 
@@ -1236,7 +1236,7 @@ void Element::AddEventListener(const EventId id, EventListener* listener, const 
 
 void Element::RemoveEventListener(const String& event, EventListener* listener, bool in_capture_phase)
 {
-	EventId id = EventSpecificationInterface::GetIdOrInsert(event);
+	EventId id = EventSpecificationInterface::GetIdOrInsert(GetCoreInstance(), event);
 	meta->event_dispatcher.DetachEvent(id, listener, in_capture_phase);
 }
 
@@ -1247,20 +1247,20 @@ void Element::RemoveEventListener(EventId id, EventListener* listener, bool in_c
 
 bool Element::DispatchEvent(const String& type, const Dictionary& parameters)
 {
-	const EventSpecification& specification = EventSpecificationInterface::GetOrInsert(type);
+	const EventSpecification& specification = EventSpecificationInterface::GetOrInsert(GetCoreInstance(), type);
 	return EventDispatcher::DispatchEvent(this, specification.id, type, parameters, specification.interruptible, specification.bubbles,
 		specification.default_action_phase);
 }
 
 bool Element::DispatchEvent(const String& type, const Dictionary& parameters, bool interruptible, bool bubbles)
 {
-	const EventSpecification& specification = EventSpecificationInterface::GetOrInsert(type);
+	const EventSpecification& specification = EventSpecificationInterface::GetOrInsert(GetCoreInstance(), type);
 	return EventDispatcher::DispatchEvent(this, specification.id, type, parameters, interruptible, bubbles, specification.default_action_phase);
 }
 
 bool Element::DispatchEvent(EventId id, const Dictionary& parameters)
 {
-	const EventSpecification& specification = EventSpecificationInterface::Get(id);
+	const EventSpecification& specification = EventSpecificationInterface::Get(GetCoreInstance(), id);
 	return EventDispatcher::DispatchEvent(this, specification.id, specification.type, parameters, specification.interruptible, specification.bubbles,
 		specification.default_action_phase);
 }
@@ -1642,7 +1642,7 @@ EventDispatcher* Element::GetEventDispatcher() const
 
 String Element::GetEventDispatcherSummary() const
 {
-	return meta->event_dispatcher.ToString();
+	return meta->event_dispatcher.ToString(GetCoreInstance());
 }
 
 ElementBackgroundBorder* Element::GetElementBackgroundBorder() const
@@ -1717,7 +1717,7 @@ void Element::OnAttributeChange(const ElementAttributes& changed_attributes)
 
 			auto& attribute_event_listeners = meta->attribute_event_listeners;
 			auto& event_dispatcher = meta->event_dispatcher;
-			const auto event_id = EventSpecificationInterface::GetIdOrInsert(attribute.substr(2));
+			const auto event_id = EventSpecificationInterface::GetIdOrInsert(GetCoreInstance(), attribute.substr(2));
 			const auto remove_event_listener_if_exists = [&attribute_event_listeners, &event_dispatcher, event_id]() {
 				const auto listener_it = attribute_event_listeners.find(event_id);
 				if (listener_it != attribute_event_listeners.cend())

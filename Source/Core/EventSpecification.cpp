@@ -29,6 +29,7 @@
 #include "EventSpecification.h"
 #include "../../Include/RmlUi/Core/ID.h"
 #include "ControlledLifetimeResource.h"
+#include "RmlUi/Core/CoreInstance.h"
 
 namespace Rml {
 
@@ -77,16 +78,14 @@ struct EventSpecificationData {
 	UnorderedMap<String, EventId> type_lookup;
 };
 
-static ControlledLifetimeResource<EventSpecificationData> event_specification_data;
-
 namespace EventSpecificationInterface {
 
-	void Initialize()
+	void Initialize(CoreInstance& in_core_instance)
 	{
-		event_specification_data.Initialize();
+		in_core_instance.event_specification_data.Initialize();
 
-		auto& specifications = event_specification_data->specifications;
-		auto& type_lookup = event_specification_data->type_lookup;
+		auto& specifications = in_core_instance.event_specification_data->specifications;
+		auto& type_lookup = in_core_instance.event_specification_data->type_lookup;
 
 		type_lookup.reserve(specifications.size());
 		for (auto& specification : specifications)
@@ -104,14 +103,14 @@ namespace EventSpecificationInterface {
 #endif
 	}
 
-	void Shutdown()
+	void Shutdown(CoreInstance& in_core_instance)
 	{
-		event_specification_data.Shutdown();
+		in_core_instance.event_specification_data.Shutdown();
 	}
 
-	static EventSpecification& GetMutable(EventId id)
+	static EventSpecification& GetMutable(CoreInstance& in_core_instance, EventId id)
 	{
-		auto& specifications = event_specification_data->specifications;
+		auto& specifications = in_core_instance.event_specification_data->specifications;
 		size_t i = static_cast<size_t>(id);
 		if (i < specifications.size())
 			return specifications[i];
@@ -120,15 +119,15 @@ namespace EventSpecificationInterface {
 
 	// Get event specification for the given type.
 	// If not found: Inserts a new entry with given values.
-	static EventSpecification& GetOrInsert(const String& event_type, bool interruptible, bool bubbles, DefaultActionPhase default_action_phase)
+	static EventSpecification& GetOrInsert(CoreInstance& in_core_instance, const String& event_type, bool interruptible, bool bubbles, DefaultActionPhase default_action_phase)
 	{
-		auto& specifications = event_specification_data->specifications;
-		auto& type_lookup = event_specification_data->type_lookup;
+		auto& specifications = in_core_instance.event_specification_data->specifications;
+		auto& type_lookup = in_core_instance.event_specification_data->type_lookup;
 
 		auto it = type_lookup.find(event_type);
 
 		if (it != type_lookup.end())
-			return GetMutable(it->second);
+			return GetMutable(in_core_instance, it->second);
 
 		const size_t new_id_num = specifications.size();
 		if (new_id_num >= size_t(EventId::MaxNumIds))
@@ -145,38 +144,38 @@ namespace EventSpecificationInterface {
 		return specifications.back();
 	}
 
-	const EventSpecification& Get(EventId id)
+	const EventSpecification& Get(CoreInstance& in_core_instance, EventId id)
 	{
-		return GetMutable(id);
+		return GetMutable(in_core_instance, id);
 	}
 
-	const EventSpecification& GetOrInsert(const String& event_type)
+	const EventSpecification& GetOrInsert(CoreInstance& in_core_instance, const String& event_type)
 	{
 		// Default values for new event types defined as follows:
 		constexpr bool interruptible = true;
 		constexpr bool bubbles = true;
 		constexpr DefaultActionPhase default_action_phase = DefaultActionPhase::None;
 
-		return GetOrInsert(event_type, interruptible, bubbles, default_action_phase);
+		return GetOrInsert(in_core_instance, event_type, interruptible, bubbles, default_action_phase);
 	}
 
-	EventId GetIdOrInsert(const String& event_type)
+	EventId GetIdOrInsert(CoreInstance& in_core_instance, const String& event_type)
 	{
-		auto& type_lookup = event_specification_data->type_lookup;
+		auto& type_lookup = in_core_instance.event_specification_data->type_lookup;
 
 		auto it = type_lookup.find(event_type);
 		if (it != type_lookup.end())
 			return it->second;
 
-		return GetOrInsert(event_type).id;
+		return GetOrInsert(in_core_instance, event_type).id;
 	}
 
-	EventId InsertOrReplaceCustom(const String& event_type, bool interruptible, bool bubbles, DefaultActionPhase default_action_phase)
+	EventId InsertOrReplaceCustom(CoreInstance& in_core_instance, const String& event_type, bool interruptible, bool bubbles, DefaultActionPhase default_action_phase)
 	{
-		auto& specifications = event_specification_data->specifications;
+		auto& specifications = in_core_instance.event_specification_data->specifications;
 
 		const size_t size_before = specifications.size();
-		EventSpecification& specification = GetOrInsert(event_type, interruptible, bubbles, default_action_phase);
+		EventSpecification& specification = GetOrInsert(in_core_instance, event_type, interruptible, bubbles, default_action_phase);
 		bool got_existing_entry = (size_before == specifications.size());
 
 		// If we found an existing entry of same type, replace it, but only if it is a custom event id.

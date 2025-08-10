@@ -1364,7 +1364,7 @@ public:
 	ElementObserverListBackInserter(ElementObserverList& elements) : elements(&elements) {}
 	ElementObserverListBackInserter& operator=(Element* element)
 	{
-		elements->push_back(element->GetObserverPtr());
+		elements->push_back(element->GetObserverPtr(element->GetCoreInstance()));
 		return *this;
 	}
 	ElementObserverListBackInserter& operator*() { return *this; }

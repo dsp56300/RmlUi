@@ -52,7 +52,7 @@ bool DataView::IsValid() const
 	return static_cast<bool>(attached_element);
 }
 
-DataView::DataView(Element* element, int bias) : attached_element(element->GetObserverPtr()), sort_order(bias + 1000)
+DataView::DataView(Element* element, int bias) : attached_element(element->GetObserverPtr(element->GetCoreInstance())), sort_order(bias + 1000)
 {
 	RMLUI_ASSERT(bias >= -1000 && bias <= 999);
 
