@@ -34,7 +34,7 @@
 
 namespace Rml {
 
-FontFamily::FontFamily(const String& name) : name(name) {}
+FontFamily::FontFamily(CoreInstance& in_core_instance, const String& name) : core_instance(in_core_instance), name(name) {}
 
 FontFamily::~FontFamily()
 {
@@ -78,7 +78,7 @@ FontFaceHandleDefault* FontFamily::GetFaceHandle(Style::FontStyle style, Style::
 
 FontFace* FontFamily::AddFace(FontFaceHandleFreetype ft_face, Style::FontStyle style, Style::FontWeight weight, UniquePtr<byte[]> face_memory)
 {
-	auto face = MakeUnique<FontFace>(ft_face, style, weight);
+	auto face = MakeUnique<FontFace>(core_instance, ft_face, style, weight);
 	FontFace* result = face.get();
 
 	font_faces.push_back(FontFaceEntry{std::move(face), std::move(face_memory)});

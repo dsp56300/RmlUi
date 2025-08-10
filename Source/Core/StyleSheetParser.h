@@ -49,7 +49,7 @@ using StyleSheetNodeListRaw = Vector<StyleSheetNode*>;
 
 class StyleSheetParser {
 public:
-	StyleSheetParser();
+	StyleSheetParser(CoreInstance& in_core_instance);
 	~StyleSheetParser();
 
 	/// Parses the given stream into the style sheet
@@ -66,17 +66,20 @@ public:
 	bool ParseProperties(PropertyDictionary& parsed_properties, const String& properties);
 
 	// Converts a selector query to a tree of nodes.
+	// @param in_core_instance The core instance to use for this stylesheet parser.
 	// @param root_node Node to construct into.
 	// @param selectors The selector rules as a string value.
 	// @return The list of leaf nodes in the constructed tree, which are all owned by the root node.
-	static StyleSheetNodeListRaw ConstructNodes(StyleSheetNode& root_node, const String& selectors);
+	static StyleSheetNodeListRaw ConstructNodes(CoreInstance& in_core_instance, StyleSheetNode& root_node, const String& selectors);
 
 	// Initialises property parsers. Call after initialisation of StylesheetSpecification.
-	static void Initialise();
+	static void Initialise(CoreInstance& in_core_instance);
 	// Reset property parsers.
-	static void Shutdown();
+	static void Shutdown(CoreInstance& in_core_instance);
 
 private:
+	CoreInstance& core_instance;
+
 	// Stream we're parsing from.
 	Stream* stream;
 	// Parser memory buffer.
@@ -99,13 +102,13 @@ private:
 	// @param properties The dictionary of properties
 	// @param rule_specificity The specifity of the rule
 	// @return The leaf node of the rule, or nullptr on parse failure.
-	static StyleSheetNode* ImportProperties(StyleSheetNode* node, const String& rule, const PropertyDictionary& properties, int rule_specificity);
+	static StyleSheetNode* ImportProperties(CoreInstance& in_core_instance, StyleSheetNode* node, const String& rule, const PropertyDictionary& properties, int rule_specificity);
 
 	// Attempts to parse a @keyframes block
 	bool ParseKeyframeBlock(KeyframesMap& keyframes_map, const String& identifier, const String& rules, const PropertyDictionary& properties);
 
 	// Attempts to parse a @decorator block
-	bool ParseDecoratorBlock(const String& at_name, NamedDecoratorMap& named_decorator_map, const SharedPtr<const PropertySource>& source);
+	bool ParseDecoratorBlock(CoreInstance& in_core_instance, const String& at_name, NamedDecoratorMap& named_decorator_map, const SharedPtr<const PropertySource>& source);
 
     /// Attempts to parse the properties of a @media query.
 	/// @param[in] rules The rules to parse.

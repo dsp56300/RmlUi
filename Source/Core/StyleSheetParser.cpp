@@ -44,12 +44,18 @@
 #include <algorithm>
 #include <string.h>
 
+#include "RmlUi/Core/CoreInstance.h"
+
 namespace Rml {
 
 class AbstractPropertyParser : NonCopyMoveable {
 protected:
-	~AbstractPropertyParser() = default;
+	AbstractPropertyParser(CoreInstance& in_core_instance) : core_instance(in_core_instance)
+	{
+	}
+	virtual ~AbstractPropertyParser() = default;
 
+	CoreInstance& core_instance;
 public:
 	virtual bool Parse(const String& name, const String& value) = 0;
 };
@@ -67,8 +73,8 @@ private:
 	const PropertySpecification& specification;
 
 public:
-	PropertySpecificationParser(PropertyDictionary& properties, const PropertySpecification& specification) :
-		properties(properties), specification(specification)
+	PropertySpecificationParser(CoreInstance& in_core_instance, PropertyDictionary& properties, const PropertySpecification& specification) :
+		AbstractPropertyParser(in_core_instance), properties(properties), specification(specification)
 	{}
 
 	bool Parse(const String& name, const String& value) override { return specification.ParsePropertyDeclaration(properties, name, value); }
@@ -81,7 +87,6 @@ public:
  */
 class SpritesheetPropertyParser final : public AbstractPropertyParser {
 private:
-	CoreInstance& core_instance;
 	String image_source;
 	float image_resolution_factor = 1.f;
 	SpriteDefinitionList sprite_definitions;
@@ -92,7 +97,7 @@ private:
 	ShorthandId id_rectangle;
 
 public:
-	SpritesheetPropertyParser(CoreInstance& in_core_instance) : core_instance(in_core_instance), specification(6, 1)
+	SpritesheetPropertyParser(CoreInstance& in_core_instance) : AbstractPropertyParser(in_core_instance), specification(6, 1)
 	{
 		id_src = specification.RegisterProperty(in_core_instance, "src", "", false, false).AddParser("string").GetId();
 		id_rx = specification.RegisterProperty(in_core_instance, "rectangle-x", "", false, false).AddParser("length").GetId();
@@ -173,7 +178,7 @@ private:
 	static PropertyId CastId(MediaQueryId id) { return static_cast<PropertyId>(id); }
 
 public:
-	MediaQueryPropertyParser(CoreInstance& in_core_instance) : specification(14, 0)
+	MediaQueryPropertyParser(CoreInstance& in_core_instance) : AbstractPropertyParser(in_core_instance), specification(14, 0)
 	{
 		specification.RegisterProperty(in_core_instance, "width", "", false, false, CastId(MediaQueryId::Width)).AddParser("length");
 		specification.RegisterProperty(in_core_instance, "min-width", "", false, false, CastId(MediaQueryId::MinWidth)).AddParser("length");
@@ -212,11 +217,14 @@ struct StyleSheetParserData {
 	// The following parsers are reasonably heavy to initialize, so we construct them during library initialization.
 	SpritesheetPropertyParser spritesheet;
 	MediaQueryPropertyParser media_query;
+
+	StyleSheetParserData(CoreInstance& in_core_instance) :
+		spritesheet(in_core_instance), media_query(in_core_instance)
+	{
+	}
 };
 
-static ControlledLifetimeResource<StyleSheetParserData> style_sheet_property_parsers;
-
-StyleSheetParser::StyleSheetParser()
+StyleSheetParser::StyleSheetParser(CoreInstance& in_core_instance) : core_instance(in_core_instance)
 {
 	line_number = 0;
 	stream = nullptr;
@@ -225,14 +233,14 @@ StyleSheetParser::StyleSheetParser()
 
 StyleSheetParser::~StyleSheetParser() {}
 
-void StyleSheetParser::Initialise()
+void StyleSheetParser::Initialise(CoreInstance& in_core_instance)
 {
-	style_sheet_property_parsers.Initialize();
+	in_core_instance.style_sheet_property_parsers = new StyleSheetParserData(in_core_instance);
 }
 
-void StyleSheetParser::Shutdown()
+void StyleSheetParser::Shutdown(CoreInstance& in_core_instance)
 {
-	style_sheet_property_parsers.Shutdown();
+	in_core_instance.style_sheet_property_parsers = nullptr;
 }
 
 static bool IsValidIdentifier(const String& str)
@@ -337,7 +345,7 @@ bool StyleSheetParser::ParseKeyframeBlock(KeyframesMap& keyframes_map, const Str
 	return true;
 }
 
-bool StyleSheetParser::ParseDecoratorBlock(const String& at_name, NamedDecoratorMap& named_decorator_map,
+bool StyleSheetParser::ParseDecoratorBlock(CoreInstance& in_core_instance, const String& at_name, NamedDecoratorMap& named_decorator_map,
 	const SharedPtr<const PropertySource>& source)
 {
 	StringList name_type;
@@ -362,7 +370,7 @@ bool StyleSheetParser::ParseDecoratorBlock(const String& at_name, NamedDecorator
 	}
 
 	// Get the instancer associated with the decorator type
-	DecoratorInstancer* decorator_instancer = Factory::GetDecoratorInstancer(decorator_type);
+	DecoratorInstancer* decorator_instancer = in_core_instance.factory.GetDecoratorInstancer(decorator_type);
 	PropertyDictionary properties;
 
 	if (!decorator_instancer)
@@ -372,7 +380,7 @@ bool StyleSheetParser::ParseDecoratorBlock(const String& at_name, NamedDecorator
 		if (it != named_decorator_map.end())
 		{
 			// Yes, try to retrieve the instancer from the parent type, and add its property values.
-			decorator_instancer = Factory::GetDecoratorInstancer(it->second.type);
+			decorator_instancer = in_core_instance.factory.GetDecoratorInstancer(it->second.type);
 			properties = it->second.properties;
 			decorator_type = it->second.type;
 		}
@@ -388,7 +396,7 @@ bool StyleSheetParser::ParseDecoratorBlock(const String& at_name, NamedDecorator
 
 	const PropertySpecification& property_specification = decorator_instancer->GetPropertySpecification();
 
-	PropertySpecificationParser parser(properties, property_specification);
+	PropertySpecificationParser parser(in_core_instance, properties, property_specification);
 	if (!ReadProperties(parser))
 		return false;
 
@@ -403,7 +411,7 @@ bool StyleSheetParser::ParseDecoratorBlock(const String& at_name, NamedDecorator
 
 bool StyleSheetParser::ParseMediaFeatureMap(const String& rules, PropertyDictionary& properties, MediaQueryModifier& modifier)
 {
-	style_sheet_property_parsers->media_query.SetTargetProperties(&properties);
+	core_instance.style_sheet_property_parsers->media_query.SetTargetProperties(&properties);
 
 	enum ParseState { Global, Name, Value };
 	ParseState state = Global;
@@ -477,7 +485,7 @@ bool StyleSheetParser::ParseMediaFeatureMap(const String& rules, PropertyDiction
 
 			current_string = StringUtilities::StripWhitespace(current_string);
 
-			if (!style_sheet_property_parsers->media_query.Parse(name, current_string))
+			if (!core_instance.style_sheet_property_parsers->media_query.Parse(name, current_string))
 				Log::Message(Log::LT_WARNING, "Syntax error parsing media-query property declaration '%s: %s;' in %s: %d.", name.c_str(),
 					current_string.c_str(), stream_file_name.c_str(), line_number);
 
@@ -563,7 +571,7 @@ bool StyleSheetParser::Parse(MediaBlockList& style_sheets, Stream* _stream, int 
 
 					// Read the attributes
 					PropertyDictionary properties;
-					PropertySpecificationParser parser(properties, StyleSheetSpecification::GetPropertySpecification());
+					PropertySpecificationParser parser(core_instance, properties, core_instance.styleSheetSpecification->GetPropertySpecification());
 					if (!ReadProperties(parser))
 						continue;
 
@@ -575,7 +583,7 @@ bool StyleSheetParser::Parse(MediaBlockList& style_sheets, Stream* _stream, int 
 					{
 						auto source = MakeShared<PropertySource>(stream_file_name, rule_line_number, rule_name_list[i]);
 						properties.SetSourceOfAllProperties(source);
-						if (!ImportProperties(current_block.stylesheet->root.get(), rule_name_list[i], properties, rule_count))
+						if (!ImportProperties(core_instance, current_block.stylesheet->root.get(), rule_name_list[i], properties, rule_count))
 						{
 							Log::Message(Log::LT_WARNING, "Invalid selector '%s' encountered while parsing stylesheet at %s:%d.",
 								rule_name_list[i].c_str(), stream_file_name.c_str(), line_number);
@@ -626,14 +634,14 @@ bool StyleSheetParser::Parse(MediaBlockList& style_sheets, Stream* _stream, int 
 					else if (at_rule_identifier == "decorator")
 					{
 						auto source = MakeShared<PropertySource>(stream_file_name, (int)line_number, pre_token_str);
-						ParseDecoratorBlock(at_rule_name, current_block.stylesheet->named_decorator_map, source);
+						ParseDecoratorBlock(core_instance, at_rule_name, current_block.stylesheet->named_decorator_map, source);
 
 						at_rule_name.clear();
 						state = State::Global;
 					}
 					else if (at_rule_identifier == "spritesheet")
 					{
-						auto& spritesheet_property_parser = style_sheet_property_parsers->spritesheet;
+						auto& spritesheet_property_parser = core_instance.style_sheet_property_parsers->spritesheet;
 						ReadProperties(spritesheet_property_parser);
 
 						const String& image_source = spritesheet_property_parser.GetImageSource();
@@ -717,7 +725,7 @@ bool StyleSheetParser::Parse(MediaBlockList& style_sheets, Stream* _stream, int 
 
 					// Each keyframe in keyframes has its own block which is processed here
 					PropertyDictionary properties;
-					PropertySpecificationParser parser(properties, StyleSheetSpecification::GetPropertySpecification());
+					PropertySpecificationParser parser(core_instance, properties, core_instance.styleSheetSpecification->GetPropertySpecification());
 					if (!ReadProperties(parser))
 						continue;
 
@@ -767,13 +775,13 @@ bool StyleSheetParser::ParseProperties(PropertyDictionary& parsed_properties, co
 	RMLUI_ASSERT(!stream);
 	StreamMemory stream_owner((const byte*)properties.c_str(), properties.size());
 	stream = &stream_owner;
-	PropertySpecificationParser parser(parsed_properties, StyleSheetSpecification::GetPropertySpecification());
+	PropertySpecificationParser parser(core_instance, parsed_properties, core_instance.styleSheetSpecification->GetPropertySpecification());
 	bool success = ReadProperties(parser);
 	stream = nullptr;
 	return success;
 }
 
-StyleSheetNodeListRaw StyleSheetParser::ConstructNodes(StyleSheetNode& root_node, const String& selectors)
+StyleSheetNodeListRaw StyleSheetParser::ConstructNodes(CoreInstance& in_core_instance, StyleSheetNode& root_node, const String& selectors)
 {
 	const PropertyDictionary empty_properties;
 
@@ -784,7 +792,7 @@ StyleSheetNodeListRaw StyleSheetParser::ConstructNodes(StyleSheetNode& root_node
 
 	for (const String& selector : selector_list)
 	{
-		StyleSheetNode* leaf_node = ImportProperties(&root_node, selector, empty_properties, 0);
+		StyleSheetNode* leaf_node = ImportProperties(in_core_instance, &root_node, selector, empty_properties, 0);
 
 		if (!leaf_node)
 			Log::Message(Log::LT_WARNING, "Invalid selector '%s' encountered.", selector.c_str());
@@ -901,7 +909,7 @@ bool StyleSheetParser::ReadProperties(AbstractPropertyParser& property_parser)
 	return true;
 }
 
-StyleSheetNode* StyleSheetParser::ImportProperties(StyleSheetNode* node, const String& rule, const PropertyDictionary& properties,
+StyleSheetNode* StyleSheetParser::ImportProperties(CoreInstance& in_core_instance, StyleSheetNode* node, const String& rule, const PropertyDictionary& properties,
 	int rule_specificity)
 {
 	StyleSheetNode* leaf_node = node;
@@ -973,7 +981,7 @@ StyleSheetNode* StyleSheetParser::ImportProperties(StyleSheetNode* node, const S
 				case ':':
 				{
 					String pseudo_class_name = String(p_begin + 1, p_end);
-					StructuralSelector node_selector = StyleSheetFactory::GetSelector(pseudo_class_name);
+					StructuralSelector node_selector = in_core_instance.style_sheet_factory->GetSelector(pseudo_class_name);
 					if (node_selector.type != StructuralSelectorType::Invalid)
 						selector.structural_selectors.push_back(node_selector);
 					else

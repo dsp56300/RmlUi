@@ -57,12 +57,13 @@ struct InlineBoxHandle {
 class BlockContainer final : public ContainerBox {
 public:
 	/// Creates a new block box for rendering a block element.
+	/// @param[in] in_core_instance The core instance to use for this block box.
 	/// @param[in] parent The parent of this block box. This will be nullptr for the root element.
 	/// @param[in] element The element this block box is laying out.
 	/// @param[in] box The box used for this block box.
 	/// @param[in] min_height The minimum height of the content box.
 	/// @param[in] max_height The maximum height of the content box.
-	BlockContainer(ContainerBox* parent_container, FloatedBoxSpace* space, Element* element, const Box& box, float min_height, float max_height);
+	BlockContainer(CoreInstance& in_core_instance, ContainerBox* parent_container, FloatedBoxSpace* space, Element* element, const Box& box, float min_height, float max_height);
 	~BlockContainer();
 
 	/// Closes the box. This will determine this container's height if it was unspecified.

@@ -96,17 +96,21 @@ public:
 		extent_bottom_right_margin = {};
 	}
 
-	void* operator new(size_t size);
 	void operator delete(void* chunk, size_t size);
+	void operator delete(void*, void*);
 
-	FloatedBoxSpace* Create(CoreInstance& instance)
+	static void* AllocateChunk(CoreInstance& in_core_instance, size_t size);
+
+	static FloatedBoxSpace* Create(CoreInstance& instance)
 	{
-		core_instance_ptr = &instance;
-		auto* result = new FloatedBoxSpace(instance);
-		core_instance_ptr = nullptr;
+		void* chunk = AllocateChunk(instance, sizeof(FloatedBoxSpace));
+		auto* result = new (chunk) FloatedBoxSpace(instance);
 		return result;
 	}
 private:
+	void* operator new(size_t size);
+	void* operator new(size_t, void* p) { return p; }
+
 	FloatedBoxSpace(CoreInstance& core_instance);
 
 	enum AnchorEdge { LEFT = 0, RIGHT = 1, NUM_ANCHOR_EDGES = 2 };
@@ -123,7 +127,6 @@ private:
 	using FloatedBoxList = Vector<FloatedBox>;
 
 	CoreInstance& core_instance;
-	static CoreInstance* core_instance_ptr;
 
 	// The boxes floating in our space.
 	FloatedBoxList boxes[NUM_ANCHOR_EDGES];

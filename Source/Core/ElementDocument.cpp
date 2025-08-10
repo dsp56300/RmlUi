@@ -226,7 +226,7 @@ void ElementDocument::ProcessHeader(const DocumentHeader* document_header)
 	{
 		if (rcss.is_inline)
 		{
-			auto inline_sheet = MakeShared<StyleSheetContainer>();
+			auto inline_sheet = MakeShared<StyleSheetContainer>(GetCoreInstance());
 			auto stream = MakeUnique<StreamMemory>((const byte*)rcss.content.c_str(), rcss.content.size());
 			stream->SetSourceURL(rcss.path);
 
@@ -242,13 +242,13 @@ void ElementDocument::ProcessHeader(const DocumentHeader* document_header)
 		}
 		else
 		{
-			const StyleSheetContainer* sub_sheet = StyleSheetFactory::GetStyleSheetContainer(rcss.path);
+			const StyleSheetContainer* sub_sheet = GetCoreInstance().style_sheet_factory->GetStyleSheetContainer(rcss.path);
 			if (sub_sheet)
 			{
 				if (new_style_sheet)
 					new_style_sheet->MergeStyleSheetContainer(*sub_sheet);
 				else
-					new_style_sheet = sub_sheet->CombineStyleSheetContainer(StyleSheetContainer());
+					new_style_sheet = sub_sheet->CombineStyleSheetContainer(StyleSheetContainer(GetCoreInstance()));
 			}
 			else
 				Log::Message(Log::LT_ERROR, "Failed to load style sheet %s.", rcss.path.c_str());

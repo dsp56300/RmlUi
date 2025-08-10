@@ -39,13 +39,13 @@
 
 namespace Rml {
 
-StyleSheetContainer::StyleSheetContainer() {}
+StyleSheetContainer::StyleSheetContainer(CoreInstance& in_core_instance) : core_instance(in_core_instance) {}
 
 StyleSheetContainer::~StyleSheetContainer() {}
 
 bool StyleSheetContainer::LoadStyleSheetContainer(Stream* stream, int begin_line_number)
 {
-	StyleSheetParser parser;
+	StyleSheetParser parser(core_instance);
 	bool result = parser.Parse(media_blocks, stream, begin_line_number);
 	return result;
 }
@@ -195,7 +195,7 @@ SharedPtr<StyleSheetContainer> StyleSheetContainer::CombineStyleSheetContainer(c
 {
 	RMLUI_ZoneScoped;
 
-	SharedPtr<StyleSheetContainer> new_sheet = MakeShared<StyleSheetContainer>();
+	SharedPtr<StyleSheetContainer> new_sheet = MakeShared<StyleSheetContainer>(core_instance);
 
 	for (const MediaBlock& media_block : media_blocks)
 	{

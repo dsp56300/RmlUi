@@ -42,7 +42,7 @@ class FontFaceHandleDefault;
 
 class FontFamily {
 public:
-	FontFamily(const String& name);
+	FontFamily(CoreInstance& in_core_instance, const String& name);
 	~FontFamily();
 
 	/// Returns a handle to the most appropriate font in the family, at the correct size.
@@ -64,6 +64,7 @@ public:
 	void ReleaseFontResources();
 
 protected:
+	CoreInstance& core_instance;
 	String name;
 
 	struct FontFaceEntry {

@@ -110,7 +110,7 @@ StyleSheetSpecification::~StyleSheetSpecification()
 PropertyDefinition& StyleSheetSpecification::RegisterProperty(PropertyId id, const String& property_name, const String& default_value, bool inherited,
 	bool forces_layout)
 {
-	return properties.RegisterProperty(property_name, default_value, inherited, forces_layout, id);
+	return properties.RegisterProperty(core_instance, property_name, default_value, inherited, forces_layout, id);
 }
 
 ShorthandId StyleSheetSpecification::RegisterShorthand(ShorthandId id, const String& shorthand_name, const String& property_names, ShorthandType type)

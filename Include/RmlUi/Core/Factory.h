@@ -221,7 +221,7 @@ public:
 
 private:
 	CoreInstance& core_instance;
-	ControlledLifetimeResource<FactoryData> factory_data;
+	UniquePtr<FactoryData> factory_data;
 
 	ContextInstancer* context_instancer = nullptr;
 	EventInstancer* event_instancer = nullptr;

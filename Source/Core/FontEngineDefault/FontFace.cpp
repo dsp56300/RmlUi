@@ -33,7 +33,7 @@
 
 namespace Rml {
 
-FontFace::FontFace(FontFaceHandleFreetype _face, Style::FontStyle _style, Style::FontWeight _weight)
+FontFace::FontFace(CoreInstance& in_core_instance, FontFaceHandleFreetype _face, Style::FontStyle _style, Style::FontWeight _weight) : core_instance(in_core_instance)
 {
 	style = _style;
 	weight = _weight;
@@ -70,7 +70,7 @@ FontFaceHandleDefault* FontFace::GetHandle(int size, bool load_default_glyphs)
 	}
 
 	// Construct and initialise the new handle.
-	auto handle = MakeUnique<FontFaceHandleDefault>();
+	auto handle = MakeUnique<FontFaceHandleDefault>(core_instance);
 	if (!handle->Initialize(face, size, load_default_glyphs))
 	{
 		handles[size] = nullptr;

@@ -1056,7 +1056,7 @@ Element* Element::GetParentNode() const
 Element* Element::Closest(const String& selectors) const
 {
 	StyleSheetNode root_node;
-	StyleSheetNodeListRaw leaf_nodes = StyleSheetParser::ConstructNodes(root_node, selectors);
+	StyleSheetNodeListRaw leaf_nodes = StyleSheetParser::ConstructNodes(GetCoreInstance(), root_node, selectors);
 
 	if (leaf_nodes.empty())
 	{
@@ -1577,7 +1577,7 @@ static void QuerySelectorAllMatchRecursive(ElementList& matching_elements, const
 Element* Element::QuerySelector(const String& selectors)
 {
 	StyleSheetNode root_node;
-	StyleSheetNodeListRaw leaf_nodes = StyleSheetParser::ConstructNodes(root_node, selectors);
+	StyleSheetNodeListRaw leaf_nodes = StyleSheetParser::ConstructNodes(GetCoreInstance(), root_node, selectors);
 
 	if (leaf_nodes.empty())
 	{
@@ -1591,7 +1591,7 @@ Element* Element::QuerySelector(const String& selectors)
 void Element::QuerySelectorAll(ElementList& elements, const String& selectors)
 {
 	StyleSheetNode root_node;
-	StyleSheetNodeListRaw leaf_nodes = StyleSheetParser::ConstructNodes(root_node, selectors);
+	StyleSheetNodeListRaw leaf_nodes = StyleSheetParser::ConstructNodes(GetCoreInstance(), root_node, selectors);
 
 	if (leaf_nodes.empty())
 	{
@@ -1605,7 +1605,7 @@ void Element::QuerySelectorAll(ElementList& elements, const String& selectors)
 bool Element::Matches(const String& selectors)
 {
 	StyleSheetNode root_node;
-	StyleSheetNodeListRaw leaf_nodes = StyleSheetParser::ConstructNodes(root_node, selectors);
+	StyleSheetNodeListRaw leaf_nodes = StyleSheetParser::ConstructNodes(GetCoreInstance(), root_node, selectors);
 
 	if (leaf_nodes.empty())
 	{
@@ -1744,7 +1744,7 @@ void Element::OnAttributeChange(const ElementAttributes& changed_attributes)
 			if (value.GetType() == Variant::STRING)
 			{
 				PropertyDictionary properties;
-				StyleSheetParser parser;
+				StyleSheetParser parser(GetCoreInstance());
 				parser.ParseProperties(properties, value.GetReference<String>());
 
 				for (const auto& name_value : properties.GetProperties())

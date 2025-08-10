@@ -162,11 +162,11 @@ void ElementFormControlTextArea::OnAttributeChange(const ElementAttributes& chan
 
 	auto it = changed_attributes.find("maxlength");
 	if (it != changed_attributes.end())
-		widget->SetMaxLength(it->second.Get(-1));
+		widget->SetMaxLength(it->second.Get(GetCoreInstance(), -1));
 
 	it = changed_attributes.find("value");
 	if (it != changed_attributes.end())
-		widget->SetValue(it->second.Get<String>());
+		widget->SetValue(it->second.Get<String>(GetCoreInstance()));
 }
 
 void ElementFormControlTextArea::OnPropertyChange(const PropertyIdSet& changed_properties)

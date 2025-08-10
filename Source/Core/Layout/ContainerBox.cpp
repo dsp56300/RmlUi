@@ -257,7 +257,7 @@ String RootBox::DebugDumpTree(int depth) const
 	return String(depth * 2, ' ') + "RootBox";
 }
 
-FlexContainer::FlexContainer(Element* element, ContainerBox* parent_container) : ContainerBox(Type::FlexContainer, element, parent_container)
+FlexContainer::FlexContainer(CoreInstance&, Element* element, ContainerBox* parent_container) : ContainerBox(Type::FlexContainer, element, parent_container)
 {
 	RMLUI_ASSERT(element);
 }
@@ -289,7 +289,7 @@ String FlexContainer::DebugDumpTree(int depth) const
 	return String(depth * 2, ' ') + "FlexContainer" + " | " + LayoutDetails::GetDebugElementName(element);
 }
 
-TableWrapper::TableWrapper(Element* element, ContainerBox* parent_container) : ContainerBox(Type::TableWrapper, element, parent_container)
+TableWrapper::TableWrapper(CoreInstance&, Element* element, ContainerBox* parent_container) : ContainerBox(Type::TableWrapper, element, parent_container)
 {
 	RMLUI_ASSERT(element);
 }

@@ -67,13 +67,14 @@ public:
 	static void* AllocateChunk(CoreInstance& core_instance, size_t size);
 
 	template<typename T, class ...Args>
-	T* Create(CoreInstance& core_instance, Args&&... args)
+	static T* Create(CoreInstance& core_instance, Args&&... args)
 	{
 		static_assert(std::is_base_of_v<InlineLevelBox, T>, "T must be subclass of InlineLevelBox");
 		void* chunk = AllocateChunk(core_instance, sizeof(T));
 		return new (chunk) T(std::forward<Args>(args)...);
 	}
 	void operator delete(void* chunk, size_t size);
+	void operator delete(void*, void*) {}
 
 protected:
 
@@ -96,6 +97,7 @@ protected:
 
 private:
 	void* operator new(size_t size);
+	void* operator new(size_t, void* p) { return p; }
 
 	float height_above_baseline = 0.f;
 	float depth_below_baseline = 0.f;

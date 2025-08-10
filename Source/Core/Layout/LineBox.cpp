@@ -165,7 +165,7 @@ UniquePtr<LineBox> LineBox::SplitLine(bool split_all_open_boxes)
 	open_spacing_left = 0.f;
 
 	// Make a new line with the open fragments.
-	auto new_line = MakeUnique<LineBox>();
+	UniquePtr<LineBox> new_line(Create(core_instance));
 	new_line->fragments.resize(num_open_fragments);
 
 	// Copy all open fragments to the next line. Do it in reverse order of iteration, since we iterate from back to front.
@@ -426,18 +426,28 @@ float LineBox::GetBaseline() const
 
 String LineBox::DebugDumpTree(int depth) const
 {
-	const String value = String(depth * 2, ' ') + "LineBox (" + ToString(fragments.size()) + " fragment" + (fragments.size() == 1 ? "" : "s") + ")\n";
+	const String value = String(depth * 2, ' ') + "LineBox (" + ToString(core_instance, fragments.size()) + " fragment" + (fragments.size() == 1 ? "" : "s") + ")\n";
 	return value;
 }
 
-void* LineBox::operator new(size_t size)
+void* LineBox::AllocateChunk(CoreInstance& in_core_instance, size_t size)
 {
-	return LayoutPools::AllocateLayoutChunk(size);
+	return LayoutPools::AllocateLayoutChunk(in_core_instance, size);
 }
 
-void LineBox::operator delete(void* chunk, size_t size)
+void* LineBox::operator new(size_t)
 {
-	LayoutPools::DeallocateLayoutChunk(chunk, size);
+	RMLUI_ASSERT(false);
+	return nullptr;
+}
+
+void LineBox::operator delete(void* chunk, size_t size) noexcept
+{
+	LayoutPools::DeallocateLayoutChunk(static_cast<LineBox*>(chunk)->core_instance, chunk, size);
+}
+void LineBox::operator delete(void*, void*) noexcept
+{
+	RMLUI_ASSERT(false);
 }
 
 } // namespace Rml

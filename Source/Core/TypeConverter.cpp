@@ -177,7 +177,7 @@ void AppendPaintArea(const DecoratorDeclaration& declaration, String& dest)
 }
 
 template <typename EffectsPtr>
-static bool ConvertEffectToString(const EffectsPtr& src, String& dest, const String& separator)
+static bool ConvertEffectToString(CoreInstance& in_core_instance, const EffectsPtr& src, String& dest, const String& separator)
 {
 	if (!src || src->list.empty())
 		dest = "none";
@@ -190,7 +190,7 @@ static bool ConvertEffectToString(const EffectsPtr& src, String& dest, const Str
 		{
 			dest += declaration.type;
 			if (auto* instancer = declaration.instancer)
-				dest += '(' + instancer->GetPropertySpecification().PropertiesToString(declaration.properties, false, ' ') + ')';
+				dest += '(' + instancer->GetPropertySpecification().PropertiesToString(in_core_instance, declaration.properties, false, ' ') + ')';
 
 			AppendPaintArea(declaration, dest);
 			if (&declaration != &src->list.back())
@@ -206,9 +206,9 @@ bool TypeConverter<DecoratorsPtr, DecoratorsPtr>::Convert(CoreInstance&, const D
 	return true;
 }
 
-bool TypeConverter<DecoratorsPtr, String>::Convert(CoreInstance&, const DecoratorsPtr& src, String& dest)
+bool TypeConverter<DecoratorsPtr, String>::Convert(CoreInstance& in_core_instance, const DecoratorsPtr& src, String& dest)
 {
-	return ConvertEffectToString(src, dest, ", ");
+	return ConvertEffectToString(in_core_instance, src, dest, ", ");
 }
 
 bool TypeConverter<FiltersPtr, FiltersPtr>::Convert(CoreInstance&, const FiltersPtr& src, FiltersPtr& dest)
@@ -217,9 +217,9 @@ bool TypeConverter<FiltersPtr, FiltersPtr>::Convert(CoreInstance&, const Filters
 	return true;
 }
 
-bool TypeConverter<FiltersPtr, String>::Convert(CoreInstance&, const FiltersPtr& src, String& dest)
+bool TypeConverter<FiltersPtr, String>::Convert(CoreInstance& in_core_instance, const FiltersPtr& src, String& dest)
 {
-	return ConvertEffectToString(src, dest, " ");
+	return ConvertEffectToString(in_core_instance, src, dest, " ");
 }
 
 bool TypeConverter<FontEffectsPtr, FontEffectsPtr>::Convert(CoreInstance&, const FontEffectsPtr& src, FontEffectsPtr& dest)

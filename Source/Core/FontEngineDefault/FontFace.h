@@ -42,7 +42,7 @@ class FontFaceHandleDefault;
 
 class FontFace {
 public:
-	FontFace(FontFaceHandleFreetype face, Style::FontStyle style, Style::FontWeight weight);
+	FontFace(CoreInstance& in_core_instance, FontFaceHandleFreetype face, Style::FontStyle style, Style::FontWeight weight);
 	~FontFace();
 
 	Style::FontStyle GetStyle() const;
@@ -58,6 +58,8 @@ public:
 	void ReleaseFontResources();
 
 private:
+	CoreInstance& core_instance;
+
 	Style::FontStyle style;
 	Style::FontWeight weight;
 

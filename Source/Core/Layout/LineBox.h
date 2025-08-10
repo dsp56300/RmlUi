@@ -49,7 +49,7 @@ class InlineLevelBox;
 */
 class LineBox final {
 public:
-	LineBox() = default;
+	LineBox(CoreInstance& in_core_instance) : core_instance(in_core_instance) {}
 	~LineBox();
 
 	// Set the line box position and dimensions.
@@ -101,10 +101,23 @@ public:
 
 	String DebugDumpTree(int depth) const;
 
-	void* operator new(size_t size);
-	void operator delete(void* chunk, size_t size);
+
+	static void* AllocateChunk(CoreInstance& in_core_instance, size_t size);
+
+	static LineBox* Create(CoreInstance& in_core_instance)
+	{
+		void* chunk = AllocateChunk(in_core_instance, sizeof(LineBox));
+		LineBox* instance = new (chunk) LineBox(in_core_instance);
+		return instance;
+	}
+
+	void operator delete(void* chunk, size_t size) noexcept;
+	void operator delete(void*, void*) noexcept;
 
 private:
+	void* operator new(size_t size);
+	void* operator new(std::size_t, void* p) noexcept { return p; }
+
 	using FragmentIndex = int;
 	using VerticalAlignType = Style::VerticalAlign::Type;
 
@@ -182,6 +195,8 @@ private:
 			func(fragment);
 		}
 	}
+
+	CoreInstance& core_instance;
 
 	// Position of the line, relative to our block formatting context root.
 	Vector2f line_position;

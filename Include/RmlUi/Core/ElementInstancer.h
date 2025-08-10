@@ -108,10 +108,10 @@ public:
 	ElementPtr InstanceElement(CoreInstance& instance, Element* /*parent*/, const String& tag, const XMLAttributes& /*attributes*/) override
 	{
 		RMLUI_ZoneScopedN("ElementGenericInstance");
-		return ElementPtr(new T(tag));
+		return ElementPtr(new T(instance, tag));
 	}
 
-	void ReleaseElement(CoreInstance& instance, Element* element) override
+	void ReleaseElement(CoreInstance&, Element* element) override
 	{
 		RMLUI_ZoneScopedN("ElementGenericRelease");
 		delete element;

@@ -50,7 +50,7 @@ void FontEngineInterfaceDefault::Shutdown()
 
 bool FontEngineInterfaceDefault::LoadFontFace(const String& file_name, int face_index, bool fallback_face, Style::FontWeight weight)
 {
-	core_instance.font_provider->LoadFontFace(file_name, face_index, fallback_face, weight);
+	return core_instance.font_provider->LoadFontFace(file_name, face_index, fallback_face, weight);
 }
 
 bool FontEngineInterfaceDefault::LoadFontFace(Span<const byte> data, int face_index, const String& font_family, Style::FontStyle style, Style::FontWeight weight,

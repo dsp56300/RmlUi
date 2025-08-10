@@ -134,7 +134,7 @@ UniquePtr<LayoutBox> BlockFormattingContext::Format(ContainerBox* parent_contain
 	float min_height, max_height;
 	LayoutDetails::GetDefiniteMinMaxHeight(min_height, max_height, element->GetComputedValues(), box, containing_block.y);
 
-	UniquePtr<BlockContainer> container = MakeUnique<BlockContainer>(parent_container, nullptr, element, box, min_height, max_height);
+	UniquePtr<BlockContainer> container = UniquePtr<BlockContainer>(BlockContainer::Create<BlockContainer>(element->GetCoreInstance(), parent_container, nullptr, element, box, min_height, max_height));
 
 	DebugDumpLayoutTree debug_dump_tree(element, container.get());
 

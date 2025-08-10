@@ -49,7 +49,7 @@ class LineBox;
 class InlineContainer final : public LayoutBox {
 public:
 	/// Creates a new block box in an inline context.
-	InlineContainer(BlockContainer* parent, float available_width);
+	InlineContainer(CoreInstance& in_core_instance, BlockContainer* parent, float available_width);
 	~InlineContainer();
 
 	/// Adds a new inline-level element to this inline-context box.

@@ -43,7 +43,7 @@ namespace Rml {
 UniquePtr<LayoutBox> FlexFormattingContext::Format(ContainerBox* parent_container, Element* element, const Box* override_initial_box)
 {
 	RMLUI_ZoneScopedC(0xAFAF4F);
-	auto flex_container_box = MakeUnique<FlexContainer>(element, parent_container);
+	auto flex_container_box = UniquePtr<FlexContainer>(FlexContainer::Create<FlexContainer>(element->GetCoreInstance(), element, parent_container));
 
 	ElementScroll* element_scroll = element->GetElementScroll();
 	const ComputedValues& computed = element->GetComputedValues();
@@ -120,7 +120,7 @@ Vector2f FlexFormattingContext::GetMaxContentSize(Element* element)
 	// A large but finite number is used here, since layouting doesn't always work well with infinities.
 	const Vector2f infinity(10000.0f, 10000.0f);
 	RootBox root(infinity);
-	auto flex_container_box = MakeUnique<FlexContainer>(element, &root);
+	auto flex_container_box = UniquePtr<FlexContainer>(FlexContainer::Create<FlexContainer>(element->GetCoreInstance(), element, &root));
 
 	FlexFormattingContext context;
 	context.flex_container_box = flex_container_box.get();

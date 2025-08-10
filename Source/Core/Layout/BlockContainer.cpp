@@ -38,7 +38,7 @@
 
 namespace Rml {
 
-BlockContainer::BlockContainer(ContainerBox* _parent_container, FloatedBoxSpace* _space, Element* _element, const Box& _box, float _min_height,
+BlockContainer::BlockContainer(CoreInstance&, ContainerBox* _parent_container, FloatedBoxSpace* _space, Element* _element, const Box& _box, float _min_height,
 	float _max_height) :
 	ContainerBox(Type::BlockContainer, _element, _parent_container), box(_box), min_height(_min_height), max_height(_max_height), space(_space)
 {
@@ -48,7 +48,7 @@ BlockContainer::BlockContainer(ContainerBox* _parent_container, FloatedBoxSpace*
 	if (!space)
 	{
 		// We are the root of the formatting context, establish a new space for floated boxes.
-		root_space = MakeUnique<FloatedBoxSpace>();
+		root_space = UniquePtr<FloatedBoxSpace>(FloatedBoxSpace::Create(core_instance));
 		space = root_space.get();
 	}
 }
@@ -145,7 +145,7 @@ BlockContainer* BlockContainer::OpenBlockBox(Element* child_element, const Box& 
 	if (!CloseOpenInlineContainer())
 		return nullptr;
 
-	auto child_container_ptr = MakeUnique<BlockContainer>(this, space, child_element, child_box, min_height, max_height);
+	auto child_container_ptr = UniquePtr<BlockContainer>(BlockContainer::Create<BlockContainer>(core_instance, this, space, child_element, child_box, min_height, max_height));
 	BlockContainer* child_container = child_container_ptr.get();
 
 	child_container->position = NextBoxPosition(child_box, child_element->GetComputedValues().clear());
@@ -475,7 +475,7 @@ InlineContainer* BlockContainer::EnsureOpenInlineContainer()
 		const float scrollbar_width = (IsScrollContainer() ? element->GetElementScroll()->GetScrollbarSize(ElementScroll::VERTICAL) : 0.f);
 		const float available_width = box.GetSize().x - scrollbar_width;
 
-		auto inline_container_ptr = MakeUnique<InlineContainer>(this, available_width);
+		auto inline_container_ptr = UniquePtr<InlineContainer>(Create<InlineContainer>(core_instance, this, available_width));
 		inline_container = inline_container_ptr.get();
 		child_boxes.push_back(std::move(inline_container_ptr));
 

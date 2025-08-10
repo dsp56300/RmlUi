@@ -83,6 +83,8 @@
 #include "XMLParseTools.h"
 #include <algorithm>
 
+#include "RmlUi/Core/CoreInstance.h"
+
 namespace Rml {
 
 // Default instancers are constructed and destroyed on Initialise and Shutdown, respectively.
@@ -123,9 +125,9 @@ struct DefaultInstancers {
 	DecoratorConicGradientInstancer decorator_conic_gradient;
 
 	// Filters
-	FilterBasicInstancer filter_hue_rotate = {FilterBasicInstancer::ValueType::Angle, "0rad"};
-	FilterBasicInstancer filter_basic_d0 = {FilterBasicInstancer::ValueType::NumberPercent, "0"};
-	FilterBasicInstancer filter_basic_d1 = {FilterBasicInstancer::ValueType::NumberPercent, "1"};
+	FilterBasicInstancer filter_hue_rotate;
+	FilterBasicInstancer filter_basic_d0;
+	FilterBasicInstancer filter_basic_d1;
 	FilterBlurInstancer filter_blur;
 	FilterDropShadowInstancer filter_drop_shadow;
 
@@ -153,6 +155,49 @@ struct DefaultInstancers {
 	// Data binding controllers
 	DataControllerInstancerDefault<DataControllerEvent> data_controller_event;
 	DataControllerInstancerDefault<DataControllerValue> data_controller_value;
+
+    DefaultInstancers(CoreInstance& in_core_instance)
+    : context_default()
+    , event_default()
+    , element_default()
+    , element_text()
+    , decorator_text(in_core_instance)
+    , decorator_tiled_horizontal(in_core_instance)
+    , decorator_tiled_vertical(in_core_instance)
+    , decorator_tiled_box(in_core_instance)
+    , decorator_image(in_core_instance)
+    , decorator_ninepatch(in_core_instance)
+    , decorator_shader(in_core_instance)
+    , decorator_straight_gradient(in_core_instance)
+    , decorator_linear_gradient(in_core_instance)
+    , decorator_radial_gradient(in_core_instance)
+    , decorator_conic_gradient(in_core_instance)
+    , filter_hue_rotate(in_core_instance, FilterBasicInstancer::ValueType::Angle, "0rad")
+    , filter_basic_d0(in_core_instance, FilterBasicInstancer::ValueType::NumberPercent, "0")
+    , filter_basic_d1(in_core_instance, FilterBasicInstancer::ValueType::NumberPercent, "1")
+    , filter_blur(in_core_instance)
+    , filter_drop_shadow(in_core_instance)
+    , font_effect_blur(in_core_instance)
+    , font_effect_glow(in_core_instance)
+    , font_effect_outline(in_core_instance)
+    , font_effect_shadow(in_core_instance)
+    , data_view_attribute()
+    , data_view_attribute_if()
+    , data_view_class()
+    , data_view_if()
+    , data_view_visible()
+    , data_view_rml()
+    , data_view_style()
+    , data_view_text()
+    , data_view_value()
+    , data_view_checked()
+    , data_view_alias()
+    , structural_data_view_for()
+    , data_controller_event()
+    , data_controller_value()
+    {
+
+    }
 };
 
 struct FactoryData {
@@ -165,6 +210,11 @@ struct FactoryData {
 	UnorderedMap<String, DataControllerInstancer*> data_controller_instancers;
 	SmallUnorderedMap<String, DataViewInstancer*> structural_data_view_instancers;
 	StringList structural_data_view_attribute_names;
+
+    FactoryData(CoreInstance& in_core_instance)
+        : default_instancers(in_core_instance)
+    {
+    }
 };
 
 Factory::Factory(CoreInstance& core_instance) : core_instance(core_instance) {}
@@ -173,7 +223,7 @@ Factory::~Factory() {}
 
 void Factory::Initialise()
 {
-	factory_data.Initialize();
+	factory_data = MakeUnique<FactoryData>(core_instance);
 
 	DefaultInstancers& default_instancers = factory_data->default_instancers;
 
@@ -277,14 +327,14 @@ void Factory::Initialise()
 
 	// XML node handlers
 	XMLParser::RegisterNodeHandler(core_instance, "", MakeShared<XMLNodeHandlerDefault>(*this));
-	XMLParser::RegisterNodeHandler(core_instance, "body", MakeShared<XMLNodeHandlerBody>());
-	XMLParser::RegisterNodeHandler(core_instance, "head", MakeShared<XMLNodeHandlerHead>());
-	XMLParser::RegisterNodeHandler(core_instance, "template", MakeShared<XMLNodeHandlerTemplate>());
+	XMLParser::RegisterNodeHandler(core_instance, "body", MakeShared<XMLNodeHandlerBody>(*this));
+	XMLParser::RegisterNodeHandler(core_instance, "head", MakeShared<XMLNodeHandlerHead>(*this));
+	XMLParser::RegisterNodeHandler(core_instance, "template", MakeShared<XMLNodeHandlerTemplate>(*this));
 
 	// XML node handlers for control elements
-	XMLParser::RegisterNodeHandler(core_instance, "tabset", MakeShared<XMLNodeHandlerTabSet>());
-	XMLParser::RegisterNodeHandler(core_instance, "textarea", MakeShared<XMLNodeHandlerTextArea>());
-	XMLParser::RegisterNodeHandler(core_instance, "select", MakeShared<XMLNodeHandlerSelect>());
+	XMLParser::RegisterNodeHandler(core_instance, "tabset", MakeShared<XMLNodeHandlerTabSet>(*this));
+	XMLParser::RegisterNodeHandler(core_instance, "textarea", MakeShared<XMLNodeHandlerTextArea>(*this));
+	XMLParser::RegisterNodeHandler(core_instance, "select", MakeShared<XMLNodeHandlerSelect>(*this));
 }
 
 void Factory::Shutdown()
@@ -295,7 +345,7 @@ void Factory::Shutdown()
 
 	XMLParser::ReleaseHandlers(core_instance);
 
-	factory_data.Shutdown();
+	factory_data.reset();
 }
 
 void Factory::RegisterContextInstancer(ContextInstancer* instancer)
@@ -525,14 +575,14 @@ SharedPtr<StyleSheetContainer> Factory::InstanceStyleSheetString(const String& s
 
 SharedPtr<StyleSheetContainer> Factory::InstanceStyleSheetFile(const String& file_name)
 {
-	auto file_stream = MakeUnique<StreamFile>();
+	auto file_stream = MakeUnique<StreamFile>(core_instance);
 	file_stream->Open(file_name);
 	return InstanceStyleSheetStream(file_stream.get());
 }
 
 SharedPtr<StyleSheetContainer> Factory::InstanceStyleSheetStream(Stream* stream)
 {
-	SharedPtr<StyleSheetContainer> style_sheet_container = MakeShared<StyleSheetContainer>();
+	SharedPtr<StyleSheetContainer> style_sheet_container = MakeShared<StyleSheetContainer>(core_instance);
 	if (style_sheet_container->LoadStyleSheetContainer(stream))
 	{
 		return style_sheet_container;
@@ -542,12 +592,12 @@ SharedPtr<StyleSheetContainer> Factory::InstanceStyleSheetStream(Stream* stream)
 
 void Factory::ClearStyleSheetCache()
 {
-	StyleSheetFactory::ClearStyleSheetCache();
+	core_instance.style_sheet_factory->ClearStyleSheetCache();
 }
 
 void Factory::ClearTemplateCache()
 {
-	TemplateCache::Clear();
+	core_instance.template_cache->Clear();
 }
 
 void Factory::RegisterEventInstancer(EventInstancer* instancer)

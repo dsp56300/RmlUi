@@ -41,7 +41,7 @@ namespace Rml {
 
 UniquePtr<LayoutBox> TableFormattingContext::Format(ContainerBox* parent_container, Element* element_table, const Box* override_initial_box)
 {
-	auto table_wrapper_box = MakeUnique<TableWrapper>(element_table, parent_container);
+	auto table_wrapper_box = UniquePtr<TableWrapper>(TableWrapper::Create<TableWrapper>(element_table->GetCoreInstance(), element_table, parent_container));
 	if (table_wrapper_box->IsScrollContainer())
 	{
 		Log::Message(Log::LT_WARNING, "Table elements can only have 'overflow' property values of 'visible'. Table will not be formatted: %s.",

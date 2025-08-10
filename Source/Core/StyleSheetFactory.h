@@ -48,28 +48,30 @@ public:
 	~StyleSheetFactory();
 
 	/// Initialise the style factory
-	static bool Initialise();
+	static bool Initialise(CoreInstance& in_core_instance);
 	/// Shutdown style manager
-	static void Shutdown();
+	static void Shutdown(CoreInstance& in_core_instance);
 
 	/// Gets the named sheet, retrieving it from the cache if its already been loaded.
 	/// @param sheet name of sheet to load
 	/// @lifetime Returned pointer is valid until the next call to ClearStyleSheetCache or Shutdown, it should not be stored around.
-	static const StyleSheetContainer* GetStyleSheetContainer(const String& sheet);
+	const StyleSheetContainer* GetStyleSheetContainer(const String& sheet);
 
 	/// Clear the style sheet cache.
-	static void ClearStyleSheetCache();
+	void ClearStyleSheetCache();
 
 	/// Returns one of the available node selectors.
 	/// @param name[in] The name of the desired selector.
 	/// @return The selector registered with the given name, or nullptr if none exists.
-	static StructuralSelector GetSelector(const String& name);
+	StructuralSelector GetSelector(const String& name);
 
 private:
-	StyleSheetFactory();
+	StyleSheetFactory(CoreInstance& in_core_instance);
 
 	// Loads an individual style sheet
 	UniquePtr<const StyleSheetContainer> LoadStyleSheetContainer(const String& sheet);
+
+	CoreInstance& core_instance;
 
 	// Individual loaded stylesheets
 	using StyleSheets = UnorderedMap<String, UniquePtr<const StyleSheetContainer>>;

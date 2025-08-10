@@ -126,7 +126,7 @@ bool Initialise(CoreInstance& in_core_instance)
 	if (!font_interface)
 	{
 #ifdef RMLUI_FONT_ENGINE_FREETYPE
-		core_data->default_font_interface = MakeUnique<FontEngineInterfaceDefault>();
+		core_data->default_font_interface = MakeUnique<FontEngineInterfaceDefault>(in_core_instance);
 		font_interface = core_data->default_font_interface.get();
 #else
 		Log::Message(Log::LT_ERROR, "No font engine interface set!");
@@ -145,13 +145,13 @@ bool Initialise(CoreInstance& in_core_instance)
 	Detail::InitializeObserverPtrPool();
 
 	if (render_interface)
-		core_data->render_managers[render_interface] = MakeUnique<RenderManager>(render_interface);
+		core_data->render_managers[render_interface] = MakeUnique<RenderManager>(in_core_instance, render_interface);
 
 	font_interface->Initialize();
 
 	StyleSheetSpecification::Initialise(in_core_instance);
-	StyleSheetParser::Initialise();
-	StyleSheetFactory::Initialise();
+	StyleSheetParser::Initialise(in_core_instance);
+	StyleSheetFactory::Initialise(in_core_instance);
 
 	TemplateCache::Initialise(in_core_instance);
 
@@ -194,8 +194,8 @@ void Shutdown(CoreInstance& in_core_instance)
 
 	in_core_instance.factory.Shutdown();
 	TemplateCache::Shutdown(in_core_instance);
-	StyleSheetFactory::Shutdown();
-	StyleSheetParser::Shutdown();
+	StyleSheetFactory::Shutdown(in_core_instance);
+	StyleSheetParser::Shutdown(in_core_instance);
 	StyleSheetSpecification::Shutdown(in_core_instance);
 
 	font_interface->Shutdown();
@@ -303,7 +303,7 @@ Context* CreateContext(CoreInstance& instance, const String& name, const Vector2
 	// Each unique render interface gets its own render manager.
 	auto& render_manager = instance.core_data->render_managers[render_interface_for_context];
 	if (!render_manager)
-		render_manager = MakeUnique<RenderManager>(render_interface_for_context);
+		render_manager = MakeUnique<RenderManager>(instance, render_interface_for_context);
 
 	ContextPtr new_context = instance.factory.InstanceContext(name, render_manager.get(), text_input_handler_for_context);
 	if (!new_context)

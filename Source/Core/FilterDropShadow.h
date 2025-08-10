@@ -37,6 +37,10 @@ namespace Rml {
 
 class FilterDropShadow : public Filter {
 public:
+	explicit FilterDropShadow(CoreInstance& in_core_instance) : Filter(in_core_instance)
+	{
+	}
+
 	bool Initialise(Colourb color, NumericValue offset_x, NumericValue offset_y, NumericValue sigma);
 
 	CompiledFilter CompileFilter(Element* element) const override;

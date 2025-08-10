@@ -346,7 +346,7 @@ bool ElementProgress::LoadTexture()
 	String name;
 
 	if (const Property* property = GetLocalProperty(PropertyId::FillImage))
-		name = property->Get<String>();
+		name = property->Get<String>(GetCoreInstance());
 
 	RenderManager* render_manager = GetRenderManager();
 	if (!render_manager)

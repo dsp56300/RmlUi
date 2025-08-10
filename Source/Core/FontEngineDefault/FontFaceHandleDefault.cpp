@@ -36,12 +36,14 @@
 #include <algorithm>
 #include <numeric>
 
+#include "RmlUi/Core/CoreInstance.h"
+
 namespace Rml {
 
 static constexpr char32_t KerningCache_AsciiSubsetBegin = 32;
 static constexpr char32_t KerningCache_AsciiSubsetLast = 126;
 
-FontFaceHandleDefault::FontFaceHandleDefault()
+FontFaceHandleDefault::FontFaceHandleDefault(CoreInstance& in_core_instance) : core_instance(in_core_instance)
 {
 	base_layer = nullptr;
 	metrics = {};
@@ -382,10 +384,10 @@ const FontGlyph* FontFaceHandleDefault::GetOrAppendGlyph(Character& character, b
 		}
 		else if (look_in_fallback_fonts)
 		{
-			const int num_fallback_faces = FontProvider::CountFallbackFontFaces();
+			const int num_fallback_faces = core_instance.font_provider->CountFallbackFontFaces();
 			for (int i = 0; i < num_fallback_faces; i++)
 			{
-				FontFaceHandleDefault* fallback_face = FontProvider::GetFallbackFontFace(i, metrics.size);
+				FontFaceHandleDefault* fallback_face = core_instance.font_provider->GetFallbackFontFace(i, metrics.size);
 				if (!fallback_face || fallback_face == this)
 					continue;
 

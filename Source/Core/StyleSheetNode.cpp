@@ -232,7 +232,7 @@ bool StyleSheetNode::MatchAttributes(const Element* element) const
 		if (variant->GetType() == Variant::STRING)
 			element_value_ptr = &variant->GetReference<String>();
 		else
-			variant->GetInto(buffer);
+			variant->GetInto(element->GetCoreInstance(), buffer);
 
 		const String& element_value = *element_value_ptr;
 		const String& css_value = attribute.value;

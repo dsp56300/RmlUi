@@ -46,7 +46,7 @@ class StyleSheet;
 
 class RMLUICORE_API StyleSheetContainer : public NonCopyMoveable {
 public:
-	StyleSheetContainer();
+	StyleSheetContainer(CoreInstance& in_core_instance);
 	virtual ~StyleSheetContainer();
 
 	/// Loads a style from a CSS definition.
@@ -68,6 +68,7 @@ public:
 	void MergeStyleSheetContainer(const StyleSheetContainer& container);
 
 private:
+	CoreInstance& core_instance;
 	MediaBlockList media_blocks;
 
 	StyleSheet* compiled_style_sheet = nullptr;

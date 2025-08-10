@@ -33,12 +33,11 @@
 #include "StyleSheetNode.h"
 #include "StyleSheetParser.h"
 #include "StyleSheetSelector.h"
+#include "RmlUi/Core/CoreInstance.h"
 
 namespace Rml {
 
-static UniquePtr<StyleSheetFactory> instance;
-
-StyleSheetFactory::StyleSheetFactory() :
+StyleSheetFactory::StyleSheetFactory(CoreInstance& in_core_instance) : core_instance(in_core_instance),
 	selectors{
 		{"nth-child", StructuralSelectorType::Nth_Child},
 		{"nth-last-child", StructuralSelectorType::Nth_Last_Child},
@@ -58,41 +57,42 @@ StyleSheetFactory::StyleSheetFactory() :
 
 StyleSheetFactory::~StyleSheetFactory() {}
 
-bool StyleSheetFactory::Initialise()
+bool StyleSheetFactory::Initialise(CoreInstance& in_core_instance)
 {
-	RMLUI_ASSERT(instance == nullptr);
-	instance = UniquePtr<StyleSheetFactory>(new StyleSheetFactory);
+	RMLUI_ASSERT(in_core_instance.style_sheet_factory == nullptr);
+	in_core_instance.style_sheet_factory = new StyleSheetFactory(in_core_instance);
 	return true;
 }
 
-void StyleSheetFactory::Shutdown()
+void StyleSheetFactory::Shutdown(CoreInstance& in_core_instance)
 {
-	instance.reset();
+	delete in_core_instance.style_sheet_factory;
+	in_core_instance.style_sheet_factory = nullptr;
 }
 
 const StyleSheetContainer* StyleSheetFactory::GetStyleSheetContainer(const String& sheet_name)
 {
 	// Look up the sheet definition in the cache
-	auto it = instance->stylesheets.find(sheet_name);
-	if (it != instance->stylesheets.end())
+	auto it = stylesheets.find(sheet_name);
+	if (it != stylesheets.end())
 		return it->second.get();
 
 	// Don't currently have the sheet, attempt to load it
-	UniquePtr<const StyleSheetContainer> sheet = instance->LoadStyleSheetContainer(sheet_name);
+	UniquePtr<const StyleSheetContainer> sheet = LoadStyleSheetContainer(sheet_name);
 	if (!sheet)
 		return nullptr;
 
 	const StyleSheetContainer* result = sheet.get();
 
 	// Add it to the cache.
-	instance->stylesheets[sheet_name] = std::move(sheet);
+	stylesheets[sheet_name] = std::move(sheet);
 
 	return result;
 }
 
 void StyleSheetFactory::ClearStyleSheetCache()
 {
-	instance->stylesheets.clear();
+	stylesheets.clear();
 }
 
 StructuralSelector StyleSheetFactory::GetSelector(const String& name)
@@ -101,11 +101,11 @@ StructuralSelector StyleSheetFactory::GetSelector(const String& name)
 	const size_t parameter_start = name.find('(');
 
 	if (parameter_start == String::npos)
-		it = instance->selectors.find(name);
+		it = selectors.find(name);
 	else
-		it = instance->selectors.find(name.substr(0, parameter_start));
+		it = selectors.find(name.substr(0, parameter_start));
 
-	if (it == instance->selectors.end())
+	if (it == selectors.end())
 		return StructuralSelector(StructuralSelectorType::Invalid, 0, 0);
 
 	const StructuralSelectorType selector_type = it->second;
@@ -143,7 +143,7 @@ StructuralSelector StyleSheetFactory::GetSelector(const String& name)
 		{
 			auto list = MakeShared<SelectorTree>();
 			list->root = MakeUnique<StyleSheetNode>();
-			list->leafs = StyleSheetParser::ConstructNodes(*list->root, parameters);
+			list->leafs = StyleSheetParser::ConstructNodes(core_instance, *list->root, parameters);
 
 			int specificity = 0;
 			for (const StyleSheetNode* node : list->leafs)
@@ -212,10 +212,10 @@ UniquePtr<const StyleSheetContainer> StyleSheetFactory::LoadStyleSheetContainer(
 	UniquePtr<StyleSheetContainer> new_style_sheet;
 
 	// Open stream, construct new sheet and pass the stream into the sheet
-	auto stream = MakeUnique<StreamFile>();
+	auto stream = MakeUnique<StreamFile>(core_instance);
 	if (stream->Open(sheet))
 	{
-		new_style_sheet = MakeUnique<StyleSheetContainer>();
+		new_style_sheet = MakeUnique<StyleSheetContainer>(core_instance);
 		if (!new_style_sheet->LoadStyleSheetContainer(stream.get()))
 		{
 			new_style_sheet.reset();

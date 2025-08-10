@@ -42,8 +42,8 @@
 
 namespace Rml {
 
-InlineContainer::InlineContainer(BlockContainer* _parent, float _available_width) :
-	LayoutBox(_parent->GetElement()->GetCoreInstance(), Type::InlineContainer), parent(_parent), root_inline_box(_parent->GetElement())
+InlineContainer::InlineContainer(CoreInstance& in_core_instance, BlockContainer* _parent, float _available_width) :
+	LayoutBox(in_core_instance, Type::InlineContainer), parent(_parent), root_inline_box(_parent->GetElement())
 {
 	RMLUI_ASSERT(_parent);
 
@@ -68,15 +68,15 @@ InlineBox* InlineContainer::AddInlineElement(Element* element, const Box& box)
 
 	if (auto text_element = rmlui_dynamic_cast<ElementText*>(element))
 	{
-		inline_level_box = parent_box->AddChild(MakeUnique<InlineLevelBox_Text>(text_element));
+		inline_level_box = parent_box->AddChild(UniquePtr<InlineLevelBox_Text>(InlineLevelBox_Text::Create<InlineLevelBox_Text>(core_instance, text_element)));
 	}
 	else if (box.GetSize().x >= 0.f)
 	{
-		inline_level_box = parent_box->AddChild(MakeUnique<InlineLevelBox_Atomic>(parent_box, element, box));
+		inline_level_box = parent_box->AddChild(UniquePtr<InlineLevelBox_Atomic>(InlineLevelBox_Atomic::Create<InlineLevelBox_Atomic>(core_instance, parent_box, element, box)));
 	}
 	else
 	{
-		auto inline_box_ptr = MakeUnique<InlineBox>(parent_box, element, box);
+		auto inline_box_ptr = UniquePtr<InlineBox>(InlineBox::Create<InlineBox>(core_instance, parent_box, element, box));
 		inline_box = inline_box_ptr.get();
 		inline_level_box = parent_box->AddChild(std::move(inline_box_ptr));
 	}
@@ -279,7 +279,7 @@ LineBox* InlineContainer::EnsureOpenLineBox()
 {
 	if (line_boxes.empty() || line_boxes.back()->IsClosed())
 	{
-		line_boxes.push_back(MakeUnique<LineBox>());
+		line_boxes.push_back(UniquePtr<LineBox>(LineBox::Create(core_instance)));
 	}
 	return line_boxes.back().get();
 }

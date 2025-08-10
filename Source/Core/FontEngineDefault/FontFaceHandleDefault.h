@@ -47,7 +47,7 @@ class FontFaceLayer;
 
 class FontFaceHandleDefault final : public NonCopyMoveable {
 public:
-	FontFaceHandleDefault();
+	FontFaceHandleDefault(CoreInstance& in_core_instance);
 	~FontFaceHandleDefault();
 
 	bool Initialize(FontFaceHandleFreetype face, int font_size, bool load_default_glyphs);
@@ -127,6 +127,8 @@ private:
 	using FontLayerCache = SmallUnorderedMap<size_t, FontFaceLayer*>;
 	using LayerConfiguration = Vector<FontFaceLayer*>;
 	using LayerConfigurationList = Vector<LayerConfiguration>;
+
+	CoreInstance& core_instance;
 
 	// The list of all font layers, index by the effect that instanced them.
 	FontFaceLayer* base_layer;
