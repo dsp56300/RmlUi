@@ -9,6 +9,5 @@ namespace Rml
 	CoreInstance::~CoreInstance()
 	{
 		delete factory;
-		ElementInstancerElement::CheckPoolsOnShutdown(*this);
 	}
 }

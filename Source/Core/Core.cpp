@@ -80,6 +80,7 @@ static void ReleaseMemoryPools(CoreInstance& instance)
 {
 	LayoutPools::Shutdown(instance);
 	ElementMetaPool::Shutdown(instance);
+	ElementInstancerElement::CheckPoolsOnShutdown(instance);
 	Detail::ShutdownElementInstancerPools(instance);
 }
 
