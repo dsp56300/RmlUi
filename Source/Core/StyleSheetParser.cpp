@@ -240,6 +240,7 @@ void StyleSheetParser::Initialise(CoreInstance& in_core_instance)
 
 void StyleSheetParser::Shutdown(CoreInstance& in_core_instance)
 {
+	delete in_core_instance.style_sheet_property_parsers;
 	in_core_instance.style_sheet_property_parsers = nullptr;
 }
 
