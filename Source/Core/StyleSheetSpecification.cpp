@@ -138,6 +138,7 @@ void StyleSheetSpecification::Shutdown(CoreInstance& core_instance)
 	RMLUI_ASSERT(core_instance.styleSheetSpecification);
 
 	delete core_instance.styleSheetSpecification;
+	core_instance.styleSheetSpecification = nullptr;
 
 	PropertyParserAnimation::Shutdown();
 	PropertyParserColour::Shutdown();
