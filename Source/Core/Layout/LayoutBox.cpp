@@ -57,7 +57,7 @@ void* LayoutBox::operator new(size_t)
 	return nullptr;
 }
 
-void LayoutBox::operator delete(void* chunk, size_t size)
+void LayoutBox::operator delete(void* chunk, size_t size) noexcept
 {
 	LayoutPools::DeallocateLayoutChunk(static_cast<LayoutBox*>(chunk)->core_instance, chunk, size);
 }

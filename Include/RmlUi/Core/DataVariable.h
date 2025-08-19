@@ -257,7 +257,7 @@ public:
 		underlying_definition(underlying_definition), member_get_func_ptr(member_get_func_ptr), member_set_func_ptr(member_set_func_ptr)
 	{}
 
-	bool Get(CoreInstance&, void* ptr, Variant& variant) override { return GetDetail(ptr, variant); }
+	bool Get(CoreInstance& in_core_instance, void* ptr, Variant& variant) override { return GetDetail(in_core_instance, ptr, variant); }
 	bool Set(CoreInstance& in_core_instance, void* ptr, const Variant& variant) override { return SetDetail(in_core_instance, ptr, variant); }
 
 private:
@@ -268,12 +268,12 @@ private:
 	}
 
 	template <typename T = MemberGetType, typename std::enable_if_t<!IsVoidMemberFunc<T>::value, int> = 0>
-	bool GetDetail(void* ptr, Variant& variant)
+	bool GetDetail(CoreInstance& in_core_instance, void* ptr, Variant& variant)
 	{
 		RMLUI_ASSERT(member_get_func_ptr);
 
 		auto&& value = (static_cast<Object*>(ptr)->*member_get_func_ptr)();
-		bool result = underlying_definition->Get(static_cast<void*>(&value), variant);
+		bool result = underlying_definition->Get(in_core_instance, static_cast<void*>(&value), variant);
 		return result;
 	}
 

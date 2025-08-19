@@ -61,7 +61,7 @@ public:
 	/// Log the specified message via the registered log interface
 	/// @param[in] type Type of message.
 	/// @param[in] format The message, with sprintf-style parameters.
-	static void Message(CoreInstance& in_core_instance, Type type, const char* format, ...) RMLUI_ATTRIBUTE_FORMAT_PRINTF(2, 3);
+	static void Message(CoreInstance& in_core_instance, Type type, const char* format, ...) RMLUI_ATTRIBUTE_FORMAT_PRINTF(3, 4);
 
 	/// Log a parse error on the specified file and line number.
 	/// @param[in] filename Name of the file with the parse error.
