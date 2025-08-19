@@ -45,9 +45,9 @@ PropertyDefinition& EffectSpecification::RegisterProperty(CoreInstance& in_core_
 	return properties.RegisterProperty(in_core_instance, property_name, default_value, false, false);
 }
 
-ShorthandId EffectSpecification::RegisterShorthand(const String& shorthand_name, const String& property_names, ShorthandType type)
+ShorthandId EffectSpecification::RegisterShorthand(CoreInstance& in_core_instance, const String& shorthand_name, const String& property_names, ShorthandType type)
 {
-	return properties.RegisterShorthand(shorthand_name, property_names, type);
+	return properties.RegisterShorthand(in_core_instance, shorthand_name, property_names, type);
 }
 
 } // namespace Rml

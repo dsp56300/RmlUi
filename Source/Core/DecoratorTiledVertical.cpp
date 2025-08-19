@@ -149,7 +149,7 @@ DecoratorTiledVerticalInstancer::DecoratorTiledVerticalInstancer(CoreInstance& i
 	RegisterTileProperty(in_core_instance, "top-image");
 	RegisterTileProperty(in_core_instance, "bottom-image");
 	RegisterTileProperty(in_core_instance, "center-image");
-	RegisterShorthand("decorator", "top-image, center-image, bottom-image", ShorthandType::RecursiveCommaSeparated);
+	RegisterShorthand(in_core_instance, "decorator", "top-image, center-image, bottom-image", ShorthandType::RecursiveCommaSeparated);
 }
 
 DecoratorTiledVerticalInstancer::~DecoratorTiledVerticalInstancer() {}

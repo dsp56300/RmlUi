@@ -45,7 +45,7 @@ struct XmlParserData {
 	SharedPtr<XMLNodeHandler> default_node_handler;
 };
 
-XMLParser::XMLParser(CoreInstance& core_instance, Element* root) : core_instance(core_instance)
+XMLParser::XMLParser(CoreInstance& core_instance, Element* root) : BaseXMLParser(core_instance), core_instance(core_instance)
 {
 	RegisterCDATATag("script");
 	RegisterCDATATag("style");
@@ -179,7 +179,7 @@ void XMLParser::HandleElementEnd(const String& _name)
 	// Check frame names
 	if (name != frame.tag)
 	{
-		Log::Message(Log::LT_ERROR, "Closing tag '%s' mismatched on %s:%d was expecting '%s'.", name.c_str(), GetSourceURL().GetURL().c_str(),
+		Log::Message(GetCoreInstance(), Log::LT_ERROR, "Closing tag '%s' mismatched on %s:%d was expecting '%s'.", name.c_str(), GetSourceURL().GetURL().c_str(),
 			GetLineNumber(), frame.tag.c_str());
 	}
 

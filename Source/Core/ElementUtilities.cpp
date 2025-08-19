@@ -497,7 +497,7 @@ static bool ApplyDataViewsControllersInternal(Element* element, const bool const
 					result = true;
 				}
 				else
-					Log::Message(Log::LT_WARNING, "Could not add data-%s view to element: %s", initializer.type.c_str(),
+					Log::Message(element->GetCoreInstance(), Log::LT_WARNING, "Could not add data-%s view to element: %s", initializer.type.c_str(),
 						element->GetAddress().c_str());
 			}
 
@@ -509,7 +509,7 @@ static bool ApplyDataViewsControllersInternal(Element* element, const bool const
 					result = true;
 				}
 				else
-					Log::Message(Log::LT_WARNING, "Could not add data-%s controller to element: %s", initializer.type.c_str(),
+					Log::Message(element->GetCoreInstance(), Log::LT_WARNING, "Could not add data-%s controller to element: %s", initializer.type.c_str(),
 						element->GetAddress().c_str());
 			}
 		}

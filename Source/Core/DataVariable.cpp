@@ -30,9 +30,9 @@
 
 namespace Rml {
 
-bool DataVariable::Get(Variant& variant)
+bool DataVariable::Get(CoreInstance& in_core_instance, Variant& variant)
 {
-	return definition->Get(ptr, variant);
+	return definition->Get(in_core_instance, ptr, variant);
 }
 
 bool DataVariable::Set(CoreInstance& in_core_instance, const Variant& variant)
@@ -40,14 +40,14 @@ bool DataVariable::Set(CoreInstance& in_core_instance, const Variant& variant)
 	return definition->Set(in_core_instance, ptr, variant);
 }
 
-int DataVariable::Size()
+int DataVariable::Size(CoreInstance& in_core_instance)
 {
-	return definition->Size(ptr);
+	return definition->Size(in_core_instance, ptr);
 }
 
-DataVariable DataVariable::Child(const DataAddressEntry& address)
+DataVariable DataVariable::Child(CoreInstance& in_core_instance, const DataAddressEntry& address)
 {
-	return definition->Child(ptr, address);
+	return definition->Child(in_core_instance, ptr, address);
 }
 
 DataVariableType DataVariable::Type()
@@ -55,24 +55,24 @@ DataVariableType DataVariable::Type()
 	return definition->Type();
 }
 
-bool VariableDefinition::Get(void* /*ptr*/, Variant& /*variant*/)
+bool VariableDefinition::Get(CoreInstance& in_core_instance, void* /*ptr*/, Variant& /*variant*/)
 {
-	Log::Message(Log::LT_WARNING, "Values can only be retrieved from scalar data types.");
+	Log::Message(in_core_instance, Log::LT_WARNING, "Values can only be retrieved from scalar data types.");
 	return false;
 }
-bool VariableDefinition::Set(CoreInstance&, void* /*ptr*/, const Variant& /*variant*/)
+bool VariableDefinition::Set(CoreInstance& in_core_instance, void* /*ptr*/, const Variant& /*variant*/)
 {
-	Log::Message(Log::LT_WARNING, "Values can only be assigned to scalar data types.");
+	Log::Message(in_core_instance, Log::LT_WARNING, "Values can only be assigned to scalar data types.");
 	return false;
 }
-int VariableDefinition::Size(void* /*ptr*/)
+int VariableDefinition::Size(CoreInstance& in_core_instance, void* /*ptr*/)
 {
-	Log::Message(Log::LT_WARNING, "Tried to get the size from a non-array data type.");
+	Log::Message(in_core_instance, Log::LT_WARNING, "Tried to get the size from a non-array data type.");
 	return 0;
 }
-DataVariable VariableDefinition::Child(void* /*ptr*/, const DataAddressEntry& /*address*/)
+DataVariable VariableDefinition::Child(CoreInstance& in_core_instance, void* /*ptr*/, const DataAddressEntry& /*address*/)
 {
-	Log::Message(Log::LT_WARNING, "Tried to get the child of a scalar type.");
+	Log::Message(in_core_instance, Log::LT_WARNING, "Tried to get the child of a scalar type.");
 	return DataVariable();
 }
 
@@ -80,7 +80,7 @@ class LiteralIntDefinition final : public VariableDefinition {
 public:
 	LiteralIntDefinition() : VariableDefinition(DataVariableType::Scalar) {}
 
-	bool Get(void* ptr, Variant& variant) override
+	bool Get(CoreInstance&, void* ptr, Variant& variant) override
 	{
 		variant = static_cast<int>(reinterpret_cast<intptr_t>(ptr));
 		return true;
@@ -95,19 +95,19 @@ DataVariable MakeLiteralIntVariable(int value)
 
 StructDefinition::StructDefinition() : VariableDefinition(DataVariableType::Struct) {}
 
-DataVariable StructDefinition::Child(void* ptr, const DataAddressEntry& address)
+DataVariable StructDefinition::Child(CoreInstance& in_core_instance, void* ptr, const DataAddressEntry& address)
 {
 	const String& name = address.name;
 	if (name.empty())
 	{
-		Log::Message(Log::LT_WARNING, "Expected a struct member name but none given.");
+		Log::Message(in_core_instance, Log::LT_WARNING, "Expected a struct member name but none given.");
 		return DataVariable();
 	}
 
 	auto it = members.find(name);
 	if (it == members.end())
 	{
-		Log::Message(Log::LT_WARNING, "Member %s not found in data struct.", name.c_str());
+		Log::Message(in_core_instance, Log::LT_WARNING, "Member %s not found in data struct.", name.c_str());
 		return DataVariable();
 	}
 
@@ -128,7 +128,7 @@ FuncDefinition::FuncDefinition(DataGetFunc get, DataSetFunc set) :
 	VariableDefinition(DataVariableType::Scalar), get(std::move(get)), set(std::move(set))
 {}
 
-bool FuncDefinition::Get(void* /*ptr*/, Variant& variant)
+bool FuncDefinition::Get(CoreInstance&, void* /*ptr*/, Variant& variant)
 {
 	if (!get)
 		return false;
@@ -148,11 +148,11 @@ BasePointerDefinition::BasePointerDefinition(VariableDefinition* underlying_defi
 	VariableDefinition(underlying_definition->Type()), underlying_definition(underlying_definition)
 {}
 
-bool BasePointerDefinition::Get(void* ptr, Variant& variant)
+bool BasePointerDefinition::Get(CoreInstance& in_core_instance, void* ptr, Variant& variant)
 {
 	if (!ptr)
 		return false;
-	return underlying_definition->Get(DereferencePointer(ptr), variant);
+	return underlying_definition->Get(in_core_instance, DereferencePointer(ptr), variant);
 }
 
 bool BasePointerDefinition::Set(CoreInstance& in_core_instance, void* ptr, const Variant& variant)
@@ -162,18 +162,18 @@ bool BasePointerDefinition::Set(CoreInstance& in_core_instance, void* ptr, const
 	return underlying_definition->Set(in_core_instance, DereferencePointer(ptr), variant);
 }
 
-int BasePointerDefinition::Size(void* ptr)
+int BasePointerDefinition::Size(CoreInstance& in_core_instance, void* ptr)
 {
 	if (!ptr)
 		return 0;
-	return underlying_definition->Size(DereferencePointer(ptr));
+	return underlying_definition->Size(in_core_instance, DereferencePointer(ptr));
 }
 
-DataVariable BasePointerDefinition::Child(void* ptr, const DataAddressEntry& address)
+DataVariable BasePointerDefinition::Child(CoreInstance& in_core_instance, void* ptr, const DataAddressEntry& address)
 {
 	if (!ptr)
 		return DataVariable();
-	return underlying_definition->Child(DereferencePointer(ptr), address);
+	return underlying_definition->Child(in_core_instance, DereferencePointer(ptr), address);
 }
 
 } // namespace Rml

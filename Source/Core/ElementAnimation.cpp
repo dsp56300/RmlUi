@@ -306,7 +306,7 @@ static Property InterpolateProperties(const Property& p0, const Property& p1, fl
 			const NamedDecorator* named_decorator = style_sheet->GetNamedDecorator(declaration.type);
 			if (!named_decorator)
 			{
-				Log::Message(Log::LT_WARNING, "Could not find a named @decorator '%s'.", declaration.type.c_str());
+				Log::Message(element.GetCoreInstance(), Log::LT_WARNING, "Could not find a named @decorator '%s'.", declaration.type.c_str());
 				return EffectDeclarationView();
 			}
 
@@ -649,7 +649,7 @@ ElementAnimation::ElementAnimation(PropertyId property_id, ElementAnimationOrigi
 {
 	if (!current_value.definition)
 	{
-		Log::Message(Log::LT_WARNING, "Property in animation key did not have a definition (while adding key '%s').",
+		Log::Message(element.GetCoreInstance(), Log::LT_WARNING, "Property in animation key did not have a definition (while adding key '%s').",
 			current_value.ToString(element.GetCoreInstance()).c_str());
 	}
 	InternalAddKey(0.0f, current_value, element, Tween{});
@@ -663,7 +663,7 @@ bool ElementAnimation::InternalAddKey(float time, const Property& in_property, E
 	if (!Any(in_property.unit & valid_units))
 	{
 		const char* property_type = (in_property.unit == Unit::BOXSHADOWLIST ? "Box shadows do not" : "Property value does not");
-		Log::Message(Log::LT_WARNING, "%s support animations or transitions. Value: %s", property_type, in_property.ToString(element.GetCoreInstance()).c_str());
+		Log::Message(element.GetCoreInstance(), Log::LT_WARNING, "%s support animations or transitions. Value: %s", property_type, in_property.ToString(element.GetCoreInstance()).c_str());
 		return false;
 	}
 
@@ -686,7 +686,7 @@ bool ElementAnimation::InternalAddKey(float time, const Property& in_property, E
 
 	if (!result)
 	{
-		Log::Message(Log::LT_WARNING, "Could not add animation key with property '%s'.", in_property.ToString(element.GetCoreInstance()).c_str());
+		Log::Message(element.GetCoreInstance(), Log::LT_WARNING, "Could not add animation key with property '%s'.", in_property.ToString(element.GetCoreInstance()).c_str());
 		keys.pop_back();
 	}
 
@@ -697,7 +697,7 @@ bool ElementAnimation::AddKey(float target_time, const Property& in_property, El
 {
 	if (!IsInitalized())
 	{
-		Log::Message(Log::LT_WARNING, "Element animation was not initialized properly, can't add key.");
+		Log::Message(element.GetCoreInstance(), Log::LT_WARNING, "Element animation was not initialized properly, can't add key.");
 		return false;
 	}
 	if (!InternalAddKey(target_time, in_property, element, tween))

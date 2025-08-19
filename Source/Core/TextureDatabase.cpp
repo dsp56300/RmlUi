@@ -32,7 +32,7 @@
 
 namespace Rml {
 
-CallbackTextureDatabase::CallbackTextureDatabase()
+CallbackTextureDatabase::CallbackTextureDatabase(CoreInstance& in_core_instance) : core_instance(in_core_instance)
 {
 	constexpr size_t reserve_callback_textures = 30;
 	texture_list.reserve(reserve_callback_textures);
@@ -42,7 +42,7 @@ CallbackTextureDatabase::~CallbackTextureDatabase()
 {
 	if (!texture_list.empty())
 	{
-		Log::Message(Log::LT_ERROR, "TextureDatabase destroyed with outstanding callback textures. Will likely result in memory corruption.");
+		Log::Message(core_instance, Log::LT_ERROR, "TextureDatabase destroyed with outstanding callback textures. Will likely result in memory corruption.");
 		RMLUI_ERROR;
 	}
 }
@@ -103,7 +103,7 @@ void CallbackTextureDatabase::ReleaseAllTextures(RenderInterface* render_interfa
 	});
 }
 
-FileTextureDatabase::FileTextureDatabase() {}
+FileTextureDatabase::FileTextureDatabase(CoreInstance& in_core_instance) : core_instance(in_core_instance) {}
 
 FileTextureDatabase::~FileTextureDatabase()
 {
@@ -137,7 +137,7 @@ FileTextureDatabase::FileTextureEntry FileTextureDatabase::LoadTextureEntry(Rend
 	if (!result.texture_handle)
 	{
 		result.load_texture_failed = true;
-		Rml::Log::Message(Rml::Log::LT_WARNING, "Could not load texture: %s", source.c_str());
+		Rml::Log::Message(core_instance, Rml::Log::LT_WARNING, "Could not load texture: %s", source.c_str());
 	}
 	return result;
 }

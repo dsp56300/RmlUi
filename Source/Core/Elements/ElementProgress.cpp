@@ -46,7 +46,7 @@ ElementProgress::ElementProgress(CoreInstance& core_instance, const String& tag)
 	Element(core_instance, tag), direction(DefaultDirection), start_edge(DefaultStartEdge), fill(nullptr), rect_set(false)
 {
 	if (tag == "progressbar")
-		Log::Message(Log::LT_WARNING, "Deprecation notice: Element '<progressbar>' renamed to '<progress>', please adjust RML tags accordingly.");
+		Log::Message(GetCoreInstance(), Log::LT_WARNING, "Deprecation notice: Element '<progressbar>' renamed to '<progress>', please adjust RML tags accordingly.");
 
 	geometry_dirty = false;
 
@@ -185,7 +185,7 @@ void ElementProgress::GenerateGeometry()
 
 	// Warn the user when using the old approach of adding the 'fill-image' property to the 'fill' element.
 	if (fill->GetLocalProperty(PropertyId::FillImage))
-		Log::Message(Log::LT_WARNING,
+		Log::Message(GetCoreInstance(), Log::LT_WARNING,
 			"Breaking change: The 'fill-image' property now needs to be set on the <progress> element, instead of its inner <fill> element. Please "
 			"update your RCSS source to fix progress bars in this document.");
 
@@ -374,7 +374,7 @@ bool ElementProgress::LoadTexture()
 		if (!texture_set)
 		{
 			URL source_url;
-			source_url.SetURL(document->GetSourceURL());
+			source_url.SetURL(GetCoreInstance(), document->GetSourceURL());
 			texture = render_manager->LoadTexture(name, source_url.GetPath());
 			texture_set = true;
 		}

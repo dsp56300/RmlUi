@@ -78,7 +78,7 @@ FilterDropShadowInstancer::FilterDropShadowInstancer(CoreInstance& in_core_insta
 	ids.offset_x = RegisterProperty(in_core_instance, "offset-x", "0px").AddParser("length").GetId();
 	ids.offset_y = RegisterProperty(in_core_instance, "offset-y", "0px").AddParser("length").GetId();
 	ids.sigma = RegisterProperty(in_core_instance, "sigma", "0px").AddParser("length").GetId();
-	RegisterShorthand("filter", "color, offset-x, offset-y, sigma", ShorthandType::FallThrough);
+	RegisterShorthand(in_core_instance, "filter", "color, offset-x, offset-y, sigma", ShorthandType::FallThrough);
 }
 
 SharedPtr<Filter> FilterDropShadowInstancer::InstanceFilter(CoreInstance& in_core_instance, const String& /*name*/, const PropertyDictionary& properties)

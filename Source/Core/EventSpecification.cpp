@@ -132,7 +132,7 @@ namespace EventSpecificationInterface {
 		const size_t new_id_num = specifications.size();
 		if (new_id_num >= size_t(EventId::MaxNumIds))
 		{
-			Log::Message(Log::LT_ERROR, "Error while registering event type '%s': Maximum number of allowed events exceeded.", event_type.c_str());
+			Log::Message(in_core_instance, Log::LT_ERROR, "Error while registering event type '%s': Maximum number of allowed events exceeded.", event_type.c_str());
 			RMLUI_ERROR;
 			return specifications.front();
 		}

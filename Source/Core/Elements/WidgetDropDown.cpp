@@ -408,7 +408,7 @@ int WidgetDropDown::AddOption(ElementPtr element, int before)
 {
 	if (element->GetTagName() != "option")
 	{
-		Log::Message(Log::LT_WARNING, "A child of '%s' must be of type 'option' but '%s' was given. See element '%s'.",
+		Log::Message(element->GetCoreInstance(), Log::LT_WARNING, "A child of '%s' must be of type 'option' but '%s' was given. See element '%s'.",
 			parent_element->GetTagName().c_str(), element->GetTagName().c_str(), parent_element->GetAddress().c_str());
 		return -1;
 	}

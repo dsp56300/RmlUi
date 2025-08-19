@@ -48,7 +48,7 @@ StreamFile::~StreamFile()
 bool StreamFile::Open(const String& path)
 {
 	String url_safe_path = StringUtilities::Replace(path, ':', '|');
-	SetStreamDetails(URL(url_safe_path), Stream::MODE_READ);
+	SetStreamDetails(URL(core_instance, url_safe_path), Stream::MODE_READ);
 
 	if (file_handle)
 		Close();
@@ -58,7 +58,7 @@ bool StreamFile::Open(const String& path)
 	file_handle = GetFileInterface(core_instance)->Open(fixed_path);
 	if (!file_handle)
 	{
-		Log::Message(Log::LT_WARNING, "Unable to open file %s.", fixed_path.c_str());
+		Log::Message(core_instance, Log::LT_WARNING, "Unable to open file %s.", fixed_path.c_str());
 		return false;
 	}
 

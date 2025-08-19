@@ -126,7 +126,7 @@ StructuralSelector StyleSheetFactory::GetSelector(const String& name)
 
 	if (requires_parameter != has_parameter)
 	{
-		Log::Message(Log::LT_WARNING, "Invalid selector ':%s' encountered, expected %s parameters", name.c_str(),
+		Log::Message(core_instance, Log::LT_WARNING, "Invalid selector ':%s' encountered, expected %s parameters", name.c_str(),
 			requires_parameter ? "parenthesized" : "no");
 		return StructuralSelector(StructuralSelectorType::Invalid, 0, 0);
 	}

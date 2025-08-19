@@ -51,7 +51,7 @@ PropertyDefinition& PropertyDefinition::AddParser(const String& parser_name, con
 	new_parser.parser = core_instance.styleSheetSpecification->GetParser(parser_name);
 	if (new_parser.parser == nullptr)
 	{
-		Log::Message(Log::LT_ERROR, "Property was registered with invalid parser '%s'.", parser_name.c_str());
+		Log::Message(core_instance, Log::LT_ERROR, "Property was registered with invalid parser '%s'.", parser_name.c_str());
 		return *this;
 	}
 
@@ -70,7 +70,7 @@ PropertyDefinition& PropertyDefinition::AddParser(const String& parser_name, con
 			{
 				if (!TypeConverter<String, int>::Convert(core_instance, parameter.substr(i_equal + 1), parameter_value))
 				{
-					Log::Message(Log::LT_ERROR, "Parser was added with invalid parameter '%s'.", parameter.c_str());
+					Log::Message(core_instance, Log::LT_ERROR, "Parser was added with invalid parameter '%s'.", parameter.c_str());
 					return *this;
 				}
 			}

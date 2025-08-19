@@ -44,7 +44,7 @@ UniquePtr<LayoutBox> TableFormattingContext::Format(ContainerBox* parent_contain
 	auto table_wrapper_box = UniquePtr<TableWrapper>(TableWrapper::Create<TableWrapper>(element_table->GetCoreInstance(), element_table, parent_container));
 	if (table_wrapper_box->IsScrollContainer())
 	{
-		Log::Message(Log::LT_WARNING, "Table elements can only have 'overflow' property values of 'visible'. Table will not be formatted: %s.",
+		Log::Message(element_table->GetCoreInstance(), Log::LT_WARNING, "Table elements can only have 'overflow' property values of 'visible'. Table will not be formatted: %s.",
 			element_table->GetAddress().c_str());
 		return table_wrapper_box;
 	}
@@ -272,7 +272,7 @@ void TableFormattingContext::DetermineRowHeights(TrackBoxList& rows, BoxList& ce
 
 	if (table_auto_height && percentage_size_used)
 	{
-		Log::Message(Log::LT_WARNING,
+		Log::Message(element_table->GetCoreInstance(), Log::LT_WARNING,
 			"Table has one or more rows that use percentages for height. However, initial table height is undefined, thus "
 			"these rows will become flattened. Set a fixed height on the table, or use fixed or 'auto' row heights. In element: %s.",
 			element_table->GetAddress().c_str());

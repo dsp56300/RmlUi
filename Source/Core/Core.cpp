@@ -109,17 +109,17 @@ bool Initialise(CoreInstance& in_core_instance)
 	// Install default interfaces as appropriate.
 	if (!system_interface)
 	{
-		core_data->default_system_interface = MakeUnique<SystemInterface>();
+		core_data->default_system_interface = MakeUnique<SystemInterface>(in_core_instance);
 		system_interface = core_data->default_system_interface.get();
 	}
 
 	if (!file_interface)
 	{
 #ifndef RMLUI_NO_FILE_INTERFACE_DEFAULT
-		core_data->default_file_interface = MakeUnique<FileInterfaceDefault>();
+		core_data->default_file_interface = MakeUnique<FileInterfaceDefault>(in_core_instance);
 		file_interface = core_data->default_file_interface.get();
 #else
-		Log::Message(Log::LT_ERROR, "No file interface set!");
+		Log::Message(in_core_instance, Log::LT_ERROR, "No file interface set!");
 		return false;
 #endif
 	}
@@ -130,7 +130,7 @@ bool Initialise(CoreInstance& in_core_instance)
 		core_data->default_font_interface = MakeUnique<FontEngineInterfaceDefault>(in_core_instance);
 		font_interface = core_data->default_font_interface.get();
 #else
-		Log::Message(Log::LT_ERROR, "No font engine interface set!");
+		Log::Message(in_core_instance, Log::LT_ERROR, "No font engine interface set!");
 		return false;
 #endif
 	}
@@ -290,14 +290,14 @@ Context* CreateContext(CoreInstance& instance, const String& name, const Vector2
 
 	if (!render_interface_for_context)
 	{
-		Log::Message(Log::LT_WARNING, "Failed to create context '%s', no render interface specified and no default render interface exists.",
+		Log::Message(instance, Log::LT_WARNING, "Failed to create context '%s', no render interface specified and no default render interface exists.",
 			name.c_str());
 		return nullptr;
 	}
 
 	if (GetContext(instance, name))
 	{
-		Log::Message(Log::LT_WARNING, "Failed to create context '%s', context already exists.", name.c_str());
+		Log::Message(instance, Log::LT_WARNING, "Failed to create context '%s', context already exists.", name.c_str());
 		return nullptr;
 	}
 
@@ -309,7 +309,7 @@ Context* CreateContext(CoreInstance& instance, const String& name, const Vector2
 	ContextPtr new_context = instance.factory->InstanceContext(name, render_manager.get(), text_input_handler_for_context);
 	if (!new_context)
 	{
-		Log::Message(Log::LT_WARNING, "Failed to instance context '%s', instancer returned nullptr.", name.c_str());
+		Log::Message(instance, Log::LT_WARNING, "Failed to instance context '%s', instancer returned nullptr.", name.c_str());
 		return nullptr;
 	}
 

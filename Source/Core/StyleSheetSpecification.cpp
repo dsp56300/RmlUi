@@ -115,7 +115,7 @@ PropertyDefinition& StyleSheetSpecification::RegisterProperty(PropertyId id, con
 
 ShorthandId StyleSheetSpecification::RegisterShorthand(ShorthandId id, const String& shorthand_name, const String& property_names, ShorthandType type)
 {
-	return properties.RegisterShorthand(shorthand_name, property_names, type, id);
+	return properties.RegisterShorthand(core_instance, shorthand_name, property_names, type, id);
 }
 
 void StyleSheetSpecification::Initialise(CoreInstance& core_instance)
@@ -151,7 +151,7 @@ bool StyleSheetSpecification::RegisterParser(const String& parser_name, Property
 	ParserMap::iterator iterator = instance->parsers.find(parser_name);
 	if (iterator != instance->parsers.end())
 	{
-		Log::Message(Log::LT_WARNING, "Parser with name %s already exists!", parser_name.c_str());
+		Log::Message(core_instance, Log::LT_WARNING, "Parser with name %s already exists!", parser_name.c_str());
 		return false;
 	}
 
@@ -207,7 +207,7 @@ ShorthandId StyleSheetSpecification::RegisterShorthand(const String& shorthand_n
 		"Custom shorthand name matches a property name, please make a unique name.");
 	RMLUI_ASSERTMSG((size_t)instance->properties.shorthand_map->GetId(shorthand_name) < (size_t)ShorthandId::FirstCustomId,
 		"Custom shorthand name matches an internal shorthand, please make a unique name for the given shorthand property.");
-	return instance->properties.RegisterShorthand(shorthand_name, property_names, type);
+	return instance->properties.RegisterShorthand(core_instance, shorthand_name, property_names, type);
 }
 
 const ShorthandDefinition* StyleSheetSpecification::GetShorthand(const String& shorthand_name)

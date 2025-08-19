@@ -74,7 +74,7 @@ bool PropertyParserFilter::ParseValue(Property& property, const String& filter_s
 		if (invalid_parenthesis)
 		{
 			// We found no parenthesis, filters can only be declared anonymously for now.
-			Log::Message(Log::LT_WARNING, "Invalid syntax for font-effect '%s'.", filter_string.c_str());
+			Log::Message(core_instance, Log::LT_WARNING, "Invalid syntax for font-effect '%s'.", filter_string.c_str());
 			return false;
 		}
 		else
@@ -85,7 +85,7 @@ bool PropertyParserFilter::ParseValue(Property& property, const String& filter_s
 			FilterInstancer* instancer = core_instance.factory->GetFilterInstancer(type);
 			if (!instancer)
 			{
-				Log::Message(Log::LT_WARNING, "Filter type '%s' not found.", type.c_str());
+				Log::Message(core_instance, Log::LT_WARNING, "Filter type '%s' not found.", type.c_str());
 				return false;
 			}
 

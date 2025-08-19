@@ -47,7 +47,7 @@ static void LogUnexpectedFlowElement(Element* element, Style::Display display)
 	String value = "*unknown";
 	element->GetCoreInstance().styleSheetSpecification->GetPropertySpecification().GetProperty(PropertyId::Display)->GetValue(value, Property(display));
 
-	Log::Message(Log::LT_WARNING, "Element has a display type '%s' which cannot be located in normal flow layout. Element will not be formatted: %s",
+	Log::Message(element->GetCoreInstance(), Log::LT_WARNING, "Element has a display type '%s' which cannot be located in normal flow layout. Element will not be formatted: %s",
 		value.c_str(), element->GetAddress().c_str());
 }
 

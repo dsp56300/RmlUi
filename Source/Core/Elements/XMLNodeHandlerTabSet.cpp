@@ -52,7 +52,7 @@ Element* XMLNodeHandlerTabSet::ElementStart(XMLParser* parser, const String& nam
 		ElementTabSet* tabset = rmlui_dynamic_cast<ElementTabSet*>(element.get());
 		if (!tabset)
 		{
-			Log::Message(Log::LT_ERROR, "Instancer failed to create element for tag %s.", name.c_str());
+			Log::Message(parser->GetCoreInstance(), Log::LT_ERROR, "Instancer failed to create element for tag %s.", name.c_str());
 			return nullptr;
 		}
 
@@ -106,7 +106,7 @@ Element* XMLNodeHandlerTabSet::ElementStart(XMLParser* parser, const String& nam
 		ElementPtr element = factory.InstanceElement(parent, name, name, attributes);
 		if (!element)
 		{
-			Log::Message(Log::LT_ERROR, "Instancer failed to create element for tag %s.", name.c_str());
+			Log::Message(parser->GetCoreInstance(), Log::LT_ERROR, "Instancer failed to create element for tag %s.", name.c_str());
 			return nullptr;
 		}
 

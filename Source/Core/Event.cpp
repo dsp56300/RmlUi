@@ -140,7 +140,7 @@ void Event::Release()
 	if (instancer)
 		instancer->ReleaseEvent(this);
 	else
-		Log::Message(Log::LT_WARNING, "Leak detected: Event %s not instanced via RmlUi Factory. Unable to release.", type.c_str());
+		Log::Message(GetCoreInstance(), Log::LT_WARNING, "Leak detected: Event %s not instanced via RmlUi Factory. Unable to release.", type.c_str());
 }
 
 EventId Event::GetId() const

@@ -31,7 +31,7 @@
 
 namespace Rml {
 
-FileInterface::FileInterface() {}
+FileInterface::FileInterface(CoreInstance& in_core_instance) : core_instance(in_core_instance) {}
 
 FileInterface::~FileInterface() {}
 
@@ -58,7 +58,7 @@ bool FileInterface::LoadFile(const String& path, String& out_data)
 
 	if (length != read_length)
 	{
-		Log::Message(Log::LT_WARNING, "Could only read %zu of %zu bytes from file %s", read_length, length, path.c_str());
+		Log::Message(core_instance, Log::LT_WARNING, "Could only read %zu of %zu bytes from file %s", read_length, length, path.c_str());
 	}
 
 	Close(handle);

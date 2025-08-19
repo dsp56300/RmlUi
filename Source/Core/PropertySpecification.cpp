@@ -60,7 +60,7 @@ PropertyDefinition& PropertySpecification::RegisterProperty(CoreInstance& in_cor
 
 	if (index >= size_t(PropertyId::MaxNumIds))
 	{
-		Log::Message(Log::LT_ERROR,
+		Log::Message(in_core_instance, Log::LT_ERROR,
 			"Fatal error while registering property '%s': Maximum number of allowed properties exceeded. Continuing execution may lead to crash.",
 			property_name.c_str());
 		RMLUI_ERROR;
@@ -72,7 +72,7 @@ PropertyDefinition& PropertySpecification::RegisterProperty(CoreInstance& in_cor
 		// We don't want to owerwrite an existing entry.
 		if (properties[index])
 		{
-			Log::Message(Log::LT_ERROR, "While registering property '%s': The property is already registered.", property_name.c_str());
+			Log::Message(in_core_instance, Log::LT_ERROR, "While registering property '%s': The property is already registered.", property_name.c_str());
 			return *properties[index];
 		}
 	}
@@ -121,7 +121,7 @@ const PropertyIdSet& PropertySpecification::GetRegisteredPropertiesForcingLayout
 	return property_ids_forcing_layout;
 }
 
-ShorthandId PropertySpecification::RegisterShorthand(const String& shorthand_name, const String& property_names, ShorthandType type, ShorthandId id)
+ShorthandId PropertySpecification::RegisterShorthand(CoreInstance& in_core_instance, const String& shorthand_name, const String& property_names, ShorthandType type, ShorthandId id)
 {
 	if (id == ShorthandId::Invalid)
 		id = shorthand_map->GetOrCreateId(shorthand_name);
@@ -174,7 +174,7 @@ ShorthandId PropertySpecification::RegisterShorthand(const String& shorthand_nam
 
 		if (item.type == ShorthandItemType::Invalid)
 		{
-			Log::Message(Log::LT_ERROR, "Shorthand property '%s' was registered with invalid property '%s'.", shorthand_name.c_str(), name.c_str());
+			Log::Message(in_core_instance, Log::LT_ERROR, "Shorthand property '%s' was registered with invalid property '%s'.", shorthand_name.c_str(), name.c_str());
 			return ShorthandId::Invalid;
 		}
 		property_shorthand->items.push_back(item);
@@ -187,7 +187,7 @@ ShorthandId PropertySpecification::RegisterShorthand(const String& shorthand_nam
 
 	if (index >= size_t(ShorthandId::MaxNumIds))
 	{
-		Log::Message(Log::LT_ERROR, "Error while registering shorthand '%s': Maximum number of allowed shorthands exceeded.", shorthand_name.c_str());
+		Log::Message(in_core_instance, Log::LT_ERROR, "Error while registering shorthand '%s': Maximum number of allowed shorthands exceeded.", shorthand_name.c_str());
 		return ShorthandId::Invalid;
 	}
 
@@ -196,7 +196,7 @@ ShorthandId PropertySpecification::RegisterShorthand(const String& shorthand_nam
 		// We don't want to owerwrite an existing entry.
 		if (shorthands[index])
 		{
-			Log::Message(Log::LT_ERROR, "The shorthand '%s' already exists, ignoring.", shorthand_name.c_str());
+			Log::Message(in_core_instance, Log::LT_ERROR, "The shorthand '%s' already exists, ignoring.", shorthand_name.c_str());
 			return ShorthandId::Invalid;
 		}
 	}

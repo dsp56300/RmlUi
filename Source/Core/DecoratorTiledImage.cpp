@@ -79,7 +79,7 @@ void DecoratorTiledImage::RenderElement(Element* element, DecoratorDataHandle el
 DecoratorTiledImageInstancer::DecoratorTiledImageInstancer(CoreInstance& in_core_instance) : DecoratorTiledInstancer(1)
 {
 	RegisterTileProperty(in_core_instance, "image", true);
-	RegisterShorthand("decorator", "image", ShorthandType::RecursiveRepeat);
+	RegisterShorthand(in_core_instance, "decorator", "image", ShorthandType::RecursiveRepeat);
 }
 
 DecoratorTiledImageInstancer::~DecoratorTiledImageInstancer() {}

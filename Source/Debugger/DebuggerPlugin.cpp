@@ -80,13 +80,13 @@ bool DebuggerPlugin::Initialise(Context* context)
 
 	if (!LoadFont())
 	{
-		Log::Message(Log::LT_ERROR, "Failed to initialise debugger, unable to load font.");
+		Log::Message(GetDebugContext()->GetCoreInstance(), Log::LT_ERROR, "Failed to initialise debugger, unable to load font.");
 		return false;
 	}
 
 	if (!LoadMenuElement() || !LoadInfoElement() || !LoadLogElement())
 	{
-		Log::Message(Log::LT_ERROR, "Failed to initialise debugger, error while load debugger elements.");
+		Log::Message(GetDebugContext()->GetCoreInstance(), Log::LT_ERROR, "Failed to initialise debugger, error while load debugger elements.");
 		return false;
 	}
 
@@ -227,7 +227,7 @@ void DebuggerPlugin::OnElementDestroy(Element* element)
 	if (element == menu_element || element == info_element || element == log_element)
 	{
 		ReleaseElements();
-		Log::Message(Log::LT_ERROR,
+		Log::Message(GetDebugContext()->GetCoreInstance(), Log::LT_ERROR,
 			"A document owned by the Debugger plugin was destroyed externally. This is not allowed. Consider shutting down the debugger instead.");
 	}
 

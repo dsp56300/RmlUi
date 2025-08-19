@@ -459,7 +459,7 @@ void Element::SetBox(const Box& box)
 		{
 			const float border_width = box.GetEdge(BoxArea::Border, edge);
 			if (border_width != Math::Round(border_width))
-				Log::Message(Log::LT_WARNING, "Expected integer border width but got %g px on element: %s", border_width, GetAddress().c_str());
+				Log::Message(GetCoreInstance(), Log::LT_WARNING, "Expected integer border width but got %g px on element: %s", border_width, GetAddress().c_str());
 		}
 #endif
 
@@ -616,7 +616,7 @@ bool Element::SetProperty(const String& name, const String& value)
 	PropertyDictionary properties;
 	if (!GetCoreInstance().styleSheetSpecification->ParsePropertyDeclaration(properties, name, value))
 	{
-		Log::Message(Log::LT_WARNING, "Syntax error parsing inline property declaration '%s: %s;'.", name.c_str(), value.c_str());
+		Log::Message(GetCoreInstance(), Log::LT_WARNING, "Syntax error parsing inline property declaration '%s: %s;'.", name.c_str(), value.c_str());
 		return false;
 	}
 	for (auto& property : properties.GetProperties())
@@ -1060,7 +1060,7 @@ Element* Element::Closest(const String& selectors) const
 
 	if (leaf_nodes.empty())
 	{
-		Log::Message(Log::LT_WARNING, "Query selector '%s' is empty. In element %s", selectors.c_str(), GetAddress().c_str());
+		Log::Message(GetCoreInstance(), Log::LT_WARNING, "Query selector '%s' is empty. In element %s", selectors.c_str(), GetAddress().c_str());
 		return nullptr;
 	}
 
@@ -1581,7 +1581,7 @@ Element* Element::QuerySelector(const String& selectors)
 
 	if (leaf_nodes.empty())
 	{
-		Log::Message(Log::LT_WARNING, "Query selector '%s' is empty. In element %s", selectors.c_str(), GetAddress().c_str());
+		Log::Message(GetCoreInstance(), Log::LT_WARNING, "Query selector '%s' is empty. In element %s", selectors.c_str(), GetAddress().c_str());
 		return nullptr;
 	}
 
@@ -1595,7 +1595,7 @@ void Element::QuerySelectorAll(ElementList& elements, const String& selectors)
 
 	if (leaf_nodes.empty())
 	{
-		Log::Message(Log::LT_WARNING, "Query selector '%s' is empty. In element %s", selectors.c_str(), GetAddress().c_str());
+		Log::Message(GetCoreInstance(), Log::LT_WARNING, "Query selector '%s' is empty. In element %s", selectors.c_str(), GetAddress().c_str());
 		return;
 	}
 
@@ -1609,7 +1609,7 @@ bool Element::Matches(const String& selectors)
 
 	if (leaf_nodes.empty())
 	{
-		Log::Message(Log::LT_WARNING, "Query selector '%s' is empty. In element %s", selectors.c_str(), GetAddress().c_str());
+		Log::Message(GetCoreInstance(), Log::LT_WARNING, "Query selector '%s' is empty. In element %s", selectors.c_str(), GetAddress().c_str());
 		return false;
 	}
 
@@ -1751,14 +1751,14 @@ void Element::OnAttributeChange(const ElementAttributes& changed_attributes)
 					meta->style.SetProperty(name_value.first, name_value.second);
 			}
 			else if (value.GetType() != Variant::NONE)
-				Log::Message(Log::LT_WARNING, "Invalid 'style' attribute, string type required. In element: %s", GetAddress().c_str());
+				Log::Message(GetCoreInstance(), Log::LT_WARNING, "Invalid 'style' attribute, string type required. In element: %s", GetAddress().c_str());
 		}
 		else if (attribute == "lang")
 		{
 			if (value.GetType() == Variant::STRING)
 				meta->style.SetProperty(PropertyId::RmlUi_Language, Property(value.GetReference<String>(), Unit::STRING));
 			else if (value.GetType() != Variant::NONE)
-				Log::Message(Log::LT_WARNING, "Invalid 'lang' attribute, string type required. In element: %s", GetAddress().c_str());
+				Log::Message(GetCoreInstance(), Log::LT_WARNING, "Invalid 'lang' attribute, string type required. In element: %s", GetAddress().c_str());
 		}
 		else if (attribute == "dir")
 		{
@@ -1773,11 +1773,11 @@ void Element::OnAttributeChange(const ElementAttributes& changed_attributes)
 				else if (dir_value == "rtl")
 					meta->style.SetProperty(PropertyId::RmlUi_Direction, Property(Style::Direction::Rtl));
 				else
-					Log::Message(Log::LT_WARNING, "Invalid 'dir' attribute '%s', value must be 'auto', 'ltr', or 'rtl'. In element: %s",
+					Log::Message(GetCoreInstance(), Log::LT_WARNING, "Invalid 'dir' attribute '%s', value must be 'auto', 'ltr', or 'rtl'. In element: %s",
 						dir_value.c_str(), GetAddress().c_str());
 			}
 			else if (value.GetType() != Variant::NONE)
-				Log::Message(Log::LT_WARNING, "Invalid 'dir' attribute, string type required. In element: %s", GetAddress().c_str());
+				Log::Message(GetCoreInstance(), Log::LT_WARNING, "Invalid 'dir' attribute, string type required. In element: %s", GetAddress().c_str());
 		}
 	}
 
@@ -2145,7 +2145,7 @@ void Element::Release()
 	if (instancer)
 		instancer->ReleaseElement(core_instance, this);
 	else
-		Log::Message(Log::LT_WARNING, "Leak detected: element %s not instanced via RmlUi Factory. Unable to release.", GetAddress().c_str());
+		Log::Message(GetCoreInstance(), Log::LT_WARNING, "Leak detected: element %s not instanced via RmlUi Factory. Unable to release.", GetAddress().c_str());
 }
 
 void Element::SetParent(Element* _parent)
@@ -2190,7 +2190,7 @@ void Element::SetParent(Element* _parent)
 				SetDataModel(model);
 			}
 			else
-				Log::Message(Log::LT_ERROR, "Could not locate data model '%s' in element %s.", name.c_str(), GetAddress().c_str());
+				Log::Message(GetCoreInstance(), Log::LT_ERROR, "Could not locate data model '%s' in element %s.", name.c_str(), GetAddress().c_str());
 		}
 	}
 }
@@ -2551,7 +2551,7 @@ ElementAnimationList::iterator Element::StartAnimation(PropertyId property_id, c
 		const bool allow_overwriting_animation = !initiated_by_animation_property;
 		if (!allow_overwriting_animation)
 		{
-			Log::Message(Log::LT_WARNING,
+			Log::Message(GetCoreInstance(), Log::LT_WARNING,
 				"Could not animate property '%s' on element: %s. "
 				"Please ensure that the property does not appear in multiple animations on the same element.",
 				GetCoreInstance().styleSheetSpecification->GetPropertyName(property_id).c_str(), GetAddress().c_str());

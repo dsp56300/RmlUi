@@ -81,7 +81,7 @@ bool TableGrid::Build(Element* element_table, TableWrapper& table_wrapper)
 				{
 					if (display_row != Display::None)
 					{
-						Log::Message(Log::LT_WARNING, "Only table rows are valid children of table row groups. Ignoring element %s.",
+						Log::Message(element_table->GetCoreInstance(), Log::LT_WARNING, "Only table rows are valid children of table row groups. Ignoring element %s.",
 							element_row->GetAddress().c_str());
 					}
 					continue;
@@ -111,10 +111,10 @@ bool TableGrid::Build(Element* element_table, TableWrapper& table_wrapper)
 		else
 		{
 			if (display == Display::TableColumn || display == Display::TableColumnGroup)
-				Log::Message(Log::LT_WARNING, "Table columns and column groups must precede any table rows. Ignoring element %s.",
+				Log::Message(element_table->GetCoreInstance(), Log::LT_WARNING, "Table columns and column groups must precede any table rows. Ignoring element %s.",
 					element->GetAddress().c_str());
 			else
-				Log::Message(Log::LT_WARNING,
+				Log::Message(element_table->GetCoreInstance(), Log::LT_WARNING,
 					"Only table columns, column groups, rows, row groups, and cells are valid children of tables. Ignoring element %s.",
 					element->GetAddress().c_str());
 		}
@@ -131,7 +131,7 @@ bool TableGrid::Build(Element* element_table, TableWrapper& table_wrapper)
 
 	if (!open_cells.empty())
 	{
-		Log::Message(Log::LT_WARNING,
+		Log::Message(element_table->GetCoreInstance(), Log::LT_WARNING,
 			"One or more cells span below the last row in table %s. They will not be formatted. Add additional rows, or adjust the rowspan "
 			"attribute.",
 			element_table->GetAddress().c_str());
@@ -234,7 +234,7 @@ void TableGrid::PushRow(Element* element_row, ElementList cell_elements, TableWr
 			}
 			else if (cell_display != Style::Display::None)
 			{
-				Log::Message(Log::LT_WARNING, "Only table cells are allowed as children of table rows. %s", element_cell->GetAddress().c_str());
+				Log::Message(element_row->GetCoreInstance(), Log::LT_WARNING, "Only table cells are allowed as children of table rows. %s", element_cell->GetAddress().c_str());
 			}
 		}
 
@@ -279,7 +279,7 @@ void TableGrid::PushRow(Element* element_row, ElementList cell_elements, TableWr
 
 		if (column_last >= (int)columns.size())
 		{
-			Log::Message(Log::LT_WARNING,
+			Log::Message(element_row->GetCoreInstance(), Log::LT_WARNING,
 				"Too many columns in table row %d while encountering cell: %s\nThe number of columns is %d, as determined by the table columns or "
 				"the first table row.",
 				row_index + 1, element_cell->GetAddress().c_str(), (int)columns.size());

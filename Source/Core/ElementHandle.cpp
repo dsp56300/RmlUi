@@ -233,7 +233,7 @@ public:
 			specification.RegisterProperty(in_core_instance, "edge-b", "", false, false).AddParser("length_percent").GetId(),
 			specification.RegisterProperty(in_core_instance, "edge-l", "", false, false).AddParser("length_percent").GetId(),
 		};
-		id_constraint = specification.RegisterShorthand("edge-margin", "edge-t, edge-r, edge-b, edge-l", ShorthandType::Box);
+		id_constraint = specification.RegisterShorthand(in_core_instance, "edge-margin", "edge-t, edge-r, edge-b, edge-l", ShorthandType::Box);
 	}
 
 	bool Parse(CoreInstance& in_core_instance, const String& value, Array<NumericValue, 4>& out_constraints)
@@ -300,7 +300,7 @@ void ElementHandle::ProcessDefaultAction(Event& event)
 			{
 				HandleEdgeMarginParser parser(GetCoreInstance());
 				if (!parser.Parse(GetOwnerDocument()->GetCoreInstance(), edge_margin_str, edge_margin))
-					Log::Message(Log::LT_WARNING, "Failed to parse 'edge_margin' attribute for element '%s'.", GetAddress().c_str());
+					Log::Message(GetOwnerDocument()->GetCoreInstance(), Log::LT_WARNING, "Failed to parse 'edge_margin' attribute for element '%s'.", GetAddress().c_str());
 			}
 
 			initialised = true;

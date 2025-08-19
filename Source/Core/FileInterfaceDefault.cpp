@@ -32,6 +32,8 @@
 
 namespace Rml {
 
+FileInterfaceDefault::FileInterfaceDefault(CoreInstance& in_core_instance) : FileInterface(in_core_instance) {}
+
 FileInterfaceDefault::~FileInterfaceDefault() {}
 
 FileHandle FileInterfaceDefault::Open(const String& path)

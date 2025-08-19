@@ -78,7 +78,7 @@ namespace StringUtilities {
 	RMLUICORE_API String EncodeRml(const String& string);
 
 	/// Decode RML characters, eg. '&lt;' to '<'
-	RMLUICORE_API String DecodeRml(const String& string);
+	RMLUICORE_API String DecodeRml(Rml::CoreInstance& in_core_instance, const String& string);
 
 	// Replaces all occurrences of 'search' in 'subject' with 'replace'.
 	RMLUICORE_API String Replace(String subject, const String& search, const String& replace);
@@ -111,10 +111,10 @@ namespace StringUtilities {
 	RMLUICORE_API Character ToCharacter(const char* p, const char* p_end);
 
 	// Encode a single code point as a UTF-8 string.
-	RMLUICORE_API String ToUTF8(Character character);
+	RMLUICORE_API String ToUTF8(Rml::CoreInstance& in_core_instance, Character character);
 
 	// Encode an array of code points as a UTF-8 string.
-	RMLUICORE_API String ToUTF8(const Character* characters, int num_characters);
+	RMLUICORE_API String ToUTF8(Rml::CoreInstance& in_core_instance, const Character* characters, int num_characters);
 
 	/// Returns number of characters in a UTF-8 string.
 	RMLUICORE_API size_t LengthUTF8(StringView string_view);

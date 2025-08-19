@@ -179,10 +179,10 @@ void ScrollController::UpdateSmoothscroll(float dp_ratio)
 
 #if 0
 	// Useful debugging output for velocity model tuning.
-	Log::Message(Log::LT_INFO, "Scroll  y0 %8.2f   y1 %8.2f   v %8.2f   d %8.2f", smoothscroll_scrolled_distance.y, target_delta.y, velocity.y,
+	Log::Message(target->GetCoreInstance(), Log::LT_INFO, "Scroll  y0 %8.2f   y1 %8.2f   v %8.2f   d %8.2f", smoothscroll_scrolled_distance.y, target_delta.y, velocity.y,
 		scroll_distance.y);
 #endif
-
+	
 	smoothscroll_scrolled_distance += scroll_distance;
 	PerformScrollOnTarget(scroll_distance);
 

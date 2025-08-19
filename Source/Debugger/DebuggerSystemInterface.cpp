@@ -32,7 +32,7 @@
 namespace Rml {
 namespace Debugger {
 
-DebuggerSystemInterface::DebuggerSystemInterface(Rml::SystemInterface* _application_interface, ElementLog* _log)
+DebuggerSystemInterface::DebuggerSystemInterface(Rml::SystemInterface* _application_interface, ElementLog* _log) : SystemInterface(_application_interface->GetCoreInstance())
 {
 	application_interface = _application_interface;
 	log = _log;

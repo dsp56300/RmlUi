@@ -157,7 +157,7 @@ const DecoratorPtrList& StyleSheet::InstanceDecorators(RenderManager& render_man
 				DecoratorInstancerInterface(render_manager, *this, source));
 
 			if (!decorator)
-				Log::Message(Log::LT_WARNING, "Decorator '%s' in '%s' could not be instanced, declared at %s:%d", declaration.type.c_str(),
+				Log::Message(render_manager.GetCoreInstance(), Log::LT_WARNING, "Decorator '%s' in '%s' could not be instanced, declared at %s:%d", declaration.type.c_str(),
 					declaration_list.value.c_str(), source ? source->path.c_str() : "", source ? source->line_number : -1);
 		}
 		else
@@ -169,7 +169,7 @@ const DecoratorPtrList& StyleSheet::InstanceDecorators(RenderManager& render_man
 					DecoratorInstancerInterface(render_manager, *this, source));
 
 			if (!decorator)
-				Log::Message(Log::LT_WARNING, "Decorator name '%s' could not be found in any @decorator rule, declared at %s:%d",
+				Log::Message(render_manager.GetCoreInstance(), Log::LT_WARNING, "Decorator name '%s' could not be found in any @decorator rule, declared at %s:%d",
 					declaration.type.c_str(), source ? source->path.c_str() : "", source ? source->line_number : -1);
 		}
 

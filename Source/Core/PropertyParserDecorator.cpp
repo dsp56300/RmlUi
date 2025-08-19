@@ -130,7 +130,7 @@ bool PropertyParserDecorator::ParseValue(Property& property, const String& decor
 			DecoratorInstancer* instancer = core_instance.factory->GetDecoratorInstancer(type);
 			if (!instancer)
 			{
-				Log::Message(Log::LT_WARNING, "Decorator type '%s' not found.", type.c_str());
+				Log::Message(core_instance, Log::LT_WARNING, "Decorator type '%s' not found.", type.c_str());
 				return false;
 			}
 

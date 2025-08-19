@@ -47,7 +47,7 @@ namespace Rml {
 
 class RMLUICORE_API SystemInterface : public NonCopyMoveable {
 public:
-	SystemInterface();
+	SystemInterface(CoreInstance& in_core_instance);
 	virtual ~SystemInterface();
 
 	/// Get the number of seconds elapsed since the start of the application.
@@ -91,6 +91,12 @@ public:
 
 	/// Deactivate keyboard (for touchscreen devices).
 	virtual void DeactivateKeyboard();
+
+	/// Get the core instance associated with this system interface.
+	CoreInstance& GetCoreInstance() const { return core_instance; }
+
+protected:
+	CoreInstance& core_instance;
 };
 
 } // namespace Rml

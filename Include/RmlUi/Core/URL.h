@@ -43,16 +43,16 @@ public:
 	/// Constructs an empty URL.
 	URL();
 	/// Constructs a new URL from the given string.
-	URL(const String& url);
+	URL(CoreInstance& in_core_instance, const String& url);
 	/// Constructs a new URL from the given string. A little more scripting
 	/// engine friendly.
-	URL(const char* url);
+	URL(CoreInstance& in_core_instance, const char* url);
 	/// Destroys the URL.
 	~URL();
 
 	/// Assigns a new URL to the object. This will return false if the URL
 	/// is malformed.
-	bool SetURL(const String& url);
+	bool SetURL(CoreInstance& in_core_instance, const String& url);
 	/// Returns the entire URL.
 	const String& GetURL() const;
 

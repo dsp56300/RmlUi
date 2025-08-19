@@ -54,13 +54,13 @@ void LogMissingFontFace(Element* element)
 	const String font_family_property = element->GetProperty<String>("font-family");
 	if (font_family_property.empty())
 	{
-		Log::Message(Log::LT_WARNING, "No font face defined. Missing 'font-family' property. On element %s", element->GetAddress().c_str());
+		Log::Message(element->GetCoreInstance(), Log::LT_WARNING, "No font face defined. Missing 'font-family' property. On element %s", element->GetAddress().c_str());
 	}
 	else
 	{
 		const ComputedValues& computed = element->GetComputedValues();
 		const String font_face_description = GetFontFaceDescription(element->GetCoreInstance(), font_family_property, computed.font_style(), computed.font_weight());
-		Log::Message(Log::LT_WARNING,
+		Log::Message(element->GetCoreInstance(), Log::LT_WARNING,
 			"No font face defined. Ensure (1) that Context::Update is run after new elements are constructed, before Context::Render, "
 			"and (2) that the specified font face %s has been successfully loaded. "
 			"Please see previous log messages for all successfully loaded fonts. On element %s",

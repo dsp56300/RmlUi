@@ -325,7 +325,7 @@ bool DataViewText::Initialize(DataModel& model, Element* element, const String& 
 		const char* error_str = XMLParseTools::ParseDataBrackets(in_brackets, in_string, c, previous);
 		if (error_str)
 		{
-			Log::Message(Log::LT_WARNING, "Failed to parse data view text '%s'. %s", in_text.c_str(), error_str);
+			Log::Message(element->GetCoreInstance(), Log::LT_WARNING, "Failed to parse data view text '%s'. %s", in_text.c_str(), error_str);
 			return false;
 		}
 
@@ -400,7 +400,7 @@ bool DataViewText::Update(DataModel& model)
 		}
 		else
 		{
-			Log::Message(Log::LT_WARNING, "Could not update data view text, element no longer valid. Was it destroyed?");
+			Log::Message(element->GetCoreInstance(), Log::LT_WARNING, "Could not update data view text, element no longer valid. Was it destroyed?");
 		}
 	}
 
@@ -464,7 +464,7 @@ bool DataViewFor::Initialize(DataModel& model, Element* element, const String& i
 	if (iterator_container_pair.empty() || iterator_container_pair.size() > 2 || iterator_container_pair.front().empty() ||
 		iterator_container_pair.back().empty())
 	{
-		Log::Message(Log::LT_WARNING, "Invalid syntax in data-for '%s'", in_expression.c_str());
+		Log::Message(core_instance, Log::LT_WARNING, "Invalid syntax in data-for '%s'", in_expression.c_str());
 		return false;
 	}
 
@@ -475,7 +475,7 @@ bool DataViewFor::Initialize(DataModel& model, Element* element, const String& i
 
 		if (iterator_index_pair.empty())
 		{
-			Log::Message(Log::LT_WARNING, "Invalid syntax in data-for '%s'", in_expression.c_str());
+			Log::Message(core_instance, Log::LT_WARNING, "Invalid syntax in data-for '%s'", in_expression.c_str());
 			return false;
 		}
 		else if (iterator_index_pair.size() == 1)
@@ -524,7 +524,7 @@ bool DataViewFor::Update(DataModel& model)
 		return false;
 
 	bool result = false;
-	const int size = variable.Size();
+	const int size = variable.Size(core_instance);
 	const int num_elements = (int)elements.size();
 	Element* element = GetElement();
 

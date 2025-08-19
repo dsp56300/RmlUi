@@ -72,12 +72,13 @@ protected:
 	/// @return The new property definition, ready to have parsers attached.
 	PropertyDefinition& RegisterProperty(CoreInstance& in_core_instance, const String& property_name, const String& default_value, bool affects_generation = true);
 	/// Registers a shorthand property definition.
+	/// @param[in] in_core_instance The core instance to use for this font effect instancer.
 	/// @param[in] shorthand_name The name to register the new shorthand property under.
 	/// @param[in] property_names A comma-separated list of the properties this definition is shorthand for. The order
 	/// in which they are specified here is the order in which the values will be processed.
 	/// @param[in] type The type of shorthand to declare.
 	/// @return An ID for the new shorthand, or 'Invalid' if the shorthand declaration is invalid.
-	ShorthandId RegisterShorthand(const String& shorthand_name, const String& property_names, ShorthandType type);
+	ShorthandId RegisterShorthand(CoreInstance& in_core_instance, const String& shorthand_name, const String& property_names, ShorthandType type);
 
 private:
 	PropertySpecification properties;

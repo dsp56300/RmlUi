@@ -156,12 +156,12 @@ public:
 	void Error(const String& message)
 	{
 		parse_error = true;
-		Log::Message(Log::LT_WARNING, "Error in data expression at %zu. %s", index, message.c_str());
-		Log::Message(Log::LT_WARNING, "  \"%s\"", expression.c_str());
+		Log::Message(core_instance, Log::LT_WARNING, "Error in data expression at %zu. %s", index, message.c_str());
+		Log::Message(core_instance, Log::LT_WARNING, "  \"%s\"", expression.c_str());
 
 		const size_t cursor_offset = size_t(index) + 3;
 		const String cursor_string = String(cursor_offset, ' ') + '^';
-		Log::Message(Log::LT_WARNING, "%s", cursor_string.c_str());
+		Log::Message(core_instance, Log::LT_WARNING, "%s", cursor_string.c_str());
 	}
 	void Expected(const String& expected_symbols)
 	{
@@ -929,9 +929,9 @@ public:
 		program(program), addresses(addresses), expression_interface(expression_interface)
 	{}
 
-	bool Error(const String& message) const
+	bool Error(CoreInstance& in_core_instance, const String& message) const
 	{
-		Log::Message(Log::LT_WARNING, "Error during execution. %s", message.c_str());
+		Log::Message(in_core_instance, Log::LT_WARNING, "Error during execution. %s", message.c_str());
 		RMLUI_ERROR;
 		return false;
 	}
@@ -952,14 +952,14 @@ public:
 		}
 
 		if (success && !stack.empty())
-			Log::Message(Log::LT_WARNING, "Possible data interpreter stack corruption. Stack size is %zu at end of execution (should be zero).",
+			Log::Message(core_instance, Log::LT_WARNING, "Possible data interpreter stack corruption. Stack size is %zu at end of execution (should be zero).",
 				stack.size());
 
 		if (!success)
 		{
 			String program_str = DumpProgram(core_instance, program);
-			Log::Message(Log::LT_WARNING, "Failed to execute program with %zu instructions:", program.size());
-			Log::Message(Log::LT_WARNING, "%s", program_str.c_str());
+			Log::Message(core_instance, Log::LT_WARNING, "Failed to execute program with %zu instructions:", program.size());
+			Log::Message(core_instance, Log::LT_WARNING, "%s", program_str.c_str());
 		}
 
 		return success;
@@ -990,7 +990,7 @@ private:
 		case Instruction::Pop:
 		{
 			if (stack.empty())
-				return Error("Cannot pop stack, it is empty.");
+				return Error(core_instance, "Cannot pop stack, it is empty.");
 
 			Register reg = Register(data.Get<int>(core_instance, - 1));
 			switch (reg)
@@ -999,7 +999,7 @@ private:
 			case Register::R:  R = stack.back(); stack.pop_back(); break;
 			case Register::L:  L = stack.back(); stack.pop_back(); break;
 				// clang-format on
-			default: return Error(CreateString("Invalid register %d.", int(reg)));
+			default: return Error(core_instance, CreateString("Invalid register %d.", int(reg)));
 			}
 		}
 		break;
@@ -1013,7 +1013,7 @@ private:
 			auto str = R.Get<String>(core_instance);
 			auto address = expression_interface.ParseAddress(str);
 			if (address.empty())
-				return Error("Variable address not found.");
+				return Error(core_instance, "Variable address not found.");
 			R = expression_interface.GetValue(address);
 		}
 		break;
@@ -1023,7 +1023,7 @@ private:
 			if (variable_index < addresses.size())
 				R = expression_interface.GetValue(addresses[variable_index]);
 			else
-				return Error("Variable address not found.");
+				return Error(core_instance, "Variable address not found.");
 		}
 		break;
 		case Instruction::Add:
@@ -1087,7 +1087,7 @@ private:
 					if (i < arguments.size() - 1)
 						arguments_str += ", ";
 				}
-				return Error(
+				return Error(core_instance, 
 					CreateString("Failed to execute %s: %s(%s)", instruction == Instruction::TransformFnc ? "transform function" : "event callback",
 						function_name.c_str(), arguments_str.c_str()));
 			}
@@ -1099,17 +1099,17 @@ private:
 			if (variable_index < addresses.size())
 			{
 				if (!expression_interface.SetValue(core_instance, addresses[variable_index], R))
-					return Error("Could not assign to variable.");
+					return Error(core_instance, "Could not assign to variable.");
 			}
 			else
-				return Error("Variable address not found.");
+				return Error(core_instance, "Variable address not found.");
 		}
 		break;
 		case Instruction::CastToInt:
 		{
 			int tmp;
 			if (!R.GetInto(core_instance, tmp))
-				return Error("Could not cast value to int.");
+				return Error(core_instance, "Could not cast value to int.");
 			else
 				R = tmp;
 		}
@@ -1134,9 +1134,9 @@ private:
 	{
 		int num_arguments = R.Get<int>(core_instance, -1);
 		if (num_arguments < 0)
-			return Error("Invalid number of arguments.");
+			return Error(core_instance, "Invalid number of arguments.");
 		if (stack.size() < size_t(num_arguments))
-			return Error(CreateString("Cannot pop %d arguments, stack contains only %zu elements.", num_arguments, stack.size()));
+			return Error(core_instance, CreateString("Cannot pop %d arguments, stack contains only %zu elements.", num_arguments, stack.size()));
 
 		const auto it_stack_begin_arguments = stack.end() - num_arguments;
 		out_arguments.insert(out_arguments.end(), std::make_move_iterator(it_stack_begin_arguments), std::make_move_iterator(stack.end()));

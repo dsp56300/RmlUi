@@ -41,7 +41,7 @@ static String& GlobalClipBoardText()
 	return clipboard_text;
 }
 
-SystemInterface::SystemInterface() {}
+SystemInterface::SystemInterface(CoreInstance& in_core_instance) : core_instance(in_core_instance) {}
 
 SystemInterface::~SystemInterface() {}
 
@@ -107,7 +107,7 @@ void SystemInterface::JoinPath(String& translated_path, const String& document_p
 		translated_path.clear();
 
 	// Append the paths and send through URL to removing any '..'.
-	URL url(Replace(translated_path, ':', '|') + Replace(path, '\\', '/'));
+	URL url(core_instance, Replace(translated_path, ':', '|') + Replace(path, '\\', '/'));
 	translated_path = Replace(url.GetPathedFileName(), '|', ':');
 }
 

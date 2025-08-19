@@ -55,7 +55,7 @@ FilterBasicInstancer::FilterBasicInstancer(CoreInstance& in_core_instance, Value
 	case ValueType::Angle: ids.value = RegisterProperty(in_core_instance, "value", default_value).AddParser("angle").GetId(); break;
 	}
 
-	RegisterShorthand("filter", "value", ShorthandType::FallThrough);
+	RegisterShorthand(in_core_instance, "filter", "value", ShorthandType::FallThrough);
 }
 
 SharedPtr<Filter> FilterBasicInstancer::InstanceFilter(CoreInstance& in_core_instance, const String& name, const PropertyDictionary& properties)

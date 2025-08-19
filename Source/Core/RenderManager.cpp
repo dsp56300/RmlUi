@@ -35,7 +35,7 @@
 
 namespace Rml {
 
-RenderManager::RenderManager(CoreInstance& core_instance, RenderInterface* render_interface) : core_instance(core_instance), render_interface(render_interface), texture_database(MakeUnique<TextureDatabase>())
+RenderManager::RenderManager(CoreInstance& core_instance, RenderInterface* render_interface) : core_instance(core_instance), render_interface(render_interface), texture_database(MakeUnique<TextureDatabase>(core_instance))
 {
 	RMLUI_ASSERT(render_interface);
 
@@ -60,7 +60,7 @@ RenderManager::~RenderManager()
 	{
 		if (element.count != 0)
 		{
-			Log::Message(Log::LT_ERROR, "Leaking %s detected (%d). Ensure that all RmlUi resources have been released by the end of Rml::Shutdown.",
+			Log::Message(core_instance, Log::LT_ERROR, "Leaking %s detected (%d). Ensure that all RmlUi resources have been released by the end of Rml::Shutdown.",
 				element.name, element.count);
 		}
 	}
@@ -230,7 +230,7 @@ CompiledGeometryHandle RenderManager::GetCompiledGeometryHandle(StableVectorInde
 		geometry.handle = render_interface->CompileGeometry(geometry.mesh.vertices, geometry.mesh.indices);
 
 		if (!geometry.handle)
-			Log::Message(Log::LT_ERROR, "Got empty compiled geometry.");
+			Log::Message(core_instance, Log::LT_ERROR, "Got empty compiled geometry.");
 	}
 	return geometry.handle;
 }

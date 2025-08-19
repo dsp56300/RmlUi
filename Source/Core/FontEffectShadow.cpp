@@ -64,8 +64,8 @@ FontEffectShadowInstancer::FontEffectShadowInstancer(CoreInstance& in_core_insta
 	id_offset_x = RegisterProperty(in_core_instance, "offset-x", "0px", true).AddParser("length").GetId();
 	id_offset_y = RegisterProperty(in_core_instance, "offset-y", "0px", true).AddParser("length").GetId();
 	id_color = RegisterProperty(in_core_instance, "color", "white", false).AddParser("color").GetId();
-	RegisterShorthand("offset", "offset-x, offset-y", ShorthandType::FallThrough);
-	RegisterShorthand("font-effect", "offset-x, offset-y, color", ShorthandType::FallThrough);
+	RegisterShorthand(in_core_instance, "offset", "offset-x, offset-y", ShorthandType::FallThrough);
+	RegisterShorthand(in_core_instance, "font-effect", "offset-x, offset-y, color", ShorthandType::FallThrough);
 }
 
 FontEffectShadowInstancer::~FontEffectShadowInstancer() {}

@@ -34,7 +34,7 @@
 
 namespace Rml {
 
-BaseXMLParser::BaseXMLParser() {}
+BaseXMLParser::BaseXMLParser(CoreInstance& in_core_instance) : core_instance(in_core_instance) {}
 
 BaseXMLParser::~BaseXMLParser() {}
 
@@ -193,7 +193,7 @@ void BaseXMLParser::ReadBody()
 	// Check for error conditions
 	if (open_tag_depth > 0)
 	{
-		Log::Message(Log::LT_WARNING, "XML parse error on line %d of %s.", GetLineNumber(), source_url->GetURL().c_str());
+		Log::Message(core_instance, Log::LT_WARNING, "XML parse error on line %d of %s.", GetLineNumber(), source_url->GetURL().c_str());
 	}
 }
 
@@ -359,7 +359,7 @@ bool BaseXMLParser::ReadAttributes(XMLAttributes& attributes, bool& parse_raw_xm
 		if (attributes_for_inner_xml_data.count(attribute) == 1)
 			parse_raw_xml_content = true;
 
-		attributes[attribute] = StringUtilities::DecodeRml(value);
+		attributes[attribute] = StringUtilities::DecodeRml(core_instance, value);
 
 		// Check for the end of the tag.
 		if (PeekString("/", false) || PeekString(">", false))
@@ -469,7 +469,7 @@ bool BaseXMLParser::FindString(const char* string, String& data, bool escape_bra
 			const char* error_str = XMLParseTools::ParseDataBrackets(in_brackets, in_string, c, previous);
 			if (error_str)
 			{
-				Log::Message(Log::LT_WARNING, "XML parse error. %s", error_str);
+				Log::Message(core_instance, Log::LT_WARNING, "XML parse error. %s", error_str);
 				return false;
 			}
 		}

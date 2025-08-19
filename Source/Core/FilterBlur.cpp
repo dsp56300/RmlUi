@@ -57,7 +57,7 @@ void FilterBlur::ExtendInkOverflow(Element* element, Rectanglef& scissor_region)
 FilterBlurInstancer::FilterBlurInstancer(CoreInstance& in_core_instance)
 {
 	ids.sigma = RegisterProperty(in_core_instance, "sigma", "0px").AddParser("length").GetId();
-	RegisterShorthand("filter", "sigma", ShorthandType::FallThrough);
+	RegisterShorthand(in_core_instance, "filter", "sigma", ShorthandType::FallThrough);
 }
 
 SharedPtr<Filter> FilterBlurInstancer::InstanceFilter(CoreInstance& in_core_instance, const String& /*name*/, const PropertyDictionary& properties)

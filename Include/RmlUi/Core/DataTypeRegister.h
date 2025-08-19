@@ -45,7 +45,7 @@ struct is_builtin_data_scalar {
 
 class RMLUICORE_API TransformFuncRegister {
 public:
-	void Register(const String& name, DataTransformFunc transform_func);
+	void Register(CoreInstance& in_core_instance, const String& name, DataTransformFunc transform_func);
 	bool Call(const String& name, const VariantList& arguments, Variant& out_result) const;
 
 private:

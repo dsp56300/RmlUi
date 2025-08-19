@@ -58,6 +58,28 @@ void Log::Message(Log::Type type, const char* fmt, ...)
 		LogDefault::LogMessage(type, buffer);
 }
 
+void Log::Message(CoreInstance& in_core_instance, Type type, const char* fmt, ...)
+{
+	const int buffer_size = 1024;
+	char buffer[buffer_size];
+	va_list argument_list;
+
+	// Print the message to the buffer.
+	va_start(argument_list, fmt);
+	int len = vsnprintf(buffer, buffer_size - 2, fmt, argument_list);
+	if (len < 0 || len > buffer_size - 2)
+	{
+		len = buffer_size - 2;
+	}
+	buffer[len] = '\0';
+	va_end(argument_list);
+
+	if (SystemInterface* system_interface = GetSystemInterface(in_core_instance))
+		system_interface->LogMessage(type, buffer);
+	else
+		LogDefault::LogMessage(type, buffer);
+}
+
 void Log::ParseError(const String& filename, int line_number, const char* fmt, ...)
 {
 	const int buffer_size = 1024;

@@ -36,7 +36,7 @@ DataTypeRegister::DataTypeRegister(CoreInstance& core_instance) : core_instance(
 {
 	// Add default transform functions.
 
-	transform_register.Register("to_lower", [&core_instance](const VariantList& arguments) -> Variant {
+	transform_register.Register(core_instance, "to_lower", [&core_instance](const VariantList& arguments) -> Variant {
 		if (arguments.size() != 1)
 			return {};
 		String value;
@@ -45,7 +45,7 @@ DataTypeRegister::DataTypeRegister(CoreInstance& core_instance) : core_instance(
 		return Variant(StringUtilities::ToLower(std::move(value)));
 	});
 
-	transform_register.Register("to_upper", [&core_instance](const VariantList& arguments) -> Variant {
+	transform_register.Register(core_instance, "to_upper", [&core_instance](const VariantList& arguments) -> Variant {
 		if (arguments.size() != 1)
 			return {};
 		String value;
@@ -54,20 +54,20 @@ DataTypeRegister::DataTypeRegister(CoreInstance& core_instance) : core_instance(
 		return Variant(StringUtilities::ToUpper(value));
 	});
 
-	transform_register.Register("format", [&core_instance](const VariantList& arguments) -> Variant {
+	transform_register.Register(core_instance, "format", [&core_instance](const VariantList& arguments) -> Variant {
 		// Arguments in:
 		//   0 : number     Number to format.
 		//   1 : int[0,32]  Precision. Number of digits after the decimal point.
 		//  [2]: bool       True to remove trailing zeros (default = false).
 		if (arguments.empty() || arguments.size() > 3)
 		{
-			Log::Message(Log::LT_WARNING, "Transform function 'format' requires at least two arguments, at most three arguments.");
+			Log::Message(core_instance, Log::LT_WARNING, "Transform function 'format' requires at least two arguments, at most three arguments.");
 			return {};
 		}
 		int precision = 0;
 		if (!arguments[1].GetInto(core_instance, precision) || precision < 0 || precision > 32)
 		{
-			Log::Message(Log::LT_WARNING, "Transform function 'format': Second argument must be an integer in [0, 32].");
+			Log::Message(core_instance, Log::LT_WARNING, "Transform function 'format': Second argument must be an integer in [0, 32].");
 			return {};
 		}
 		bool remove_trailing_zeros = false;
@@ -92,7 +92,7 @@ DataTypeRegister::DataTypeRegister(CoreInstance& core_instance) : core_instance(
 		return Variant(std::move(result));
 	});
 
-	transform_register.Register("round", [&core_instance](const VariantList& arguments) -> Variant {
+	transform_register.Register(core_instance, "round", [&core_instance](const VariantList& arguments) -> Variant {
 		if (arguments.size() != 1)
 			return {};
 		double value;
@@ -104,13 +104,13 @@ DataTypeRegister::DataTypeRegister(CoreInstance& core_instance) : core_instance(
 
 DataTypeRegister::~DataTypeRegister() {}
 
-void TransformFuncRegister::Register(const String& name, DataTransformFunc transform_func)
+void TransformFuncRegister::Register(CoreInstance& in_core_instance, const String& name, DataTransformFunc transform_func)
 {
 	RMLUI_ASSERT(transform_func);
 	bool inserted = transform_functions.emplace(name, std::move(transform_func)).second;
 	if (!inserted)
 	{
-		Log::Message(Log::LT_ERROR, "Transform function '%s' already exists.", name.c_str());
+		Log::Message(in_core_instance, Log::LT_ERROR, "Transform function '%s' already exists.", name.c_str());
 		RMLUI_ERROR;
 	}
 }

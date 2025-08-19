@@ -65,7 +65,7 @@ FontFaceHandleDefault* FontFace::GetHandle(int size, bool load_default_glyphs)
 	// See if this face has been released.
 	if (!face)
 	{
-		Log::Message(Log::LT_WARNING, "Font face has been released, unable to generate new handle.");
+		Log::Message(core_instance, Log::LT_WARNING, "Font face has been released, unable to generate new handle.");
 		return nullptr;
 	}
 

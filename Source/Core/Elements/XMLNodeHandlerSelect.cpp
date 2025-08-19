@@ -52,7 +52,7 @@ Element* XMLNodeHandlerSelect::ElementStart(XMLParser* parser, const String& nam
 		ElementFormControlSelect* select_element = rmlui_dynamic_cast<ElementFormControlSelect*>(element.get());
 		if (!select_element)
 		{
-			Log::Message(Log::LT_ERROR, "Instancer failed to create element for tag %s.", name.c_str());
+			Log::Message(parser->GetCoreInstance(), Log::LT_ERROR, "Instancer failed to create element for tag %s.", name.c_str());
 			return nullptr;
 		}
 

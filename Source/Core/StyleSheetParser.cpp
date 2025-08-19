@@ -104,7 +104,7 @@ public:
 		id_ry = specification.RegisterProperty(in_core_instance, "rectangle-y", "", false, false).AddParser("length").GetId();
 		id_rw = specification.RegisterProperty(in_core_instance, "rectangle-w", "", false, false).AddParser("length").GetId();
 		id_rh = specification.RegisterProperty(in_core_instance, "rectangle-h", "", false, false).AddParser("length").GetId();
-		id_rectangle = specification.RegisterShorthand("rectangle", "rectangle-x, rectangle-y, rectangle-w, rectangle-h", ShorthandType::FallThrough);
+		id_rectangle = specification.RegisterShorthand(in_core_instance, "rectangle", "rectangle-x, rectangle-y, rectangle-w, rectangle-h", ShorthandType::FallThrough);
 		id_resolution = specification.RegisterProperty(in_core_instance, "resolution", "", false, false).AddParser("resolution").GetId();
 	}
 
@@ -291,7 +291,7 @@ bool StyleSheetParser::ParseKeyframeBlock(KeyframesMap& keyframes_map, const Str
 {
 	if (!IsValidIdentifier(identifier))
 	{
-		Log::Message(Log::LT_WARNING, "Invalid keyframes identifier '%s' at %s:%d", identifier.c_str(), stream_file_name.c_str(), line_number);
+		Log::Message(core_instance, Log::LT_WARNING, "Invalid keyframes identifier '%s' at %s:%d", identifier.c_str(), stream_file_name.c_str(), line_number);
 		return false;
 	}
 	if (properties.GetNumProperties() == 0)
@@ -319,7 +319,7 @@ bool StyleSheetParser::ParseKeyframeBlock(KeyframesMap& keyframes_map, const Str
 
 	if (rule_values.empty())
 	{
-		Log::Message(Log::LT_WARNING, "Invalid keyframes rule(s) '%s' at %s:%d", rules.c_str(), stream_file_name.c_str(), line_number);
+		Log::Message(core_instance, Log::LT_WARNING, "Invalid keyframes rule(s) '%s' at %s:%d", rules.c_str(), stream_file_name.c_str(), line_number);
 		return false;
 	}
 
@@ -354,7 +354,7 @@ bool StyleSheetParser::ParseDecoratorBlock(CoreInstance& in_core_instance, const
 
 	if (name_type.size() != 2 || name_type[0].empty() || name_type[1].empty())
 	{
-		Log::Message(Log::LT_WARNING, "Decorator syntax error at %s:%d. Use syntax: '@decorator name : type { ... }'.", stream_file_name.c_str(),
+		Log::Message(core_instance, Log::LT_WARNING, "Decorator syntax error at %s:%d. Use syntax: '@decorator name : type { ... }'.", stream_file_name.c_str(),
 			line_number);
 		return false;
 	}
@@ -365,7 +365,7 @@ bool StyleSheetParser::ParseDecoratorBlock(CoreInstance& in_core_instance, const
 	auto it_find = named_decorator_map.find(name);
 	if (it_find != named_decorator_map.end())
 	{
-		Log::Message(Log::LT_WARNING, "Decorator with name '%s' already declared, ignoring decorator at %s:%d.", name.c_str(),
+		Log::Message(core_instance, Log::LT_WARNING, "Decorator with name '%s' already declared, ignoring decorator at %s:%d.", name.c_str(),
 			stream_file_name.c_str(), line_number);
 		return false;
 	}
@@ -389,7 +389,7 @@ bool StyleSheetParser::ParseDecoratorBlock(CoreInstance& in_core_instance, const
 		// If we still don't have an instancer, we cannot continue.
 		if (!decorator_instancer)
 		{
-			Log::Message(Log::LT_WARNING, "Invalid decorator type '%s' declared at %s:%d.", decorator_type.c_str(), stream_file_name.c_str(),
+			Log::Message(core_instance, Log::LT_WARNING, "Invalid decorator type '%s' declared at %s:%d.", decorator_type.c_str(), stream_file_name.c_str(),
 				line_number);
 			return false;
 		}
@@ -442,7 +442,7 @@ bool StyleSheetParser::ParseMediaFeatureMap(const String& rules, PropertyDiction
 					// we can only ever see one "not" on the entire global query.
 					if (modifier != MediaQueryModifier::None)
 					{
-						Log::Message(Log::LT_WARNING, "Unexpected '%s' in @media query list at %s:%d.", current_string.c_str(),
+						Log::Message(core_instance, Log::LT_WARNING, "Unexpected '%s' in @media query list at %s:%d.", current_string.c_str(),
 							stream_file_name.c_str(), line_number);
 						return false;
 					}
@@ -458,7 +458,7 @@ bool StyleSheetParser::ParseMediaFeatureMap(const String& rules, PropertyDiction
 		{
 			if (state != Global)
 			{
-				Log::Message(Log::LT_WARNING, "Unexpected '(' in @media query list at %s:%d.", stream_file_name.c_str(), line_number);
+				Log::Message(core_instance, Log::LT_WARNING, "Unexpected '(' in @media query list at %s:%d.", stream_file_name.c_str(), line_number);
 				return false;
 			}
 
@@ -467,7 +467,7 @@ bool StyleSheetParser::ParseMediaFeatureMap(const String& rules, PropertyDiction
 			// allow an empty string to pass through only if we had just parsed a modifier.
 			if (current_string != "and" && (properties.GetNumProperties() != 0 || !current_string.empty()))
 			{
-				Log::Message(Log::LT_WARNING, "Unexpected '%s' in @media query list at %s:%d. Expected 'and'.", current_string.c_str(),
+				Log::Message(core_instance, Log::LT_WARNING, "Unexpected '%s' in @media query list at %s:%d. Expected 'and'.", current_string.c_str(),
 					stream_file_name.c_str(), line_number);
 				return false;
 			}
@@ -480,14 +480,14 @@ bool StyleSheetParser::ParseMediaFeatureMap(const String& rules, PropertyDiction
 		{
 			if (state != Value)
 			{
-				Log::Message(Log::LT_WARNING, "Unexpected ')' in @media query list at %s:%d.", stream_file_name.c_str(), line_number);
+				Log::Message(core_instance, Log::LT_WARNING, "Unexpected ')' in @media query list at %s:%d.", stream_file_name.c_str(), line_number);
 				return false;
 			}
 
 			current_string = StringUtilities::StripWhitespace(current_string);
 
 			if (!core_instance.style_sheet_property_parsers->media_query.Parse(name, current_string))
-				Log::Message(Log::LT_WARNING, "Syntax error parsing media-query property declaration '%s: %s;' in %s: %d.", name.c_str(),
+				Log::Message(core_instance, Log::LT_WARNING, "Syntax error parsing media-query property declaration '%s: %s;' in %s: %d.", name.c_str(),
 					current_string.c_str(), stream_file_name.c_str(), line_number);
 
 			current_string.clear();
@@ -498,7 +498,7 @@ bool StyleSheetParser::ParseMediaFeatureMap(const String& rules, PropertyDiction
 		{
 			if (state != Name)
 			{
-				Log::Message(Log::LT_WARNING, "Unexpected ':' in @media query list at %s:%d.", stream_file_name.c_str(), line_number);
+				Log::Message(core_instance, Log::LT_WARNING, "Unexpected ':' in @media query list at %s:%d.", stream_file_name.c_str(), line_number);
 				return false;
 			}
 
@@ -506,7 +506,7 @@ bool StyleSheetParser::ParseMediaFeatureMap(const String& rules, PropertyDiction
 
 			if (!IsValidIdentifier(current_string))
 			{
-				Log::Message(Log::LT_WARNING, "Malformed property name '%s' in @media query list at %s:%d.", current_string.c_str(),
+				Log::Message(core_instance, Log::LT_WARNING, "Malformed property name '%s' in @media query list at %s:%d.", current_string.c_str(),
 					stream_file_name.c_str(), line_number);
 				return false;
 			}
@@ -523,7 +523,7 @@ bool StyleSheetParser::ParseMediaFeatureMap(const String& rules, PropertyDiction
 
 	if (properties.GetNumProperties() == 0)
 	{
-		Log::Message(Log::LT_WARNING, "Media query list parsing yielded no properties at %s:%d.", stream_file_name.c_str(), line_number);
+		Log::Message(core_instance, Log::LT_WARNING, "Media query list parsing yielded no properties at %s:%d.", stream_file_name.c_str(), line_number);
 	}
 
 	return true;
@@ -586,7 +586,7 @@ bool StyleSheetParser::Parse(MediaBlockList& style_sheets, Stream* _stream, int 
 						properties.SetSourceOfAllProperties(source);
 						if (!ImportProperties(core_instance, current_block.stylesheet->root.get(), rule_name_list[i], properties, rule_count))
 						{
-							Log::Message(Log::LT_WARNING, "Invalid selector '%s' encountered while parsing stylesheet at %s:%d.",
+							Log::Message(core_instance, Log::LT_WARNING, "Invalid selector '%s' encountered while parsing stylesheet at %s:%d.",
 								rule_name_list[i].c_str(), stream_file_name.c_str(), line_number);
 						}
 					}
@@ -610,7 +610,7 @@ bool StyleSheetParser::Parse(MediaBlockList& style_sheets, Stream* _stream, int 
 				}
 				else
 				{
-					Log::Message(Log::LT_WARNING, "Invalid character '%c' found while parsing stylesheet at %s:%d. Trying to proceed.", token,
+					Log::Message(core_instance, Log::LT_WARNING, "Invalid character '%c' found while parsing stylesheet at %s:%d. Trying to proceed.", token,
 						stream_file_name.c_str(), line_number);
 				}
 			}
@@ -651,17 +651,17 @@ bool StyleSheetParser::Parse(MediaBlockList& style_sheets, Stream* _stream, int 
 
 						if (sprite_definitions.empty())
 						{
-							Log::Message(Log::LT_WARNING, "Spritesheet '%s' has no sprites defined, ignored. At %s:%d", at_rule_name.c_str(),
+							Log::Message(core_instance, Log::LT_WARNING, "Spritesheet '%s' has no sprites defined, ignored. At %s:%d", at_rule_name.c_str(),
 								stream_file_name.c_str(), line_number);
 						}
 						else if (image_source.empty())
 						{
-							Log::Message(Log::LT_WARNING, "No image source (property 'src') specified for spritesheet '%s'. At %s:%d",
+							Log::Message(core_instance, Log::LT_WARNING, "No image source (property 'src') specified for spritesheet '%s'. At %s:%d",
 								at_rule_name.c_str(), stream_file_name.c_str(), line_number);
 						}
 						else if (image_resolution_factor <= 0.0f || image_resolution_factor >= 100.f)
 						{
-							Log::Message(Log::LT_WARNING,
+							Log::Message(core_instance, Log::LT_WARNING,
 								"Spritesheet resolution (property 'resolution') value must be larger than 0.0 and smaller than 100.0, given %g. In "
 								"spritesheet '%s'. At %s:%d",
 								image_resolution_factor, at_rule_name.c_str(), stream_file_name.c_str(), line_number);
@@ -702,13 +702,13 @@ bool StyleSheetParser::Parse(MediaBlockList& style_sheets, Stream* _stream, int 
 						// Invalid identifier, should ignore
 						at_rule_name.clear();
 						state = State::Global;
-						Log::Message(Log::LT_WARNING, "Invalid at-rule identifier '%s' found in stylesheet at %s:%d", at_rule_identifier.c_str(),
+						Log::Message(core_instance, Log::LT_WARNING, "Invalid at-rule identifier '%s' found in stylesheet at %s:%d", at_rule_identifier.c_str(),
 							stream_file_name.c_str(), line_number);
 					}
 				}
 				else
 				{
-					Log::Message(Log::LT_WARNING, "Invalid character '%c' found while parsing at-rule identifier in stylesheet at %s:%d", token,
+					Log::Message(core_instance, Log::LT_WARNING, "Invalid character '%c' found while parsing at-rule identifier in stylesheet at %s:%d", token,
 						stream_file_name.c_str(), line_number);
 					state = State::Invalid;
 				}
@@ -740,7 +740,7 @@ bool StyleSheetParser::Parse(MediaBlockList& style_sheets, Stream* _stream, int 
 				}
 				else
 				{
-					Log::Message(Log::LT_WARNING, "Invalid character '%c' found while parsing keyframe block in stylesheet at %s:%d", token,
+					Log::Message(core_instance, Log::LT_WARNING, "Invalid character '%c' found while parsing keyframe block in stylesheet at %s:%d", token,
 						stream_file_name.c_str(), line_number);
 					state = State::Invalid;
 				}
@@ -796,7 +796,7 @@ StyleSheetNodeListRaw StyleSheetParser::ConstructNodes(CoreInstance& in_core_ins
 		StyleSheetNode* leaf_node = ImportProperties(in_core_instance, &root_node, selector, empty_properties, 0);
 
 		if (!leaf_node)
-			Log::Message(Log::LT_WARNING, "Invalid selector '%s' encountered.", selector.c_str());
+			Log::Message(in_core_instance, Log::LT_WARNING, "Invalid selector '%s' encountered.", selector.c_str());
 		else if (leaf_node != &root_node)
 			leaf_nodes.push_back(leaf_node);
 	}
@@ -829,7 +829,7 @@ bool StyleSheetParser::ReadProperties(AbstractPropertyParser& property_parser)
 				name = StringUtilities::StripWhitespace(name);
 				if (!name.empty())
 				{
-					Log::Message(Log::LT_WARNING, "Found name with no value while parsing property declaration '%s' at %s:%d", name.c_str(),
+					Log::Message(core_instance, Log::LT_WARNING, "Found name with no value while parsing property declaration '%s' at %s:%d", name.c_str(),
 						stream_file_name.c_str(), line_number);
 					name.clear();
 				}
@@ -838,7 +838,7 @@ bool StyleSheetParser::ReadProperties(AbstractPropertyParser& property_parser)
 			{
 				name = StringUtilities::StripWhitespace(name);
 				if (!name.empty())
-					Log::Message(Log::LT_WARNING, "End of rule encountered while parsing property declaration '%s' at %s:%d", name.c_str(),
+					Log::Message(core_instance, Log::LT_WARNING, "End of rule encountered while parsing property declaration '%s' at %s:%d", name.c_str(),
 						stream_file_name.c_str(), line_number);
 				return true;
 			}
@@ -859,7 +859,7 @@ bool StyleSheetParser::ReadProperties(AbstractPropertyParser& property_parser)
 				value = StringUtilities::StripWhitespace(value);
 
 				if (!property_parser.Parse(name, value))
-					Log::Message(Log::LT_WARNING, "Syntax error parsing property declaration '%s: %s;' in %s: %d.", name.c_str(), value.c_str(),
+					Log::Message(core_instance, Log::LT_WARNING, "Syntax error parsing property declaration '%s: %s;' in %s: %d.", name.c_str(), value.c_str(),
 						stream_file_name.c_str(), line_number);
 
 				name.clear();
@@ -898,12 +898,12 @@ bool StyleSheetParser::ReadProperties(AbstractPropertyParser& property_parser)
 		value = StringUtilities::StripWhitespace(value);
 
 		if (!property_parser.Parse(name, value))
-			Log::Message(Log::LT_WARNING, "Syntax error parsing property declaration '%s: %s;' in %s: %d.", name.c_str(), value.c_str(),
+			Log::Message(core_instance, Log::LT_WARNING, "Syntax error parsing property declaration '%s: %s;' in %s: %d.", name.c_str(), value.c_str(),
 				stream_file_name.c_str(), line_number);
 	}
 	else if (!StringUtilities::StripWhitespace(name).empty() || !value.empty())
 	{
-		Log::Message(Log::LT_WARNING, "Invalid property declaration '%s':'%s' at %s:%d", name.c_str(), value.c_str(), stream_file_name.c_str(),
+		Log::Message(core_instance, Log::LT_WARNING, "Invalid property declaration '%s':'%s' at %s:%d", name.c_str(), value.c_str(), stream_file_name.c_str(),
 			line_number);
 	}
 

@@ -130,7 +130,7 @@ void GeometryBoxShadow::Generate(Geometry& out_shadow_geometry, CallbackTexture&
 		}
 		if (scissor_region != Rectanglei::FromSize(texture_dimensions))
 		{
-			Log::Message(Log::LT_INFO,
+			Log::Message(render_manager.GetCoreInstance(), Log::LT_INFO,
 				"The desired box-shadow texture dimensions (%d, %d) are larger than the current window region (%d, %d). "
 				"Results may be clipped. In element: %s",
 				texture_dimensions.x, texture_dimensions.y, scissor_region.Width(), scissor_region.Height(), element->GetAddress().c_str());

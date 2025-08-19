@@ -90,7 +90,7 @@ Texture DecoratorInstancerInterface::GetTexture(const String& filename) const
 {
 	if (!property_source)
 	{
-		Log::Message(Log::LT_WARNING, "Texture name '%s' in decorator could not be loaded, no property source available.", filename.c_str());
+		Log::Message(GetRenderManager().GetCoreInstance(), Log::LT_WARNING, "Texture name '%s' in decorator could not be loaded, no property source available.", filename.c_str());
 		return {};
 	}
 

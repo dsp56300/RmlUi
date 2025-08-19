@@ -38,7 +38,7 @@ Element* DataView::GetElement() const
 {
 	Element* result = attached_element.get();
 	if (!result)
-		Log::Message(Log::LT_WARNING, "Could not retrieve element in view, was it destroyed?");
+		Log::Message(core_instance, Log::LT_WARNING, "Could not retrieve element in view, was it destroyed?");
 	return result;
 }
 
@@ -52,7 +52,7 @@ bool DataView::IsValid() const
 	return static_cast<bool>(attached_element);
 }
 
-DataView::DataView(Element* element, int bias) : attached_element(element->GetObserverPtr(element->GetCoreInstance())), sort_order(bias + 1000)
+DataView::DataView(Element* element, int bias) : core_instance(element->GetCoreInstance()), attached_element(element->GetObserverPtr(element->GetCoreInstance())), sort_order(bias + 1000)
 {
 	RMLUI_ASSERT(bias >= -1000 && bias <= 999);
 

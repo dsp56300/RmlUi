@@ -53,10 +53,10 @@ public:
 
 	explicit operator bool() const { return definition; }
 
-	bool Get(Variant& variant);
+	bool Get(CoreInstance& in_core_instance, Variant& variant);
 	bool Set(CoreInstance& in_core_instance, const Variant& variant);
-	int Size();
-	DataVariable Child(const DataAddressEntry& address);
+	int Size(CoreInstance& in_core_instance);
+	DataVariable Child(CoreInstance& in_core_instance, const DataAddressEntry& address);
 	DataVariableType Type();
 
 private:
@@ -75,11 +75,11 @@ public:
 	virtual ~VariableDefinition() = default;
 	DataVariableType Type() const { return type; }
 
-	virtual bool Get(void* ptr, Variant& variant);
-	virtual bool Set(CoreInstance&, void* ptr, const Variant& variant);
+	virtual bool Get(CoreInstance& in_core_instance, void* ptr, Variant& variant);
+	virtual bool Set(CoreInstance& in_core_instance, void* ptr, const Variant& variant);
 
-	virtual int Size(void* ptr);
-	virtual DataVariable Child(void* ptr, const DataAddressEntry& address);
+	virtual int Size(CoreInstance& in_core_instance, void* ptr);
+	virtual DataVariable Child(CoreInstance& in_core_instance, void* ptr, const DataAddressEntry& address);
 
 protected:
 	VariableDefinition(DataVariableType type) : type(type) {}
@@ -96,7 +96,7 @@ class ScalarDefinition final : public VariableDefinition {
 public:
 	ScalarDefinition() : VariableDefinition(DataVariableType::Scalar) {}
 
-	bool Get(void* ptr, Variant& variant) override
+	bool Get(CoreInstance&, void* ptr, Variant& variant) override
 	{
 		variant = *static_cast<const T*>(ptr);
 		return true;
@@ -108,7 +108,7 @@ class RMLUICORE_API FuncDefinition final : public VariableDefinition {
 public:
 	FuncDefinition(DataGetFunc get, DataSetFunc set);
 
-	bool Get(void* ptr, Variant& variant) override;
+	bool Get(CoreInstance& in_core_instance, void* ptr, Variant& variant) override;
 	bool Set(CoreInstance&, void* ptr, const Variant& variant) override;
 
 private:
@@ -121,7 +121,7 @@ class ScalarFuncDefinition final : public VariableDefinition {
 public:
 	ScalarFuncDefinition(DataTypeGetFunc<T> get, DataTypeSetFunc<T> set) : VariableDefinition(DataVariableType::Scalar), get(get), set(set) {}
 
-	bool Get(void* ptr, Variant& variant) override
+	bool Get(CoreInstance&, void* ptr, Variant& variant) override
 	{
 		if (!get)
 			return false;
@@ -145,7 +145,7 @@ class RMLUICORE_API StructDefinition final : public VariableDefinition {
 public:
 	StructDefinition();
 
-	DataVariable Child(void* ptr, const DataAddressEntry& address) override;
+	DataVariable Child(CoreInstance& in_core_instance, void* ptr, const DataAddressEntry& address) override;
 
 	void AddMember(const String& name, UniquePtr<VariableDefinition> member);
 
@@ -160,10 +160,10 @@ public:
 		VariableDefinition(DataVariableType::Array), underlying_definition(underlying_definition)
 	{}
 
-	int Size(void* ptr) override { return int(static_cast<Container*>(ptr)->size()); }
+	int Size(CoreInstance&, void* ptr) override { return int(static_cast<Container*>(ptr)->size()); }
 
 protected:
-	DataVariable Child(void* void_ptr, const DataAddressEntry& address) override
+	DataVariable Child(CoreInstance& in_core_instance, void* void_ptr, const DataAddressEntry& address) override
 	{
 		Container* ptr = static_cast<Container*>(void_ptr);
 		const int index = address.index;
@@ -174,7 +174,7 @@ protected:
 			if (address.name == "size")
 				return MakeLiteralIntVariable(container_size);
 
-			Log::Message(Log::LT_WARNING, "Data array index out of bounds.");
+			Log::Message(in_core_instance, Log::LT_WARNING, "Data array index out of bounds.");
 			return DataVariable();
 		}
 
@@ -193,10 +193,10 @@ class RMLUICORE_API BasePointerDefinition : public VariableDefinition {
 public:
 	BasePointerDefinition(VariableDefinition* underlying_definition);
 
-	bool Get(void* ptr, Variant& variant) override;
+	bool Get(CoreInstance& in_core_instance, void* ptr, Variant& variant) override;
 	bool Set(CoreInstance&, void* ptr, const Variant& variant) override;
-	int Size(void* ptr) override;
-	DataVariable Child(void* ptr, const DataAddressEntry& address) override;
+	int Size(CoreInstance& in_core_instance, void* ptr) override;
+	DataVariable Child(CoreInstance& in_core_instance, void* ptr, const DataAddressEntry& address) override;
 
 protected:
 	virtual void* DereferencePointer(void* ptr) = 0;
@@ -257,8 +257,8 @@ public:
 		underlying_definition(underlying_definition), member_get_func_ptr(member_get_func_ptr), member_set_func_ptr(member_set_func_ptr)
 	{}
 
-	bool Get(void* ptr, Variant& variant) override { return GetDetail(ptr, variant); }
-	bool Set(CoreInstance&, void* ptr, const Variant& variant) override { return SetDetail(ptr, variant); }
+	bool Get(CoreInstance&, void* ptr, Variant& variant) override { return GetDetail(ptr, variant); }
+	bool Set(CoreInstance& in_core_instance, void* ptr, const Variant& variant) override { return SetDetail(in_core_instance, ptr, variant); }
 
 private:
 	template <typename T = MemberGetType, typename std::enable_if_t<IsVoidMemberFunc<T>::value, int> = 0>

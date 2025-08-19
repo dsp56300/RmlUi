@@ -54,7 +54,7 @@ Element* XMLNodeHandlerTemplate::ElementStart(XMLParser* parser, const String& n
 
 	if (template_name.empty())
 	{
-		Log::Message(Log::LT_WARNING,
+		Log::Message(parser->GetCoreInstance(), Log::LT_WARNING,
 			"Inline template injection requires the 'src' attribute with the target template name, but none provided. In element %s",
 			element->GetAddress().c_str());
 		return element;

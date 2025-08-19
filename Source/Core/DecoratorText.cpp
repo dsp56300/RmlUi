@@ -56,7 +56,7 @@ DecoratorDataHandle DecoratorText::GenerateElementData(Element* element, BoxArea
 
 	if (!GenerateGeometry(element, *data))
 	{
-		Log::Message(Log::LT_WARNING, "Could not construct text decorator with text %s on element %s", text.c_str(), element->GetAddress().c_str());
+		Log::Message(element->GetCoreInstance(), Log::LT_WARNING, "Could not construct text decorator with text %s on element %s", text.c_str(), element->GetAddress().c_str());
 		return {};
 	}
 
@@ -139,7 +139,7 @@ DecoratorTextInstancer::DecoratorTextInstancer(CoreInstance& in_core_instance)
 	ids.align_x = RegisterProperty(in_core_instance, "align-x", "center").AddParser("keyword", "left, center, right").AddParser("length_percent").GetId();
 	ids.align_y = RegisterProperty(in_core_instance, "align-y", "center").AddParser("keyword", "top, center, bottom").AddParser("length_percent").GetId();
 
-	RegisterShorthand("decorator", "text, color, align-x, align-y, align-x", ShorthandType::FallThrough);
+	RegisterShorthand(in_core_instance, "decorator", "text, color, align-x, align-y, align-x", ShorthandType::FallThrough);
 }
 
 DecoratorTextInstancer::~DecoratorTextInstancer() {}
@@ -155,7 +155,7 @@ SharedPtr<Decorator> DecoratorTextInstancer::InstanceDecorator(const String& /*n
 
 	auto& core_instance = instancer_interface.GetRenderManager().GetCoreInstance();
 
-	String text = StringUtilities::DecodeRml(p_text->Get<String>(core_instance));
+	String text = StringUtilities::DecodeRml(core_instance, p_text->Get<String>(core_instance));
 	if (text.empty())
 		return nullptr;
 

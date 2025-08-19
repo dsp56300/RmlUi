@@ -44,7 +44,7 @@ void LayoutEngine::FormatElement(Element* element, Vector2f containing_block)
 	auto layout_box = FormattingContext::FormatIndependent(&root, element, nullptr, FormattingContextType::Block);
 	if (!layout_box)
 	{
-		Log::Message(Log::LT_ERROR, "Error while formatting element: %s", element->GetAddress().c_str());
+		Log::Message(element->GetCoreInstance(), Log::LT_ERROR, "Error while formatting element: %s", element->GetAddress().c_str());
 	}
 
 	{

@@ -38,14 +38,14 @@ bool Initialise(Context* context)
 {
 	if (DebuggerPlugin::GetInstance() != nullptr)
 	{
-		Log::Message(Log::LT_WARNING, "Unable to initialise debugger plugin, already initialised!");
+		Log::Message(context->GetCoreInstance(), Log::LT_WARNING, "Unable to initialise debugger plugin, already initialised!");
 		return false;
 	}
 
 	DebuggerPlugin* plugin = new DebuggerPlugin();
 	if (!plugin->Initialise(context))
 	{
-		Log::Message(Log::LT_WARNING, "Unable to initialise debugger plugin.");
+		Log::Message(context->GetCoreInstance(), Log::LT_WARNING, "Unable to initialise debugger plugin.");
 
 		delete plugin;
 		return false;
@@ -62,7 +62,7 @@ void Shutdown()
 	DebuggerPlugin* plugin = DebuggerPlugin::GetInstance();
 	if (!plugin)
 	{
-		Log::Message(Log::LT_WARNING, "Unable to shutdown debugger plugin, it was not initialised!");
+		Log::Message(plugin->GetDebugContext()->GetCoreInstance(), Log::LT_WARNING, "Unable to shutdown debugger plugin, it was not initialised!");
 		return;
 	}
 

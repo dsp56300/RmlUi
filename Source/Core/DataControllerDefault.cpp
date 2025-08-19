@@ -72,7 +72,7 @@ void DataControllerValue::ProcessEvent(Event& event)
 		else if (value_it != parameters.cend())
 			value_to_set = value_it->second;
 		else
-			Log::Message(Log::LT_WARNING,
+			Log::Message(element->GetCoreInstance(), Log::LT_WARNING,
 				"A 'change' event was received, but it did not contain the attribute 'value' when processing a data binding in %s",
 				element->GetAddress().c_str());
 
@@ -115,7 +115,7 @@ bool DataControllerEvent::Initialize(DataModel& model, Element* element, const S
 	id = EventSpecificationInterface::GetIdOrInsert(element->GetCoreInstance(), modifier);
 	if (id == EventId::Invalid)
 	{
-		Log::Message(Log::LT_WARNING, "Event type '%s' could not be recognized, while adding 'data-event' to %s", modifier.c_str(),
+		Log::Message(element->GetCoreInstance(), Log::LT_WARNING, "Event type '%s' could not be recognized, while adding 'data-event' to %s", modifier.c_str(),
 			element->GetAddress().c_str());
 		return false;
 	}

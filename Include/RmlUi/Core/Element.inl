@@ -34,7 +34,7 @@ T Element::GetProperty(const String& name)
 	const Property* property = GetProperty(name);
 	if (!property)
 	{
-		Log::Message(Log::LT_WARNING, "Invalid property name %s.", name.c_str());
+		Log::Message(GetCoreInstance(), Log::LT_WARNING, "Invalid property name %s.", name.c_str());
 		return T{};
 	}
 	return property->Get<T>(GetCoreInstance());

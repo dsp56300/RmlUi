@@ -95,7 +95,7 @@ void DecoratorShader::RenderElement(Element* element, DecoratorDataHandle handle
 DecoratorShaderInstancer::DecoratorShaderInstancer(CoreInstance& in_core_instance)
 {
 	ids.value = RegisterProperty(in_core_instance, "value", String()).AddParser("string").GetId();
-	RegisterShorthand("decorator", "value", ShorthandType::FallThrough);
+	RegisterShorthand(in_core_instance, "decorator", "value", ShorthandType::FallThrough);
 }
 
 DecoratorShaderInstancer::~DecoratorShaderInstancer() {}

@@ -111,7 +111,7 @@ bool FontProvider::LoadFontFace(const String& file_name, int face_index, bool fa
 
 	if (!handle)
 	{
-		Log::Message(Log::LT_ERROR, "Failed to load font face from %s, could not open file.", file_name.c_str());
+		Log::Message(core_instance, Log::LT_ERROR, "Failed to load font face from %s, could not open file.", file_name.c_str());
 		return false;
 	}
 
@@ -145,7 +145,7 @@ bool FontProvider::LoadFontFace(Span<const byte> data, int face_index, bool fall
 	Vector<FaceVariation> face_variations;
 	if (!FreeType::GetFaceVariations(data, face_variations, face_index))
 	{
-		Log::Message(Log::LT_ERROR, "Failed to load font face from '%s': Invalid or unsupported font face file format.", source.c_str());
+		Log::Message(core_instance, Log::LT_ERROR, "Failed to load font face from '%s': Invalid or unsupported font face file format.", source.c_str());
 		return false;
 	}
 
@@ -193,7 +193,7 @@ bool FontProvider::LoadFontFace(Span<const byte> data, int face_index, bool fall
 
 	if (load_variations.empty())
 	{
-		Log::Message(Log::LT_ERROR, "Failed to load font face from '%s': Could not locate face with weight %d.", source.c_str(), (int)weight);
+		Log::Message(core_instance, Log::LT_ERROR, "Failed to load font face from '%s': Could not locate face with weight %d.", source.c_str(), (int)weight);
 		return false;
 	}
 
@@ -213,11 +213,11 @@ bool FontProvider::LoadFontFace(Span<const byte> data, int face_index, bool fall
 
 		if (!AddFace(ft_face, font_family, style, variation_weight, fallback_face, std::move(face_memory)))
 		{
-			Log::Message(Log::LT_ERROR, "Failed to load font face %s from '%s'.", font_face_description.c_str(), source.c_str());
+			Log::Message(core_instance, Log::LT_ERROR, "Failed to load font face %s from '%s'.", font_face_description.c_str(), source.c_str());
 			return false;
 		}
 
-		Log::Message(Log::LT_INFO, "Loaded font face %s from '%s'.", font_face_description.c_str(), source.c_str());
+		Log::Message(core_instance, Log::LT_INFO, "Loaded font face %s from '%s'.", font_face_description.c_str(), source.c_str());
 	}
 
 	return true;

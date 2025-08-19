@@ -42,21 +42,21 @@ URL::URL()
 	url_dirty = false;
 }
 
-URL::URL(const String& _url)
+URL::URL(CoreInstance& in_core_instance, const String& _url)
 {
 	port = 0;
-	RMLUI_VERIFY(SetURL(_url));
+	RMLUI_VERIFY(SetURL(in_core_instance, _url));
 }
 
-URL::URL(const char* _url)
+URL::URL(CoreInstance& in_core_instance, const char* _url)
 {
 	port = 0;
-	RMLUI_VERIFY(SetURL(_url));
+	RMLUI_VERIFY(SetURL(in_core_instance, _url));
 }
 
 URL::~URL() {}
 
-bool URL::SetURL(const String& _url)
+bool URL::SetURL(CoreInstance& in_core_instance, const String& _url)
 {
 	url_dirty = false;
 	url = _url;
@@ -86,7 +86,7 @@ bool URL::SetURL(const String& _url)
 		{
 			char malformed_terminator[4] = {0, 0, 0, 0};
 			strncpy(malformed_terminator, host_begin, 3);
-			Log::Message(Log::LT_ERROR, "Malformed protocol identifier found in URL %s; expected %s://, found %s%s.\n", _url.c_str(),
+			Log::Message(in_core_instance, Log::LT_ERROR, "Malformed protocol identifier found in URL %s; expected %s://, found %s%s.\n", _url.c_str(),
 				protocol.c_str(), protocol.c_str(), malformed_terminator);
 
 			return false;
@@ -135,7 +135,7 @@ bool URL::SetURL(const String& _url)
 		{
 			if (1 != sscanf(port_begin, ":%d", &port))
 			{
-				Log::Message(Log::LT_ERROR, "Malformed port number found in URL %s.\n", _url.c_str());
+				Log::Message(in_core_instance, Log::LT_ERROR, "Malformed port number found in URL %s.\n", _url.c_str());
 				return false;
 			}
 

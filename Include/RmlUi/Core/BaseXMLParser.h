@@ -47,7 +47,7 @@ enum class XMLDataType { Text, CData, InnerXML };
 
 class RMLUICORE_API BaseXMLParser {
 public:
-	BaseXMLParser();
+	BaseXMLParser(CoreInstance& in_core_instance);
 	virtual ~BaseXMLParser();
 
 	/// Registers a tag as containing general character data. This will mean the contents of the tag will be parsed
@@ -115,6 +115,8 @@ private:
 	// matches the given string. If consume is set and this returns true,
 	// the characters will be consumed.
 	bool PeekString(const char* string, bool consume = true);
+
+	CoreInstance& core_instance;
 
 	int line_number = 0;
 	int line_number_open_tag = 0;

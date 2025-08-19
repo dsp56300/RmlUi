@@ -190,11 +190,11 @@ DecoratorNinePatchInstancer::DecoratorNinePatchInstancer(CoreInstance& in_core_i
 	edge_ids[2] = RegisterProperty(in_core_instance, "edge-bottom", "0px").AddParser("number_length_percent").GetId();
 	edge_ids[3] = RegisterProperty(in_core_instance, "edge-left", "0px").AddParser("number_length_percent").GetId();
 
-	RegisterShorthand("edge", "edge-top, edge-right, edge-bottom, edge-left", ShorthandType::Box);
+	RegisterShorthand(in_core_instance, "edge", "edge-top, edge-right, edge-bottom, edge-left", ShorthandType::Box);
 
 	RMLUI_ASSERT(sprite_outer_id != PropertyId::Invalid && sprite_inner_id != PropertyId::Invalid);
 
-	RegisterShorthand("decorator", "outer, inner, edge?", ShorthandType::RecursiveCommaSeparated);
+	RegisterShorthand(in_core_instance, "decorator", "outer, inner, edge?", ShorthandType::RecursiveCommaSeparated);
 }
 
 DecoratorNinePatchInstancer::~DecoratorNinePatchInstancer() {}
@@ -223,7 +223,7 @@ SharedPtr<Decorator> DecoratorNinePatchInstancer::InstanceDecorator(const String
 		sprite_outer = instancer_interface.GetSprite(sprite_name);
 		if (!sprite_outer)
 		{
-			Log::Message(Log::LT_WARNING, "Could not find sprite named '%s' in ninepatch decorator.", sprite_name.c_str());
+			Log::Message(core_instance, Log::LT_WARNING, "Could not find sprite named '%s' in ninepatch decorator.", sprite_name.c_str());
 			return nullptr;
 		}
 	}
@@ -232,14 +232,14 @@ SharedPtr<Decorator> DecoratorNinePatchInstancer::InstanceDecorator(const String
 		sprite_inner = instancer_interface.GetSprite(sprite_name);
 		if (!sprite_inner)
 		{
-			Log::Message(Log::LT_WARNING, "Could not find sprite named '%s' in ninepatch decorator.", sprite_name.c_str());
+			Log::Message(core_instance, Log::LT_WARNING, "Could not find sprite named '%s' in ninepatch decorator.", sprite_name.c_str());
 			return nullptr;
 		}
 	}
 
 	if (sprite_outer->sprite_sheet != sprite_inner->sprite_sheet)
 	{
-		Log::Message(Log::LT_WARNING, "The outer and inner sprites in a ninepatch decorator must be from the same sprite sheet.");
+		Log::Message(core_instance, Log::LT_WARNING, "The outer and inner sprites in a ninepatch decorator must be from the same sprite sheet.");
 		return nullptr;
 	}
 

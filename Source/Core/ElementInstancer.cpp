@@ -60,12 +60,12 @@ void ElementInstancerElement::CheckPoolsOnShutdown(CoreInstance& core_instance)
 	int num_elements = core_instance.element_instancer_pools->pool_element.GetNumAllocatedObjects();
 	if (num_elements > 0)
 	{
-		Log::Message(Log::LT_WARNING, "--- Found %d leaked element(s) ---", num_elements);
+		Log::Message(core_instance, Log::LT_WARNING, "--- Found %d leaked element(s) ---", num_elements);
 
 		for (auto it = core_instance.element_instancer_pools->pool_element.Begin(); it; ++it)
-			Log::Message(Log::LT_WARNING, "    %s", it->GetAddress().c_str());
+			Log::Message(core_instance, Log::LT_WARNING, "    %s", it->GetAddress().c_str());
 
-		Log::Message(Log::LT_WARNING, "------");
+		Log::Message(core_instance, Log::LT_WARNING, "------");
 	}
 }
 

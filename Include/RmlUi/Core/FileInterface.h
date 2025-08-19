@@ -47,7 +47,7 @@ namespace Rml {
 
 class RMLUICORE_API FileInterface : public NonCopyMoveable {
 public:
-	FileInterface();
+	FileInterface(CoreInstance& in_core_instance);
 	virtual ~FileInterface();
 
 	/// Opens a file.
@@ -87,6 +87,12 @@ public:
 	/// @param out_data The string contents of the file.
 	/// @return True on success.
 	virtual bool LoadFile(const String& path, String& out_data);
+
+	/// returns the core instance associated with this file interface.
+	CoreInstance& GetCoreInstance() const { return core_instance; }
+
+protected:
+	CoreInstance& core_instance;
 };
 
 } // namespace Rml

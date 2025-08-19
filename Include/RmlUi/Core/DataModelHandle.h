@@ -122,9 +122,9 @@ public:
 	// Register a transform function.
 	// A transform function modifies a variant with optional arguments. It can be called in data expressions using the pipe '|' operator.
 	// @note The transform function applies to every data model associated with the current Context.
-	void RegisterTransformFunc(const String& name, DataTransformFunc transform_func)
+	void RegisterTransformFunc(CoreInstance& in_core_instance, const String& name, DataTransformFunc transform_func)
 	{
-		type_register->GetTransformFuncRegister()->Register(name, std::move(transform_func));
+		type_register->GetTransformFuncRegister()->Register(in_core_instance, name, std::move(transform_func));
 	}
 
 	// Returns the type register.

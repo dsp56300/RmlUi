@@ -49,9 +49,9 @@ PropertyDefinition& FontEffectInstancer::RegisterProperty(CoreInstance& in_core_
 	return definition;
 }
 
-ShorthandId FontEffectInstancer::RegisterShorthand(const String& shorthand_name, const String& property_names, ShorthandType type)
+ShorthandId FontEffectInstancer::RegisterShorthand(CoreInstance& in_core_instance, const String& shorthand_name, const String& property_names, ShorthandType type)
 {
-	return properties.RegisterShorthand(shorthand_name, property_names, type);
+	return properties.RegisterShorthand(in_core_instance, shorthand_name, property_names, type);
 }
 
 } // namespace Rml

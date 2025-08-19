@@ -203,12 +203,12 @@ void ElementDocument::ProcessHeader(const DocumentHeader* document_header)
 	// Merge in any templates, note a merge may cause more templates to merge
 	for (size_t i = 0; i < header.template_resources.size(); i++)
 	{
-		Template* merge_template = GetCoreInstance().template_cache->LoadTemplate(URL(header.template_resources[i]).GetURL());
+		Template* merge_template = GetCoreInstance().template_cache->LoadTemplate(URL(GetCoreInstance(), header.template_resources[i]).GetURL());
 
 		if (merge_template)
 			header.MergeHeader(*merge_template->GetHeader());
 		else
-			Log::Message(Log::LT_WARNING, "Template %s not found", header.template_resources[i].c_str());
+			Log::Message(GetCoreInstance(), Log::LT_WARNING, "Template %s not found", header.template_resources[i].c_str());
 	}
 
 	// Merge the document's header last, as it is the most overriding.
@@ -228,7 +228,7 @@ void ElementDocument::ProcessHeader(const DocumentHeader* document_header)
 		{
 			auto inline_sheet = MakeShared<StyleSheetContainer>(GetCoreInstance());
 			auto stream = MakeUnique<StreamMemory>((const byte*)rcss.content.c_str(), rcss.content.size());
-			stream->SetSourceURL(rcss.path);
+			stream->SetSourceURL(URL(GetCoreInstance(), rcss.path));
 
 			if (inline_sheet->LoadStyleSheetContainer(stream.get(), rcss.line))
 			{
@@ -251,7 +251,7 @@ void ElementDocument::ProcessHeader(const DocumentHeader* document_header)
 					new_style_sheet = sub_sheet->CombineStyleSheetContainer(StyleSheetContainer(GetCoreInstance()));
 			}
 			else
-				Log::Message(Log::LT_ERROR, "Failed to load style sheet %s.", rcss.path.c_str());
+				Log::Message(GetCoreInstance(), Log::LT_ERROR, "Failed to load style sheet %s.", rcss.path.c_str());
 		}
 	}
 
@@ -334,7 +334,7 @@ void ElementDocument::ReloadStyleSheet()
 	auto stream = MakeUnique<StreamFile>(GetCoreInstance());
 	if (!stream->Open(source_url))
 	{
-		Log::Message(Log::LT_WARNING, "Failed to open file to reload style sheet in document: %s", source_url.c_str());
+		Log::Message(GetCoreInstance(), Log::LT_WARNING, "Failed to open file to reload style sheet in document: %s", source_url.c_str());
 		return;
 	}
 
@@ -345,7 +345,7 @@ void ElementDocument::ReloadStyleSheet()
 	ElementPtr temp_doc = GetFactory().InstanceDocumentStream(nullptr, stream.get(), context->GetDocumentsBaseTag());
 	if (!temp_doc)
 	{
-		Log::Message(Log::LT_WARNING, "Failed to reload style sheet, could not instance document: %s", source_url.c_str());
+		Log::Message(GetCoreInstance(), Log::LT_WARNING, "Failed to reload style sheet, could not instance document: %s", source_url.c_str());
 		return;
 	}
 
@@ -482,7 +482,7 @@ ElementPtr ElementDocument::CreateTextNode(const String& text)
 	ElementPtr element = CreateElement("#text");
 	if (!element)
 	{
-		Log::Message(Log::LT_ERROR, "Failed to create text element, instancer returned nullptr.");
+		Log::Message(GetCoreInstance(), Log::LT_ERROR, "Failed to create text element, instancer returned nullptr.");
 		return nullptr;
 	}
 
@@ -490,7 +490,7 @@ ElementPtr ElementDocument::CreateTextNode(const String& text)
 	ElementText* element_text = rmlui_dynamic_cast<ElementText*>(element.get());
 	if (!element_text)
 	{
-		Log::Message(Log::LT_ERROR, "Failed to create text element, instancer didn't return a derivative of ElementText.");
+		Log::Message(GetCoreInstance(), Log::LT_ERROR, "Failed to create text element, instancer didn't return a derivative of ElementText.");
 		return nullptr;
 	}
 
@@ -807,7 +807,7 @@ Element* ElementDocument::FindNextNavigationElement(Element* current_element, Na
 		const String value = property.Get<String>(GetCoreInstance());
 		if (value[0] != '#')
 		{
-			Log::Message(Log::LT_WARNING,
+			Log::Message(GetCoreInstance(), Log::LT_WARNING,
 				"Invalid navigation value '%s': Expected a keyword or a string with an element id prefixed with '#'. Declared at %s:%d",
 				value.c_str(), source ? source->path.c_str() : "", source ? source->line_number : -1);
 			return nullptr;
@@ -817,7 +817,7 @@ Element* ElementDocument::FindNextNavigationElement(Element* current_element, Na
 		Element* result = GetElementById(id);
 		if (!result)
 		{
-			Log::Message(Log::LT_WARNING, "Trying to navigate to element with id '%s', but could not find element. Declared at %s:%d", id.c_str(),
+			Log::Message(GetCoreInstance(), Log::LT_WARNING, "Trying to navigate to element with id '%s', but could not find element. Declared at %s:%d", id.c_str(),
 				source ? source->path.c_str() : "", source ? source->line_number : -1);
 		}
 		return result;

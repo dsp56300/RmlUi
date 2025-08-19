@@ -235,7 +235,7 @@ bool ElementImage::LoadTexture()
 			texture = {};
 			rect_source = RectSource::None;
 			UpdateRect();
-			Log::Message(Log::LT_WARNING, "Could not find sprite '%s' specified in img element %s", sprite_name.c_str(), GetAddress().c_str());
+			Log::Message(GetCoreInstance(), Log::LT_WARNING, "Could not find sprite '%s' specified in img element %s", sprite_name.c_str(), GetAddress().c_str());
 			return false;
 		}
 	}
@@ -253,7 +253,7 @@ bool ElementImage::LoadTexture()
 		URL source_url;
 
 		if (ElementDocument* document = GetOwnerDocument())
-			source_url.SetURL(document->GetSourceURL());
+			source_url.SetURL(document->GetCoreInstance(), document->GetSourceURL());
 
 		texture = render_manager->LoadTexture(source_name, source_url.GetPath());
 
@@ -277,7 +277,7 @@ void ElementImage::UpdateRect()
 
 			if (coords_list.size() != 4)
 			{
-				Log::Message(Log::LT_WARNING, "Element '%s' has an invalid 'rect' attribute; rect requires 4 space-separated values, found %zu.",
+				Log::Message(GetCoreInstance(), Log::LT_WARNING, "Element '%s' has an invalid 'rect' attribute; rect requires 4 space-separated values, found %zu.",
 					GetAddress().c_str(), coords_list.size());
 			}
 			else

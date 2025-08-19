@@ -241,14 +241,14 @@ ElementDocument* Context::CreateDocument(const String& instancer_name)
 	ElementPtr element = core_instance.factory->InstanceElement(nullptr, instancer_name, documents_base_tag, XMLAttributes());
 	if (!element)
 	{
-		Log::Message(Log::LT_ERROR, "Failed to instance document on instancer_name '%s', instancer returned nullptr.", instancer_name.c_str());
+		Log::Message(core_instance, Log::LT_ERROR, "Failed to instance document on instancer_name '%s', instancer returned nullptr.", instancer_name.c_str());
 		return nullptr;
 	}
 
 	ElementDocument* document = rmlui_dynamic_cast<ElementDocument*>(element.get());
 	if (!document)
 	{
-		Log::Message(Log::LT_ERROR,
+		Log::Message(core_instance, Log::LT_ERROR,
 			"Failed to instance document on instancer_name '%s', Found type '%s', was expecting derivative of ElementDocument.",
 			instancer_name.c_str(), rmlui_type_name(*element));
 		return nullptr;
@@ -309,7 +309,7 @@ ElementDocument* Context::LoadDocumentFromMemory(const String& string, const Str
 	// Open the stream based on the string contents.
 	auto stream = MakeUnique<StreamMemory>(reinterpret_cast<const byte*>(string.c_str()), string.size());
 
-	stream->SetSourceURL(source_url);
+	stream->SetSourceURL(URL(GetCoreInstance(), source_url));
 
 	// Load the document from the stream.
 	ElementDocument* document = LoadDocument(stream.get());
@@ -555,7 +555,7 @@ bool Context::ProcessTextInput(char character)
 bool Context::ProcessTextInput(Character character)
 {
 	// Generate the parameters for the key event.
-	String text = StringUtilities::ToUTF8(character);
+	String text = StringUtilities::ToUTF8(GetCoreInstance(), character);
 	return ProcessTextInput(text);
 }
 
@@ -885,7 +885,7 @@ DataModelConstructor Context::CreateDataModel(const String& name, DataTypeRegist
 	if (inserted)
 		return DataModelConstructor(result.first->second.get());
 
-	Log::Message(Log::LT_ERROR, "Data model name '%s' already exists.", name.c_str());
+	Log::Message(core_instance, Log::LT_ERROR, "Data model name '%s' already exists.", name.c_str());
 	return DataModelConstructor();
 }
 
@@ -894,7 +894,7 @@ DataModelConstructor Context::GetDataModel(const String& name)
 	if (DataModel* model = GetDataModelPtr(name))
 		return DataModelConstructor(model);
 
-	Log::Message(Log::LT_ERROR, "Data model name '%s' could not be found.", name.c_str());
+	Log::Message(core_instance, Log::LT_ERROR, "Data model name '%s' could not be found.", name.c_str());
 	return DataModelConstructor();
 }
 
@@ -1254,7 +1254,7 @@ void Context::CreateDragClone(Element* element)
 	ElementPtr element_drag_clone = element->Clone();
 	if (!element_drag_clone)
 	{
-		Log::Message(Log::LT_ERROR, "Unable to duplicate drag clone.");
+		Log::Message(core_instance, Log::LT_ERROR, "Unable to duplicate drag clone.");
 		return;
 	}
 

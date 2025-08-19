@@ -135,7 +135,7 @@ RMLUICORE_API String StringUtilities::EncodeRml(const String& string)
 	return result;
 }
 
-String StringUtilities::DecodeRml(const String& s)
+String StringUtilities::DecodeRml(Rml::CoreInstance& in_core_instance, const String& s)
 {
 	String result;
 	result.reserve(s.size());
@@ -189,7 +189,7 @@ String StringUtilities::DecodeRml(const String& s)
 						unsigned long code_point = strtoul(begin, &end, 16);
 						if (code_point != 0 && code_point != ULONG_MAX)
 						{
-							result += ToUTF8(static_cast<Character>(code_point));
+							result += ToUTF8(in_core_instance, static_cast<Character>(code_point));
 							i = start + (end - begin) + 1;
 							continue;
 						}
@@ -213,7 +213,7 @@ String StringUtilities::DecodeRml(const String& s)
 						unsigned long code_point = strtoul(begin, &end, 10);
 						if (code_point != 0 && code_point != ULONG_MAX)
 						{
-							result += ToUTF8(static_cast<Character>(code_point));
+							result += ToUTF8(in_core_instance, static_cast<Character>(code_point));
 							i = start + (end - begin) + 1;
 							continue;
 						}
@@ -479,12 +479,12 @@ Character StringUtilities::ToCharacter(const char* p, const char* p_end)
 	return static_cast<Character>(code);
 }
 
-String StringUtilities::ToUTF8(Character character)
+String StringUtilities::ToUTF8(Rml::CoreInstance& in_core_instance, Character character)
 {
-	return ToUTF8(&character, 1);
+	return ToUTF8(in_core_instance, &character, 1);
 }
 
-String StringUtilities::ToUTF8(const Character* characters, int num_characters)
+String StringUtilities::ToUTF8(Rml::CoreInstance& in_core_instance, const Character* characters, int num_characters)
 {
 	String result;
 	result.reserve(num_characters);
@@ -517,7 +517,7 @@ String StringUtilities::ToUTF8(const Character* characters, int num_characters)
 	}
 
 	if (invalid_character)
-		Log::Message(Log::LT_WARNING, "One or more invalid code points encountered while encoding to UTF-8.");
+		Log::Message(in_core_instance, Log::LT_WARNING, "One or more invalid code points encountered while encoding to UTF-8.");
 
 	return result;
 }

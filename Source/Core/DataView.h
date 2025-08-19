@@ -98,6 +98,8 @@ protected:
 	//            data view at the same tree depth, negative numbers are updated first.
 	DataView(Element* element, int sort_offset);
 
+	CoreInstance& core_instance;
+
 private:
 	ObserverPtr<Element> attached_element;
 	int sort_order;

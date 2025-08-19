@@ -421,7 +421,7 @@ bool Factory::InstanceElementText(Element* parent, const String& in_text)
 		const char* error_str = XMLParseTools::ParseDataBrackets(inside_brackets, inside_string, c, previous);
 		if (error_str)
 		{
-			Log::Message(Log::LT_WARNING, "Failed to instance text element '%s'. %s", text.c_str(), error_str);
+			Log::Message(core_instance, Log::LT_WARNING, "Failed to instance text element '%s'. %s", text.c_str(), error_str);
 			return false;
 		}
 
@@ -463,7 +463,7 @@ bool Factory::InstanceElementText(Element* parent, const String& in_text)
 		ElementPtr element = InstanceElement(parent, "#text", "#text", attributes);
 		if (!element)
 		{
-			Log::Message(Log::LT_ERROR, "Failed to instance text element '%s', instancer returned nullptr.", text.c_str());
+			Log::Message(core_instance, Log::LT_ERROR, "Failed to instance text element '%s', instancer returned nullptr.", text.c_str());
 			return false;
 		}
 
@@ -471,13 +471,13 @@ bool Factory::InstanceElementText(Element* parent, const String& in_text)
 		ElementText* text_element = rmlui_dynamic_cast<ElementText*>(element.get());
 		if (!text_element)
 		{
-			Log::Message(Log::LT_ERROR, "Failed to instance text element '%s'. Found type '%s', was expecting a derivative of ElementText.",
+			Log::Message(core_instance, Log::LT_ERROR, "Failed to instance text element '%s'. Found type '%s', was expecting a derivative of ElementText.",
 				text.c_str(), rmlui_type_name(*element));
 			return false;
 		}
 
 		// Unescape any escaped entities or unicode symbols
-		text = StringUtilities::DecodeRml(text);
+		text = StringUtilities::DecodeRml(core_instance, text);
 
 		text_element->SetText(text);
 
@@ -502,14 +502,14 @@ ElementPtr Factory::InstanceDocumentStream(Context* context, Stream* stream, con
 	ElementPtr element = InstanceElement(nullptr, document_base_tag, document_base_tag, XMLAttributes());
 	if (!element)
 	{
-		Log::Message(Log::LT_ERROR, "Failed to instance document, instancer returned nullptr.");
+		Log::Message(core_instance, Log::LT_ERROR, "Failed to instance document, instancer returned nullptr.");
 		return nullptr;
 	}
 
 	ElementDocument* document = rmlui_dynamic_cast<ElementDocument*>(element.get());
 	if (!document)
 	{
-		Log::Message(Log::LT_ERROR, "Failed to instance document element. Found type '%s', was expecting derivative of ElementDocument.",
+		Log::Message(core_instance, Log::LT_ERROR, "Failed to instance document element. Found type '%s', was expecting derivative of ElementDocument.",
 			rmlui_type_name(*element));
 		return nullptr;
 	}
@@ -642,14 +642,14 @@ void Factory::RegisterDataViewInstancer(DataViewInstancer* instancer, const Stri
 	}
 
 	if (!inserted)
-		Log::Message(Log::LT_WARNING, "Could not register data view instancer '%s'. The given name is already registered.", name.c_str());
+		Log::Message(core_instance, Log::LT_WARNING, "Could not register data view instancer '%s'. The given name is already registered.", name.c_str());
 }
 
 void Factory::RegisterDataControllerInstancer(DataControllerInstancer* instancer, const String& name)
 {
 	bool inserted = factory_data->data_controller_instancers.emplace(name, instancer).second;
 	if (!inserted)
-		Log::Message(Log::LT_WARNING, "Could not register data controller instancer '%s'. The given name is already registered.", name.c_str());
+		Log::Message(core_instance, Log::LT_WARNING, "Could not register data controller instancer '%s'. The given name is already registered.", name.c_str());
 }
 
 DataViewPtr Factory::InstanceDataView(const String& type_name, Element* element, bool is_structural_view)

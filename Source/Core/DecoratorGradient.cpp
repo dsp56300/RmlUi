@@ -216,7 +216,7 @@ DecoratorStraightGradientInstancer::DecoratorStraightGradientInstancer(CoreInsta
 	ids.direction = RegisterProperty(in_core_instance, "direction", "horizontal").AddParser("keyword", "horizontal, vertical").GetId();
 	ids.start = RegisterProperty(in_core_instance, "start-color", "#ffffff").AddParser("color").GetId();
 	ids.stop = RegisterProperty(in_core_instance, "stop-color", "#ffffff").AddParser("color").GetId();
-	RegisterShorthand("decorator", "direction, start-color, stop-color", ShorthandType::FallThrough);
+	RegisterShorthand(in_core_instance, "decorator", "direction, start-color, stop-color", ShorthandType::FallThrough);
 }
 
 DecoratorStraightGradientInstancer::~DecoratorStraightGradientInstancer() {}
@@ -235,7 +235,7 @@ SharedPtr<Decorator> DecoratorStraightGradientInstancer::InstanceDecorator(const
 	else
 	{
 		direction = (Direction)properties_.GetProperty(ids.direction)->Get<int>(core_instance);
-		Log::Message(Log::LT_WARNING,
+		Log::Message(core_instance, Log::LT_WARNING,
 			"Decorator syntax 'gradient(horizontal|vertical ...)' is deprecated, please replace with 'horizontal-gradient(...)' or "
 			"'vertical-gradient(...)'");
 	}
@@ -359,8 +359,8 @@ DecoratorLinearGradientInstancer::DecoratorLinearGradientInstancer(CoreInstance&
 	ids.direction_y = RegisterProperty(in_core_instance, "direction-y", "unspecified").AddParser("keyword", "unspecified=0, top=1, bottom=4").GetId();
 	ids.color_stop_list = RegisterProperty(in_core_instance, "color-stops", "").AddParser("color_stop_list").GetId();
 
-	RegisterShorthand("direction", "angle, to, direction-x, direction-y, direction-x", ShorthandType::FallThrough);
-	RegisterShorthand("decorator", "direction?, color-stops#", ShorthandType::RecursiveCommaSeparated);
+	RegisterShorthand(in_core_instance, "direction", "angle, to, direction-x, direction-y, direction-x", ShorthandType::FallThrough);
+	RegisterShorthand(in_core_instance, "decorator", "direction?, color-stops#", ShorthandType::RecursiveCommaSeparated);
 }
 
 DecoratorLinearGradientInstancer::~DecoratorLinearGradientInstancer() {}
@@ -561,9 +561,9 @@ DecoratorRadialGradientInstancer::DecoratorRadialGradientInstancer(CoreInstance&
 
 	ids.color_stop_list = RegisterProperty(in_core_instance, "color-stops", "").AddParser("color_stop_list").GetId();
 
-	RegisterShorthand("shape", "ending-shape, size-x, size-y, at, position-x, position-y, position-x", ShorthandType::FallThrough);
+	RegisterShorthand(in_core_instance, "shape", "ending-shape, size-x, size-y, at, position-x, position-y, position-x", ShorthandType::FallThrough);
 
-	RegisterShorthand("decorator", "shape?, color-stops#", ShorthandType::RecursiveCommaSeparated);
+	RegisterShorthand(in_core_instance, "decorator", "shape?, color-stops#", ShorthandType::RecursiveCommaSeparated);
 }
 
 DecoratorRadialGradientInstancer::~DecoratorRadialGradientInstancer() {}
@@ -697,8 +697,8 @@ DecoratorConicGradientInstancer::DecoratorConicGradientInstancer(CoreInstance& i
 
 	ids.color_stop_list = RegisterProperty(in_core_instance, "color-stops", "").AddParser("color_stop_list", "angle").GetId();
 
-	RegisterShorthand("shape", "from, angle, at, position-x, position-y, position-x", ShorthandType::FallThrough);
-	RegisterShorthand("decorator", "shape?, color-stops#", ShorthandType::RecursiveCommaSeparated);
+	RegisterShorthand(in_core_instance, "shape", "from, angle, at, position-x, position-y, position-x", ShorthandType::FallThrough);
+	RegisterShorthand(in_core_instance, "decorator", "shape?, color-stops#", ShorthandType::RecursiveCommaSeparated);
 }
 
 DecoratorConicGradientInstancer::~DecoratorConicGradientInstancer() {}

@@ -143,7 +143,7 @@ void ElementEffects::InstanceEffects()
 				else
 				{
 					const auto& source = property->source;
-					Log::Message(Log::LT_WARNING, "Filter '%s' in '%s' could not be instanced, declared at %s:%d", declaration.type.c_str(),
+					Log::Message(element->GetCoreInstance(), Log::LT_WARNING, "Filter '%s' in '%s' could not be instanced, declared at %s:%d", declaration.type.c_str(),
 						filters_ptr->value.c_str(), source ? source->path.c_str() : "", source ? source->line_number : -1);
 				}
 			}
@@ -172,7 +172,7 @@ void ElementEffects::ReloadEffectsData()
 		}
 
 		if (decorator_data_failed)
-			Log::Message(Log::LT_WARNING, "Could not generate decorator element data: %s", element->GetAddress().c_str());
+			Log::Message(element->GetCoreInstance(), Log::LT_WARNING, "Could not generate decorator element data: %s", element->GetAddress().c_str());
 
 		bool filter_compile_failed = false;
 		for (FilterEntryList* list : {&filters, &backdrop_filters})
@@ -186,7 +186,7 @@ void ElementEffects::ReloadEffectsData()
 		}
 
 		if (filter_compile_failed)
-			Log::Message(Log::LT_WARNING, "Could not compile filter on element: %s", element->GetAddress().c_str());
+			Log::Message(element->GetCoreInstance(), Log::LT_WARNING, "Could not compile filter on element: %s", element->GetAddress().c_str());
 	}
 }
 

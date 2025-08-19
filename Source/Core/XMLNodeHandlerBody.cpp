@@ -52,7 +52,7 @@ Element* XMLNodeHandlerBody::ElementStart(XMLParser* parser, const String& /*nam
 			Variant* attribute = document->GetAttribute(pair.first);
 			if (attribute && *attribute != pair.second && pair.first != "template")
 			{
-				Log::Message(Log::LT_WARNING, "Overriding attribute '%s' in element %s during template injection.", pair.first.c_str(),
+				Log::Message(parser->GetCoreInstance(), Log::LT_WARNING, "Overriding attribute '%s' in element %s during template injection.", pair.first.c_str(),
 					element->GetAddress().c_str());
 			}
 		}

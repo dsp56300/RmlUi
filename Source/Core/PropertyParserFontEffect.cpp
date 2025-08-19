@@ -78,7 +78,7 @@ bool PropertyParserFontEffect::ParseValue(Property& property, const String& font
 		if (invalid_parenthesis)
 		{
 			// We found no parenthesis, font-effects can only be declared anonymously for now.
-			Log::Message(Log::LT_WARNING, "Invalid syntax for font-effect '%s'.", font_effect_string.c_str());
+			Log::Message(core_instance, Log::LT_WARNING, "Invalid syntax for font-effect '%s'.", font_effect_string.c_str());
 			return false;
 		}
 		else
@@ -90,7 +90,7 @@ bool PropertyParserFontEffect::ParseValue(Property& property, const String& font
 			FontEffectInstancer* instancer = core_instance.factory->GetFontEffectInstancer(type);
 			if (!instancer)
 			{
-				Log::Message(Log::LT_WARNING, "Font-effect type '%s' not found.", type.c_str());
+				Log::Message(core_instance, Log::LT_WARNING, "Font-effect type '%s' not found.", type.c_str());
 				return false;
 			}
 
@@ -104,7 +104,7 @@ bool PropertyParserFontEffect::ParseValue(Property& property, const String& font
 				// Empty values are allowed in font-effects, if the value is not empty we must have encountered a parser error.
 				if (!StringUtilities::StripWhitespace(shorthand).empty())
 				{
-					Log::Message(Log::LT_WARNING, "Could not parse font-effect value '%s'.", font_effect_string.c_str());
+					Log::Message(core_instance, Log::LT_WARNING, "Could not parse font-effect value '%s'.", font_effect_string.c_str());
 					return false;
 				}
 			}
@@ -127,7 +127,7 @@ bool PropertyParserFontEffect::ParseValue(Property& property, const String& font
 			}
 			else
 			{
-				Log::Message(Log::LT_WARNING, "Font-effect '%s' could not be instanced.", font_effect_string.c_str());
+				Log::Message(core_instance, Log::LT_WARNING, "Font-effect '%s' could not be instanced.", font_effect_string.c_str());
 				return false;
 			}
 		}

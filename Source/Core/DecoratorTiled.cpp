@@ -273,10 +273,10 @@ void DecoratorTiledInstancer::RegisterTileProperty(CoreInstance& in_core_instanc
 						  .AddParser("keyword", "none, flip-horizontal, flip-vertical, rotate-180")
 						  .GetId();
 
-	RegisterShorthand(name,
-		CreateString(("%s-src, %s-orientation" + additional_modes).c_str(), name.c_str(), name.c_str(), name.c_str(), name.c_str(), name.c_str(),
-			name.c_str()),
-		ShorthandType::FallThrough);
+	RegisterShorthand(in_core_instance,
+	                  name,
+	                  CreateString(("%s-src, %s-orientation" + additional_modes).c_str(), name.c_str(), name.c_str(), name.c_str(), name.c_str(), name.c_str(),
+	                               name.c_str()), ShorthandType::FallThrough);
 
 	tile_property_ids.push_back(ids);
 }
@@ -352,7 +352,7 @@ bool DecoratorTiledInstancer::GetTileProperties(DecoratorTiled::Tile* tiles, Tex
 				(tile.fit_mode == DecoratorTiled::TileFitMode::REPEAT || tile.fit_mode == DecoratorTiled::TileFitMode::REPEAT_X ||
 					tile.fit_mode == DecoratorTiled::TileFitMode::REPEAT_Y))
 			{
-				Log::Message(Log::LT_WARNING, "Decorator 'fit' value is '%s', which is incompatible with sprites", fit_property.ToString(coreInstance).c_str());
+				Log::Message(coreInstance, Log::LT_WARNING, "Decorator 'fit' value is '%s', which is incompatible with sprites", fit_property.ToString(coreInstance).c_str());
 				return false;
 			}
 
@@ -384,7 +384,7 @@ bool DecoratorTiledInstancer::GetTileProperties(DecoratorTiled::Tile* tiles, Tex
 				}
 				else
 				{
-					Log::Message(Log::LT_WARNING, "Decorator alignment value is '%s' which uses an unsupported unit (use px, %%, or keyword)",
+					Log::Message(coreInstance, Log::LT_WARNING, "Decorator alignment value is '%s' which uses an unsupported unit (use px, %%, or keyword)",
 						property.ToString(coreInstance).c_str());
 				}
 			}

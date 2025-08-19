@@ -39,7 +39,7 @@ class RenderInterface;
 
 class CallbackTextureDatabase : NonCopyMoveable {
 public:
-	CallbackTextureDatabase();
+	CallbackTextureDatabase(CoreInstance& in_core_instance);
 	~CallbackTextureDatabase();
 
 	StableVectorIndex CreateTexture(CallbackTextureFunction&& callback);
@@ -61,12 +61,13 @@ private:
 
 	CallbackTextureEntry& EnsureLoaded(RenderManager* render_manager, RenderInterface* render_interface, StableVectorIndex callback_index);
 
+	CoreInstance& core_instance;
 	StableVector<CallbackTextureEntry> texture_list;
 };
 
 class FileTextureDatabase : NonCopyMoveable {
 public:
-	FileTextureDatabase();
+	FileTextureDatabase(CoreInstance& in_core_instance);
 	~FileTextureDatabase();
 
 	TextureFileIndex InsertTexture(const String& source);
@@ -89,6 +90,7 @@ private:
 	FileTextureEntry LoadTextureEntry(RenderInterface* render_interface, const String& source);
 	FileTextureEntry& EnsureLoaded(RenderInterface* render_interface, TextureFileIndex index);
 
+	CoreInstance& core_instance;
 	Vector<FileTextureEntry> texture_list;
 	UnorderedMap<String, TextureFileIndex> texture_map; // key: source, value: index into 'texture_list'
 };
@@ -97,6 +99,8 @@ class TextureDatabase {
 public:
 	FileTextureDatabase file_database;
 	CallbackTextureDatabase callback_database;
+
+	TextureDatabase(CoreInstance& in_core_instance) : file_database(in_core_instance), callback_database(in_core_instance) {}
 };
 
 } // namespace Rml

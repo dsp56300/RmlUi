@@ -43,6 +43,7 @@ namespace Rml {
 
 class FileInterfaceDefault : public FileInterface {
 public:
+	FileInterfaceDefault(CoreInstance& in_core_instance);
 	virtual ~FileInterfaceDefault();
 
 	/// Opens a file.
