@@ -37,15 +37,15 @@ namespace Rml {
 namespace FreeType {
 
 	// Initialize FreeType library.
-	bool Initialise();
+	bool Initialise(CoreInstance& core_instance);
 	// Shutdown FreeType library.
-	void Shutdown();
+	void Shutdown(CoreInstance& core_instance);
 
 	// Returns a sorted list of available font variations for the font face located in memory.
-	bool GetFaceVariations(Span<const byte> data, Vector<FaceVariation>& out_face_variations, int face_index);
+	bool GetFaceVariations(CoreInstance& core_instance, Span<const byte> data, Vector<FaceVariation>& out_face_variations, int face_index);
 
 	// Loads a FreeType face from memory, 'source' is only used for logging.
-	FontFaceHandleFreetype LoadFace(Span<const byte> data, const String& source, int face_index, int named_instance_index = 0);
+	FontFaceHandleFreetype LoadFace(CoreInstance& core_instance, Span<const byte> data, const String& source, int face_index, int named_instance_index = 0);
 
 	// Releases the FreeType face.
 	bool ReleaseFace(FontFaceHandleFreetype face);

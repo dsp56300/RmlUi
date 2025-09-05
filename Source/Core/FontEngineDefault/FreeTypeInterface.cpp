@@ -34,13 +34,14 @@
 #include <ft2build.h>
 #include <limits.h>
 #include <string.h>
+
+#include "RmlUi/Core/CoreInstance.h"
+
 #include FT_FREETYPE_H
 #include FT_MULTIPLE_MASTERS_H
 #include FT_TRUETYPE_TABLES_H
 
 namespace Rml {
-
-static FT_Library ft_library = nullptr;
 
 static bool BuildGlyph(FT_Face ft_face, Character character, FontGlyphMap& glyphs, float bitmap_scaling_factor);
 static void BuildGlyphMap(FT_Face ft_face, int size, FontGlyphMap& glyphs, float bitmap_scaling_factor, bool load_default_glyphs);
@@ -54,36 +55,36 @@ static int ConvertFixed16_16ToInt(int32_t fx)
 	return fx / 0x10000;
 }
 
-bool FreeType::Initialise()
+bool FreeType::Initialise(CoreInstance& core_instance)
 {
-	RMLUI_ASSERT(!ft_library);
+	RMLUI_ASSERT(!core_instance.ft_library);
 
-	FT_Error result = FT_Init_FreeType(&ft_library);
+	FT_Error result = FT_Init_FreeType(&core_instance.ft_library);
 	if (result != 0)
 	{
 		Log::Message(Log::LT_ERROR, "Failed to initialise FreeType, error %d.", result);
-		Shutdown();
+		FreeType::Shutdown(core_instance);
 		return false;
 	}
 
 	return true;
 }
 
-void FreeType::Shutdown()
+void FreeType::Shutdown(CoreInstance& core_instance)
 {
-	if (ft_library != nullptr)
+	if (core_instance.ft_library != nullptr)
 	{
-		FT_Done_FreeType(ft_library);
-		ft_library = nullptr;
+		FT_Done_FreeType(core_instance.ft_library);
+		core_instance.ft_library = nullptr;
 	}
 }
 
-bool FreeType::GetFaceVariations(Span<const byte> data, Vector<FaceVariation>& out_face_variations, int face_index)
+bool FreeType::GetFaceVariations(CoreInstance& core_instance, Span<const byte> data, Vector<FaceVariation>& out_face_variations, int face_index)
 {
-	RMLUI_ASSERT(ft_library);
+	RMLUI_ASSERT(core_instance.ft_library);
 
 	FT_Face face = nullptr;
-	FT_Error error = FT_New_Memory_Face(ft_library, static_cast<const FT_Byte*>(data.data()), static_cast<FT_Long>(data.size()), face_index, &face);
+	FT_Error error = FT_New_Memory_Face(core_instance.ft_library, static_cast<const FT_Byte*>(data.data()), static_cast<FT_Long>(data.size()), face_index, &face);
 	if (error)
 		return false;
 
@@ -125,7 +126,7 @@ bool FreeType::GetFaceVariations(Span<const byte> data, Vector<FaceVariation>& o
 	std::sort(out_face_variations.begin(), out_face_variations.end());
 
 #if FREETYPE_MAJOR >= 2 && FREETYPE_MINOR >= 9
-	FT_Done_MM_Var(ft_library, var);
+	FT_Done_MM_Var(core_instance.ft_library, var);
 #endif
 
 	FT_Done_Face(face);
@@ -133,13 +134,13 @@ bool FreeType::GetFaceVariations(Span<const byte> data, Vector<FaceVariation>& o
 	return true;
 }
 
-FontFaceHandleFreetype FreeType::LoadFace(Span<const byte> data, const String& source, int face_index, int named_style_index)
+FontFaceHandleFreetype FreeType::LoadFace(CoreInstance& core_instance, Span<const byte> data, const String& source, int face_index, int named_style_index)
 {
-	RMLUI_ASSERT(ft_library);
+	RMLUI_ASSERT(core_instance.ft_library);
 
 	FT_Face face = nullptr;
 	FT_Error error =
-		FT_New_Memory_Face(ft_library, static_cast<const FT_Byte*>(data.data()), static_cast<FT_Long>(data.size()), (named_style_index << 16) | face_index, &face);
+		FT_New_Memory_Face(core_instance.ft_library, static_cast<const FT_Byte*>(data.data()), static_cast<FT_Long>(data.size()), (named_style_index << 16) | face_index, &face);
 
 	if (error)
 	{

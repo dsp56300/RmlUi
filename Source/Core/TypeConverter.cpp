@@ -167,13 +167,13 @@ bool TypeConverter<AnimationList, String>::Convert(CoreInstance& core_instance, 
 }
 
 template <typename EffectDeclaration>
-void AppendPaintArea(const EffectDeclaration& /*declaration*/, String& /*dest*/)
+void AppendPaintArea(CoreInstance& /*core_instance*/, const EffectDeclaration& /*declaration*/, String& /*dest*/)
 {}
 template <>
-void AppendPaintArea(const DecoratorDeclaration& declaration, String& dest)
+void AppendPaintArea(CoreInstance& core_instance, const DecoratorDeclaration& declaration, String& dest)
 {
 	if (declaration.paint_area >= BoxArea::Border && declaration.paint_area <= BoxArea::Padding)
-		dest += " " + PropertyParserDecorator::ConvertAreaToString(declaration.paint_area);
+		dest += " " + PropertyParserDecorator::ConvertAreaToString(core_instance, declaration.paint_area);
 }
 
 template <typename EffectsPtr>
@@ -192,7 +192,7 @@ static bool ConvertEffectToString(CoreInstance& in_core_instance, const EffectsP
 			if (auto* instancer = declaration.instancer)
 				dest += '(' + instancer->GetPropertySpecification().PropertiesToString(in_core_instance, declaration.properties, false, ' ') + ')';
 
-			AppendPaintArea(declaration, dest);
+			AppendPaintArea(in_core_instance, declaration, dest);
 			if (&declaration != &src->list.back())
 				dest += separator;
 		}
@@ -301,9 +301,9 @@ bool TypeConverter<Colourb, String>::Convert(CoreInstance&, const Colourb& src, 
 		return FormatString(dest, "#%02hhx%02hhx%02hhx%02hhx", src.red, src.green, src.blue, src.alpha) > 0;
 }
 
-bool TypeConverter<String, Colourb>::Convert(CoreInstance&, const String& src, Colourb& dest)
+bool TypeConverter<String, Colourb>::Convert(CoreInstance& core_instance, const String& src, Colourb& dest)
 {
-	return PropertyParserColour::ParseColour(dest, src);
+	return PropertyParserColour::ParseColour(core_instance, dest, src);
 }
 
 } // namespace Rml

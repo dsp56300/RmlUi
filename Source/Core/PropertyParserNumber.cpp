@@ -29,6 +29,8 @@
 #include "PropertyParserNumber.h"
 #include <stdlib.h>
 
+#include "RmlUi/Core/CoreInstance.h"
+
 namespace Rml {
 
 struct PropertyParserNumberData {
@@ -52,16 +54,14 @@ struct PropertyParserNumberData {
 	};
 };
 
-ControlledLifetimeResource<PropertyParserNumberData> PropertyParserNumber::parser_data;
-
-void PropertyParserNumber::Initialize()
+void PropertyParserNumber::Initialize(CoreInstance& core_instance)
 {
-	parser_data.Initialize();
+	core_instance.parser_number_data.Initialize();
 }
 
-void PropertyParserNumber::Shutdown()
+void PropertyParserNumber::Shutdown(CoreInstance& core_instance)
 {
-	parser_data.Shutdown();
+	core_instance.parser_number_data.Shutdown();
 }
 
 PropertyParserNumber::PropertyParserNumber(CoreInstance& core_instance, Units units, Unit zero_unit) : PropertyParser(core_instance), units(units), zero_unit(zero_unit) {}
@@ -93,8 +93,8 @@ bool PropertyParserNumber::ParseValue(Property& property, const String& value, c
 		return false;
 	}
 
-	const auto it = parser_data->unit_string_map.find(str_unit);
-	if (it == parser_data->unit_string_map.end())
+	const auto it = core_instance.parser_number_data->unit_string_map.find(str_unit);
+	if (it == core_instance.parser_number_data->unit_string_map.end())
 	{
 		// Invalid unit name
 		return false;

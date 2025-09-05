@@ -30,7 +30,6 @@
 #define RMLUI_CORE_PROPERTYPARSERDECORATOR_H
 
 #include "../../Include/RmlUi/Core/PropertyParser.h"
-#include "ControlledLifetimeResource.h"
 
 namespace Rml {
 
@@ -46,13 +45,10 @@ public:
 	/// Called to parse a decorator declaration.
 	bool ParseValue(Property& property, const String& value, const ParameterMap& parameters) const override;
 
-	static String ConvertAreaToString(BoxArea area);
+	static String ConvertAreaToString(CoreInstance& core_instance, BoxArea area);
 
-	static void Initialize();
-	static void Shutdown();
-
-private:
-	static ControlledLifetimeResource<struct PropertyParserDecoratorData> parser_data;
+	static void Initialize(CoreInstance& core_instance);
+	static void Shutdown(CoreInstance& core_instance);
 };
 
 } // namespace Rml

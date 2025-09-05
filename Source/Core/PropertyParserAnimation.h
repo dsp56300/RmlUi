@@ -52,14 +52,12 @@ public:
 	/// @return True if the value was validated successfully, false otherwise.
 	bool ParseValue(Property& property, const String& value, const ParameterMap& parameters) const override;
 
-	static void Initialize();
-	static void Shutdown();
+	static void Initialize(CoreInstance& core_instance);
+	static void Shutdown(CoreInstance& core_instance);
 
 private:
-	static bool ParseAnimation(Property& property, const StringList& animation_values);
-	static bool ParseTransition(CoreInstance& in_core_instance, Property& property, const StringList& transition_values);
-
-	static ControlledLifetimeResource<struct PropertyParserAnimationData> parser_data;
+	bool ParseAnimation(Property& property, const StringList& animation_values) const;
+	bool ParseTransition(CoreInstance& in_core_instance, Property& property, const StringList& transition_values) const;
 };
 
 } // namespace Rml

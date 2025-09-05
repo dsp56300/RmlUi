@@ -44,15 +44,13 @@ struct PropertyParserDecoratorData {
 	};
 };
 
-ControlledLifetimeResource<PropertyParserDecoratorData> PropertyParserDecorator::parser_data;
-
-void PropertyParserDecorator::Initialize()
+void PropertyParserDecorator::Initialize(CoreInstance& core_instance)
 {
-	parser_data.Initialize();
+	core_instance.parser_decorator_data.Initialize();
 }
-void PropertyParserDecorator::Shutdown()
+void PropertyParserDecorator::Shutdown(CoreInstance& core_instance)
 {
-	parser_data.Shutdown();
+	core_instance.parser_decorator_data.Shutdown();
 }
 
 PropertyParserDecorator::PropertyParserDecorator(CoreInstance& core_instance) : PropertyParser(core_instance) {}
@@ -108,8 +106,8 @@ bool PropertyParserDecorator::ParseValue(Property& property, const String& decor
 				if (keyword.empty())
 					continue;
 
-				auto it = parser_data->area_keywords.find(StringUtilities::ToLower(keyword));
-				if (it == parser_data->area_keywords.end())
+				auto it = core_instance.parser_decorator_data->area_keywords.find(StringUtilities::ToLower(keyword));
+				if (it == core_instance.parser_decorator_data->area_keywords.end())
 					return false; // Bail out if we have an invalid keyword.
 
 				paint_area = it->second;
@@ -162,9 +160,9 @@ bool PropertyParserDecorator::ParseValue(Property& property, const String& decor
 	return true;
 }
 
-String PropertyParserDecorator::ConvertAreaToString(BoxArea area)
+String PropertyParserDecorator::ConvertAreaToString(CoreInstance& core_instance, BoxArea area)
 {
-	for (const auto& it : parser_data->area_keywords)
+	for (const auto& it : core_instance.parser_decorator_data->area_keywords)
 	{
 		if (it.second == area)
 			return it.first;

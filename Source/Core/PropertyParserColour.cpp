@@ -32,6 +32,8 @@
 #include <cmath>
 #include <string.h>
 
+#include "RmlUi/Core/CoreInstance.h"
+
 namespace Rml {
 
 // Helper function for hsl->rgb conversion.
@@ -86,15 +88,13 @@ struct PropertyParserColourData {
 	};
 };
 
-ControlledLifetimeResource<PropertyParserColourData> PropertyParserColour::parser_data;
-
-void PropertyParserColour::Initialize()
+void PropertyParserColour::Initialize(CoreInstance& core_instance)
 {
-	parser_data.Initialize();
+	core_instance.parser_color_data.Initialize();
 }
-void PropertyParserColour::Shutdown()
+void PropertyParserColour::Shutdown(CoreInstance& core_instance)
 {
-	parser_data.Shutdown();
+	core_instance.parser_color_data.Shutdown();
 }
 
 PropertyParserColour::PropertyParserColour(CoreInstance& core_instance) : PropertyParser(core_instance) {}
@@ -104,7 +104,7 @@ PropertyParserColour::~PropertyParserColour() {}
 bool PropertyParserColour::ParseValue(Property& property, const String& value, const ParameterMap& /*parameters*/) const
 {
 	Colourb colour;
-	if (!ParseColour(colour, value))
+	if (!ParseColour(core_instance, colour, value))
 		return false;
 
 	property.value = Variant(colour);
@@ -113,7 +113,7 @@ bool PropertyParserColour::ParseValue(Property& property, const String& value, c
 	return true;
 }
 
-bool PropertyParserColour::ParseColour(Colourb& colour, const String& value)
+bool PropertyParserColour::ParseColour(CoreInstance& core_instance, Colourb& colour, const String& value)
 {
 	if (value.empty())
 		return false;
@@ -242,8 +242,8 @@ bool PropertyParserColour::ParseColour(Colourb& colour, const String& value)
 	else
 	{
 		// Check for the specification of an HTML colour.
-		auto it = parser_data->html_colours.find(StringUtilities::ToLower(value));
-		if (it == parser_data->html_colours.end())
+		auto it = core_instance.parser_color_data->html_colours.find(StringUtilities::ToLower(value));
+		if (it == core_instance.parser_color_data->html_colours.end())
 			return false;
 		else
 			colour = it->second;

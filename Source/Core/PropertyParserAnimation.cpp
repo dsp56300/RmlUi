@@ -106,16 +106,14 @@ struct PropertyParserAnimationData {
 	};
 };
 
-ControlledLifetimeResource<PropertyParserAnimationData> PropertyParserAnimation::parser_data;
-
-void PropertyParserAnimation::Initialize()
+void PropertyParserAnimation::Initialize(CoreInstance& core_instance)
 {
-	parser_data.Initialize();
+	core_instance.parser_animation_data.Initialize();
 }
 
-void PropertyParserAnimation::Shutdown()
+void PropertyParserAnimation::Shutdown(CoreInstance& core_instance)
 {
-	parser_data.Shutdown();
+	core_instance.parser_animation_data.Shutdown();
 }
 
 PropertyParserAnimation::PropertyParserAnimation(CoreInstance& core_instance, Type type) : PropertyParser(core_instance), type(type) {}
@@ -142,7 +140,7 @@ bool PropertyParserAnimation::ParseValue(Property& property, const String& value
 	return result;
 }
 
-bool PropertyParserAnimation::ParseAnimation(Property& property, const StringList& animation_values)
+bool PropertyParserAnimation::ParseAnimation(Property& property, const StringList& animation_values) const
 {
 	AnimationList animation_list;
 
@@ -163,8 +161,8 @@ bool PropertyParserAnimation::ParseAnimation(Property& property, const StringLis
 				continue;
 
 			// See if we have a <keyword> or <tween> specifier as defined in keywords
-			auto it = parser_data->keywords.find(argument);
-			if (it != parser_data->keywords.end() && it->second.ValidAnimation())
+			auto it = core_instance.parser_animation_data->keywords.find(argument);
+			if (it != core_instance.parser_animation_data->keywords.end() && it->second.ValidAnimation())
 			{
 				switch (it->second.type)
 				{
@@ -248,7 +246,7 @@ bool PropertyParserAnimation::ParseAnimation(Property& property, const StringLis
 	return true;
 }
 
-bool PropertyParserAnimation::ParseTransition(CoreInstance& in_core_instance, Property& property, const StringList& transition_values)
+bool PropertyParserAnimation::ParseTransition(CoreInstance& in_core_instance, Property& property, const StringList& transition_values) const
 {
 	TransitionList transition_list{false, false, {}};
 
@@ -270,8 +268,8 @@ bool PropertyParserAnimation::ParseTransition(CoreInstance& in_core_instance, Pr
 				continue;
 
 			// See if we have a <keyword> or <tween> specifier as defined in keywords
-			auto it = parser_data->keywords.find(argument);
-			if (it != parser_data->keywords.end() && it->second.ValidTransition())
+			auto it = core_instance.parser_animation_data->keywords.find(argument);
+			if (it != core_instance.parser_animation_data->keywords.end() && it->second.ValidTransition())
 			{
 				if (it->second.type == KeywordType::None)
 				{

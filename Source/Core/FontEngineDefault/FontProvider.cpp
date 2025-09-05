@@ -56,7 +56,7 @@ bool FontProvider::Initialise(CoreInstance& in_core_instance)
 {
 	RMLUI_ASSERT(!in_core_instance.font_provider);
 	// [DSP56300] TODO: Initialize FreeType only if it has not been initialized yet or move to core instance
-	if (!FreeType::Initialise())
+	if (!FreeType::Initialise(in_core_instance))
 		return false;
 	in_core_instance.font_provider = new FontProvider(in_core_instance);
 	return true;
@@ -67,7 +67,7 @@ void FontProvider::Shutdown(CoreInstance& in_core_instance)
 	RMLUI_ASSERT(in_core_instance.font_provider);
 	delete in_core_instance.font_provider;
 	in_core_instance.font_provider = nullptr;
-	FreeType::Shutdown();
+	FreeType::Shutdown(in_core_instance);
 }
 
 FontFaceHandleDefault* FontProvider::GetFontFaceHandle(const String& family, Style::FontStyle style, Style::FontWeight weight, int size)
@@ -143,7 +143,7 @@ bool FontProvider::LoadFontFace(Span<const byte> data, int face_index, bool fall
 	using Style::FontWeight;
 
 	Vector<FaceVariation> face_variations;
-	if (!FreeType::GetFaceVariations(data, face_variations, face_index))
+	if (!FreeType::GetFaceVariations(core_instance, data, face_variations, face_index))
 	{
 		Log::Message(core_instance, Log::LT_ERROR, "Failed to load font face from '%s': Invalid or unsupported font face file format.", source.c_str());
 		return false;
@@ -199,7 +199,7 @@ bool FontProvider::LoadFontFace(Span<const byte> data, int face_index, bool fall
 
 	for (const FaceVariation& variation : load_variations)
 	{
-		FontFaceHandleFreetype ft_face = FreeType::LoadFace(data, source, face_index, variation.named_instance_index);
+		FontFaceHandleFreetype ft_face = FreeType::LoadFace(core_instance, data, source, face_index, variation.named_instance_index);
 		if (!ft_face)
 			return false;
 

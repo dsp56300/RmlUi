@@ -122,10 +122,10 @@ void StyleSheetSpecification::Initialise(CoreInstance& core_instance)
 {
 	RMLUI_ASSERT(!core_instance.styleSheetSpecification);
 
-	PropertyParserAnimation::Initialize();
-	PropertyParserColour::Initialize();
-	PropertyParserDecorator::Initialize();
-	PropertyParserNumber::Initialize();
+	PropertyParserAnimation::Initialize(core_instance);
+	PropertyParserColour::Initialize(core_instance);
+	PropertyParserDecorator::Initialize(core_instance);
+	PropertyParserNumber::Initialize(core_instance);
 
 	new StyleSheetSpecification(core_instance);
 
@@ -140,10 +140,10 @@ void StyleSheetSpecification::Shutdown(CoreInstance& core_instance)
 	delete core_instance.styleSheetSpecification;
 	core_instance.styleSheetSpecification = nullptr;
 
-	PropertyParserAnimation::Shutdown();
-	PropertyParserColour::Shutdown();
-	PropertyParserDecorator::Shutdown();
-	PropertyParserNumber::Shutdown();
+	PropertyParserAnimation::Shutdown(core_instance);
+	PropertyParserColour::Shutdown(core_instance);
+	PropertyParserDecorator::Shutdown(core_instance);
+	PropertyParserNumber::Shutdown(core_instance);
 }
 
 bool StyleSheetSpecification::RegisterParser(const String& parser_name, PropertyParser* parser)

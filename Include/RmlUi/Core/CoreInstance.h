@@ -11,8 +11,18 @@ font manager, rml plugins, file interface, etc.
 
 #include "Core/ControlledLifetimeResource.h"
 
+extern "C"
+{
+	struct FT_LibraryRec_;
+	typedef FT_LibraryRec_* FT_Library;
+}
+
 namespace Rml
 {
+	struct PropertyParserNumberData;
+	struct PropertyParserDecoratorData;
+	struct PropertyParserColourData;
+	struct PropertyParserAnimationData;
 	class Factory;
 	struct ObserverPtrData;
 	struct EventSpecificationData;
@@ -78,7 +88,17 @@ namespace Rml
 
 		ControlledLifetimeResource<EventSpecificationData> event_specification_data;
 
+		ControlledLifetimeResource<PropertyParserAnimationData> parser_animation_data;
+
+		ControlledLifetimeResource<PropertyParserColourData> parser_color_data;
+
+		ControlledLifetimeResource<PropertyParserDecoratorData> parser_decorator_data;
+
+		ControlledLifetimeResource<PropertyParserNumberData> parser_number_data;
+
 		Factory* factory;
+
+		FT_Library ft_library = nullptr;
 
 		bool initialised = false;
 	};

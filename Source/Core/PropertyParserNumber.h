@@ -52,12 +52,10 @@ public:
 	/// @return True if the value was validated successfully, false otherwise.
 	bool ParseValue(Property& property, const String& value, const ParameterMap& parameters) const override;
 
-	static void Initialize();
-	static void Shutdown();
+	static void Initialize(CoreInstance& core_instance);
+	static void Shutdown(CoreInstance& core_instance);
 
 private:
-	static ControlledLifetimeResource<struct PropertyParserNumberData> parser_data;
-
 	// Stores a bit mask of allowed units.
 	Units units;
 
