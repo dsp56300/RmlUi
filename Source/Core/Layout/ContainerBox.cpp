@@ -154,7 +154,7 @@ bool ContainerBox::CatchOverflow(const Vector2f content_overflow_size, const Box
 	if (available_space.y < 0.f)
 		available_space.y = max_height;
 	if (available_space.y < 0.f)
-		available_space.y = HUGE_VALF;
+		available_space.y = std::numeric_limits<float>::max();
 
 	RMLUI_ASSERT(available_space.x >= 0.f && available_space.y >= 0.f);
 
