@@ -62,7 +62,7 @@ void Shutdown()
 	DebuggerPlugin* plugin = DebuggerPlugin::GetInstance();
 	if (!plugin)
 	{
-		Log::Message(plugin->GetDebugContext()->GetCoreInstance(), Log::LT_WARNING, "Unable to shutdown debugger plugin, it was not initialised!");
+		Log::Message(Log::LT_WARNING, "Unable to shutdown debugger plugin, it was not initialised!");
 		return;
 	}
 
