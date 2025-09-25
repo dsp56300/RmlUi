@@ -31,10 +31,10 @@ body
 {
 	font-family: rmlui-debugger-font;
 	z-index: 1000000;
-	font-size: 13dp;
+	font-size: 20dp;
 	line-height: 1.4;
 	color: black;
-	padding-top: 30dp;
+	padding-top: 2.3em;
 }
 div, h1, h2, h3, h4, p
 {
@@ -50,11 +50,11 @@ h1
 	top: 0;
 	right: 0;
 	left: 0;
-	height: 22dp;
+	height: 1.69em;
 	padding: 4dp 5dp;
 	color: white;
 	background-color: #888;
-	font-size: 15dp;
+	font-size: 1.15em;
 }
 h2
 {
@@ -86,10 +86,10 @@ h1 .button
 }
 div#close_button
 {
-	margin-left: 10dp;
+	margin-left: 0.92em;
 	z-index: 1;
 	float: right;
-	width: 18dp;
+	width: 1.38em;
 	color: black;
 	background-color: #ddd;
 	border-width: 1dp;
@@ -141,13 +141,13 @@ div#content
 }
 scrollbarvertical
 {
-	width: 16dp;
-	scrollbar-margin: 16dp;
+	width: 1.23em;
+	scrollbar-margin: 1.23em;
 }
 scrollbarhorizontal
 {
-	height: 16dp;
-	scrollbar-margin: 16dp;
+	height: 1.23em;
+	scrollbar-margin: 1.23em;
 }
 scrollbarvertical slidertrack,
 scrollbarhorizontal slidertrack
@@ -161,7 +161,7 @@ scrollbarvertical slidertrack
 }
 scrollbarhorizontal slidertrack
 {
-	height: 15dp;
+	height: 1.15em;
 	border-top-width: 1dp;
 }
 scrollbarvertical sliderbar,
@@ -177,7 +177,7 @@ scrollbarvertical sliderbar
 }
 scrollbarhorizontal sliderbar
 {
-	height: 15dp;
+	height: 1.15em;
 	border-width: 0 1dp;
 	margin-top: 1dp;
 }
@@ -188,8 +188,8 @@ scrollbarcorner
 handle#size_handle
 {
 	position: absolute;
-	width: 16dp;
-	height: 16dp;
+	width: 1.23em;
+	height: 1.23em;
 	bottom: 0dp;
 	right: 2dp;
 	background-color: #888;

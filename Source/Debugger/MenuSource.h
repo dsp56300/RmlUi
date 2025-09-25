@@ -30,12 +30,12 @@ static const char* menu_rcss = R"RCSS(
 body
 {
 	width: 100%;
-	height: 32dp;
+	height: 2.46em;
 	position: absolute;
 	z-index: 1000000;
 	background: #888;
 	font-family: rmlui-debugger-font;
-	font-size: 14dp;
+	font-size: 1.07em;
 	color: black;
 }
 div
@@ -53,8 +53,8 @@ button
 	background: #ddd;
 	margin-left: 6dp;
 	display: inline-block;
-	width: 130dp;
-	line-height: 24dp;
+	width: 10em;
+	line-height: 1.85em;
 	text-align: center;
 }
 button:hover
@@ -69,16 +69,16 @@ div#version-info
 {
 	padding: 0px;
 	margin-top: 0px;
-	font-size: 20dp;
+	font-size: 1.53em;
 	float: right;
-	margin-right: 20dp;
-	width: 200dp;
+	margin-right: 1.53em;
+	width: 15.3em;
 	text-align: right;
 	color: white;
 }
 span#version-number
 {
-	font-size: 15dp;
+	font-size: 1.15em;
 }
 )RCSS";
 

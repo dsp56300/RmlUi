@@ -28,17 +28,17 @@
 
 static const char* log_rcss = R"RCSS(body
 {
-	width: 400dp;
-	height: 300dp;
-	min-width: 250dp;
-	min-height: 150dp;
-	top: 42dp;
-	left: 20dp;
+	width: 30.76em;
+	height: 23.07em;
+	min-width: 19.23em;
+	min-height: 11.53em;
+	top: 3.23em;
+	left: 1.53em;
 }
 div#tools
 {
 	float: right;
-	width: 200dp;
+	width: 15.3em;
 }
 div.log-entry
 {
@@ -48,8 +48,8 @@ div.log-entry div.icon
 {
 	float: left;
 	display: block;
-	width: 18dp;
-	height: 18dp;
+	width: 1.38em;
+	height: 1.38em;
 	text-align: center;
 	border-width: 1px;
 	margin-right: 5dp;
@@ -57,9 +57,9 @@ div.log-entry div.icon
 div.button
 {
 	display: inline-block;
-	width: 32dp;
-	font-size: 13dp;
-	line-height: 20dp;
+	width: 2.46em;
+	font-size: 1em;
+	line-height: 1.53em;
 	text-align: center;
 	border-width: 1px;
 	margin-right: 3dp;
@@ -86,7 +86,7 @@ div.log-entry p.message
 {
 	display: block;
 	white-space: pre-wrap;
-	margin-left: 20dp;
+	margin-left: 1.53em;
 }
 )RCSS";
 
@@ -95,13 +95,13 @@ static const char* log_rml = R"RML(
 	<handle id="position_handle" move_target="#document"/>
 	<div id="close_button">X</div>
 	<div id="tools">
-		<div id="clear_button" class="button clear" style="width: 45dp;">Clear</div>
+		<div id="clear_button" class="button clear" style="width: 3.46em;">Clear</div>
 		<div id="error_button" class="button error">On</div>
 		<div id="warning_button" class="button warning">On</div>
 		<div id="info_button" class="button info">Off</div>
 		<div id="debug_button" class="button debug last">On</div>
 	</div>
-	<div style="width: 100dp;">Event Log</div>
+	<div style="width: 7.69em;">Event Log</div>
 </h1>
 <div id="content">
 	No messages in log.

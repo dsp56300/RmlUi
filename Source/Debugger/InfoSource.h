@@ -29,26 +29,26 @@
 static const char* info_rcss = R"RCSS(
 body
 {
-	width: 320dp;
-	min-width: 320dp;
-	min-height: 150dp;
-	margin-top: 42dp;
-	margin-right: 20dp;
+	width: 24.6em;
+	min-width: 24.6em;
+	min-height: 11.5em;
+	margin-top: 3.2em;
+	margin-right: 1.53em;
 	margin-left: auto;
 }
 div#content
 {
 	height: auto;
-	max-height: 650dp;
+	max-height: 50em;
 }
 div#content div h2
 {
-	padding-left: 5dp;
+	padding-left: 0.38em;
 }
 div#content div div
 {
-	font-size: 12dp;
-	padding-left: 10dp;
+	font-size: 0.92em;
+	padding-left: 0.76em;
 }
 div#content .name
 {
@@ -89,7 +89,7 @@ div.header_button
 	margin-left: 3dp;
 	z-index: 1;
 	float: right;
-	width: 18dp;
+	width: 1.38em;
 	color: #999;
 	background-color: #666;
 	border-width: 1px;
@@ -110,10 +110,10 @@ div.header_button:active
 	background-color: #444;
 }
 div#title-content {
-	width: 220dp;
+	width: 16.9em;
 }
 div#title-content em {
-	font-size: 14dp;
+	font-size: 1.08em;
 }
 p.non_dom {
 	font-style: italic;

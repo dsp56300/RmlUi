@@ -31,19 +31,19 @@ body
 {
 	position: absolute;
 	top: 5px;
-	right: 33dp;
+	right: 2.53em;
 	z-index: 1000000;
 	width: 20px;
 	font-family: rmlui-debugger-font;
-	font-size: 12dp;
+	font-size: 0.92em;
 	color: black;
 	visibility: hidden;
 }
 button
 {
 	display: block;
-	width: 18dp;
-	height: 18dp;
+	width: 1.38em;
+	height: 1.38em;
 	text-align: center;
 	border-width: 1px;
 	font-weight: bold;
