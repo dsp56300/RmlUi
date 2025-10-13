@@ -7,7 +7,7 @@
 ]]
 
 if(RMLUI_FONT_ENGINE STREQUAL "freetype")
-	find_package("Freetype")
+#	find_package("Freetype")	# we don't want to find any default package, we want to use the one we include as source
 
 	if(FREETYPE_VERSION_STRING)
 		if(FREETYPE_VERSION_STRING VERSION_EQUAL "2.11.0" AND CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
