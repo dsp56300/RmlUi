@@ -3030,7 +3030,7 @@ void Element::DispatchVisibilityEventToChildren(bool parent_visible)
 		Element* child = GetChild(i);
 		// Only propagate to children that are visible by their own properties.
 		// If a child has its own display:none, its effective visibility is unchanged.
-		if (child->visible)
+		if (child && child->visible)
 		{
 			child->DispatchEvent(parent_visible ? EventId::Show : EventId::Hide, Dictionary());
 			child->DispatchVisibilityEventToChildren(parent_visible);
