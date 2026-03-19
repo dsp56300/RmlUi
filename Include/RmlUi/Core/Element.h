@@ -715,6 +715,7 @@ private:
 
 	void OnDpRatioChangeRecursive();
 	void DirtyFontFaceRecursive();
+	void DispatchVisibilityEventToChildren(bool parent_visible);
 
 	void ClampScrollOffset();
 	void ClampScrollOffsetRecursive();

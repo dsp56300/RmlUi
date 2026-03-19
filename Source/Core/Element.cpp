@@ -1840,7 +1840,16 @@ void Element::OnPropertyChange(const PropertyIdSet& changed_properties)
 
 		if (visible != new_visibility)
 		{
+			// Only dispatch events if ancestors are visible, otherwise the effective visibility doesn't change.
+			const bool ancestors_visible = (parent == nullptr || parent->IsVisible(true));
+
 			visible = new_visibility;
+
+			if (ancestors_visible)
+			{
+				DispatchEvent(visible ? EventId::Show : EventId::Hide, Dictionary());
+				DispatchVisibilityEventToChildren(visible);
+			}
 
 			if (parent != nullptr)
 				parent->DirtyStackingContext();
@@ -3011,6 +3020,22 @@ void Element::DirtyFontFaceRecursive()
 	const int num_children = GetNumChildren(true);
 	for (int i = 0; i < num_children; ++i)
 		GetChild(i)->DirtyFontFaceRecursive();
+}
+
+void Element::DispatchVisibilityEventToChildren(bool parent_visible)
+{
+	const int num_children = GetNumChildren(true);
+	for (int i = 0; i < num_children; ++i)
+	{
+		Element* child = GetChild(i);
+		// Only propagate to children that are visible by their own properties.
+		// If a child has its own display:none, its effective visibility is unchanged.
+		if (child->visible)
+		{
+			child->DispatchEvent(parent_visible ? EventId::Show : EventId::Hide, Dictionary());
+			child->DispatchVisibilityEventToChildren(parent_visible);
+		}
+	}
 }
 
 void Element::ClampScrollOffset()
