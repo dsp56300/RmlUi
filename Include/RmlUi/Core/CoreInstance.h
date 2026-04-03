@@ -17,6 +17,8 @@ extern "C"
 	typedef FT_LibraryRec_* FT_Library;
 }
 
+typedef struct lua_State lua_State;
+
 namespace Rml
 {
 	struct PropertyParserNumberData;
@@ -99,6 +101,8 @@ namespace Rml
 		Factory* factory;
 
 		FT_Library ft_library = nullptr;
+
+		lua_State* lua_state = nullptr;
 
 		bool initialised = false;
 	};

@@ -30,6 +30,7 @@
 #include "LuaEventListenerInstancer.h"
 #include "LuaPlugin.h"
 #include <RmlUi/Core/Core.h>
+#include <RmlUi/Core/CoreInstance.h>
 #include <RmlUi/Core/FileInterface.h>
 #include <RmlUi/Core/Log.h>
 #include <RmlUi/Lua/Interpreter.h>
@@ -67,17 +68,12 @@ static bool LuaCall(lua_State* L, int nargs, int nresults)
 	return true;
 }
 
-lua_State* Interpreter::GetLuaState()
+bool Interpreter::LoadFile(CoreInstance& core_instance, const String& file)
 {
-	return LuaPlugin::GetLuaState();
-}
-
-bool Interpreter::LoadFile(const String& file)
-{
-	lua_State* L = GetLuaState();
+	lua_State* L = core_instance.lua_state;
 
 	// use the file interface to get the contents of the script
-	FileInterface* file_interface = GetFileInterface(LuaPlugin::GetCoreInstance());
+	FileInterface* file_interface = GetFileInterface(core_instance);
 	FileHandle handle = file_interface->Open(file);
 	if (handle == 0)
 	{
@@ -102,19 +98,15 @@ bool Interpreter::LoadFile(const String& file)
 		return false;
 	}
 	return LuaCall(L, 0, 0);
-	;
 }
 
-bool Interpreter::DoString(const String& code, const String& name)
+bool Interpreter::DoString(lua_State* L, const String& code, const String& name)
 {
-	lua_State* L = GetLuaState();
-	return LoadString(code, name) && LuaCall(L, 0, 0);
+	return LoadString(L, code, name) && LuaCall(L, 0, 0);
 }
 
-bool Interpreter::LoadString(const String& code, const String& name)
+bool Interpreter::LoadString(lua_State* L, const String& code, const String& name)
 {
-	lua_State* L = GetLuaState();
-
 	if (luaL_loadbuffer(L, code.c_str(), code.length(), name.c_str()) != 0)
 	{
 		Log::Message(Log::LT_WARNING, "%s", lua_tostring(L, -1));
@@ -124,24 +116,19 @@ bool Interpreter::LoadString(const String& code, const String& name)
 	return true;
 }
 
-void Interpreter::BeginCall(int funRef)
+void Interpreter::BeginCall(lua_State* L, int funRef)
 {
-	lua_State* L = GetLuaState();
-
 	lua_settop(L, 0); // empty stack
-	// lua_getref(g_L,funRef);
 	lua_rawgeti(L, LUA_REGISTRYINDEX, (int)funRef);
 }
 
-bool Interpreter::ExecuteCall(int params, int res)
+bool Interpreter::ExecuteCall(lua_State* L, int params, int res)
 {
-	lua_State* L = GetLuaState();
 	return LuaCall(L, params, res);
 }
 
-void Interpreter::EndCall(int res)
+void Interpreter::EndCall(lua_State* L, int res)
 {
-	lua_State* L = GetLuaState();
 	lua_pop(L, res);
 }
 

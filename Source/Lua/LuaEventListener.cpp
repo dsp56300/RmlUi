@@ -27,6 +27,7 @@
  */
 
 #include "LuaEventListener.h"
+#include <RmlUi/Core/CoreInstance.h>
 #include <RmlUi/Core/Element.h>
 #include <RmlUi/Lua/Interpreter.h>
 #include <RmlUi/Lua/LuaType.h>
@@ -44,7 +45,7 @@ LuaEventListener::LuaEventListener(const String& code, Element* element) : Event
 	function.append(" end");
 
 	// make sure there is an area to save the function
-	lua_State* L = Interpreter::GetLuaState();
+	lua_State* L = element->GetCoreInstance().lua_state;
 	int top = lua_gettop(L);
 	lua_getglobal(L, "EVENTLISTENERFUNCTIONS");
 	if (lua_isnoneornil(L, -1))
@@ -57,7 +58,7 @@ LuaEventListener::LuaEventListener(const String& code, Element* element) : Event
 	int tbl = lua_gettop(L);
 
 	// compile,execute,and save the function
-	if (!Interpreter::LoadString(function, code) || !Interpreter::ExecuteCall(0, 1))
+	if (!Interpreter::LoadString(L, function, code) || !Interpreter::ExecuteCall(L, 0, 1))
 	{
 		return;
 	}
@@ -101,7 +102,7 @@ LuaEventListener::LuaEventListener(lua_State* L, int narg, Element* element)
 LuaEventListener::~LuaEventListener()
 {
 	// Remove the Lua function from its table
-	lua_State* L = Interpreter::GetLuaState();
+	lua_State* L = attached->GetCoreInstance().lua_state;
 	lua_getglobal(L, "EVENTLISTENERFUNCTIONS");
 	luaL_unref(L, -1, luaFuncRef);
 	lua_pop(L, 1); // pop table
@@ -122,7 +123,7 @@ void LuaEventListener::ProcessEvent(Event& event)
 	// correct that
 	if (!owner_document && attached)
 		owner_document = attached->GetOwnerDocument();
-	lua_State* L = Interpreter::GetLuaState();
+	lua_State* L = attached->GetCoreInstance().lua_state;
 	int top = lua_gettop(L);
 
 	// push the arguments
@@ -132,7 +133,7 @@ void LuaEventListener::ProcessEvent(Event& event)
 	LuaType<Element>::push(L, attached, false);
 	LuaType<Document>::push(L, owner_document, false);
 
-	Interpreter::ExecuteCall(3, 0); // call the function at the top of the stack with 3 arguments
+	Interpreter::ExecuteCall(L, 3, 0); // call the function at the top of the stack with 3 arguments
 
 	lua_settop(L, top);             // balanced stack makes Lua happy
 }

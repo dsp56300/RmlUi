@@ -28,6 +28,7 @@
 
 #include "LuaDocument.h"
 #include <RmlUi/Core/Stream.h>
+#include <RmlUi/Core/CoreInstance.h>
 #include <RmlUi/Lua/IncludeLua.h>
 #include <RmlUi/Lua/Interpreter.h>
 
@@ -45,12 +46,12 @@ void LuaDocument::LoadInlineScript(const String& context, const String& source_p
 	buffer += Rml::ToString(GetCoreInstance(), source_line);
 	buffer += "\n";
 	buffer += context;
-	Interpreter::DoString(buffer, buffer);
+	Interpreter::DoString(GetCoreInstance().lua_state, buffer, buffer);
 }
 
 void LuaDocument::LoadExternalScript(const String& source_path)
 {
-	Interpreter::LoadFile(source_path);
+	Interpreter::LoadFile(GetCoreInstance(), source_path);
 }
 
 } // namespace Lua

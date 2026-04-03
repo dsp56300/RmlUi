@@ -49,12 +49,12 @@ class LuaEventListenerInstancer;
 
     @author Nathan Starkey
 */
+/// Retrieve the CoreInstance associated with a lua_State (stored in Lua registry during init)
+RMLUILUA_API CoreInstance& GetCoreInstance(lua_State* L);
+
 class RMLUILUA_API LuaPlugin : public Plugin {
 public:
 	LuaPlugin(CoreInstance& core_instance, lua_State* lua_state);
-
-	static lua_State* GetLuaState();
-	static CoreInstance& GetCoreInstance();
 
 private:
 	int GetEventClasses() override;

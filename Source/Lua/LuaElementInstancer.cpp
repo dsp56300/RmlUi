@@ -27,6 +27,7 @@
  */
 
 #include "LuaElementInstancer.h"
+#include <RmlUi/Core/CoreInstance.h>
 #include <RmlUi/Core/Log.h>
 #include <RmlUi/Core/Platform.h>
 #include <RmlUi/Lua/Interpreter.h>
@@ -50,7 +51,7 @@ LuaElementInstancer::LuaElementInstancer(lua_State* L) : ElementInstancer(), ref
 
 ElementPtr LuaElementInstancer::InstanceElement(CoreInstance& instance, Element* /*parent*/, const String& tag, const XMLAttributes& /*attributes*/)
 {
-	lua_State* L = Interpreter::GetLuaState();
+	lua_State* L = instance.lua_state;
 	int top = lua_gettop(L);
 	ElementPtr ret = nullptr;
 	if (ref_InstanceElement != LUA_REFNIL && ref_InstanceElement != LUA_NOREF)
@@ -58,7 +59,7 @@ ElementPtr LuaElementInstancer::InstanceElement(CoreInstance& instance, Element*
 		PushFunctionsTable(L);
 		lua_rawgeti(L, -1, ref_InstanceElement); // push the function
 		lua_pushstring(L, tag.c_str());          // push the tag
-		Interpreter::ExecuteCall(1, 1);          // we pass in a string, and we want to get an Element back
+		Interpreter::ExecuteCall(L, 1, 1);       // we pass in a string, and we want to get an Element back
 		ret = std::move(*LuaType<ElementPtr>::check(L, -1));
 	}
 	else

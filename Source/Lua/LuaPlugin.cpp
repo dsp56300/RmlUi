@@ -68,19 +68,31 @@
 namespace Rml {
 namespace Lua {
 
-static lua_State* g_L = nullptr;
-static CoreInstance* g_coreInstance = nullptr;
+static const char* const CORE_INSTANCE_REGISTRY_KEY = "RmlUi.CoreInstance";
 
 /** This will populate the global Lua table with all of the Lua core types by calling LuaType<T>::Register
 @remark This is called automatically by LuaPlugin::OnInitialise(). */
-static void RegisterTypes();
+static void RegisterTypes(lua_State* L);
+
+CoreInstance& GetCoreInstance(lua_State* L)
+{
+	lua_getfield(L, LUA_REGISTRYINDEX, CORE_INSTANCE_REGISTRY_KEY);
+	auto* ci = static_cast<CoreInstance*>(lua_touserdata(L, -1));
+	lua_pop(L, 1);
+	RMLUI_ASSERT(ci);
+	return *ci;
+}
+
+static void StoreCoreInstance(lua_State* L, CoreInstance& _coreInstance)
+{
+	lua_pushlightuserdata(L, &_coreInstance);
+	lua_setfield(L, LUA_REGISTRYINDEX, CORE_INSTANCE_REGISTRY_KEY);
+}
 
 LuaPlugin::LuaPlugin(CoreInstance& _core_instance, lua_State* lua_state)
 	: core_instance(_core_instance)
 {
-	RMLUI_ASSERT(g_L == nullptr);
-	g_L = lua_state;
-	g_coreInstance = &_core_instance;
+	core_instance.lua_state = lua_state;
 }
 
 int LuaPlugin::GetEventClasses()
@@ -90,11 +102,11 @@ int LuaPlugin::GetEventClasses()
 
 void LuaPlugin::OnInitialise()
 {
-	if (g_L == nullptr)
+	if (core_instance.lua_state == nullptr)
 	{
 		Log::Message(Log::LT_INFO, "Loading Lua plugin using a new Lua state.");
-		g_L = luaL_newstate();
-		luaL_openlibs(g_L);
+		core_instance.lua_state = luaL_newstate();
+		luaL_openlibs(core_instance.lua_state);
 		owns_lua_state = true;
 	}
 	else
@@ -102,7 +114,9 @@ void LuaPlugin::OnInitialise()
 		Log::Message(Log::LT_INFO, "Loading Lua plugin using the provided Lua state.");
 		owns_lua_state = false;
 	}
-	RegisterTypes();
+
+	StoreCoreInstance(core_instance.lua_state, core_instance);
+	RegisterTypes(core_instance.lua_state);
 
 	lua_document_element_instancer = new LuaDocumentElementInstancer();
 	lua_event_listener_instancer = new LuaEventListenerInstancer();
@@ -118,18 +132,16 @@ void LuaPlugin::OnShutdown()
 	lua_event_listener_instancer = nullptr;
 
 	if (owns_lua_state)
-		lua_close(g_L);
+		lua_close(core_instance.lua_state);
 
-	g_L = nullptr;
-	g_coreInstance = nullptr;
+	core_instance.lua_state = nullptr;
 
 	delete this;
 }
 
-static void RegisterTypes()
+static void RegisterTypes(lua_State* L)
 {
-	RMLUI_ASSERT(g_L);
-	lua_State* L = g_L;
+	RMLUI_ASSERT(L);
 
 	LuaType<Vector2i>::Register(L);
 	LuaType<Vector2f>::Register(L);
@@ -166,17 +178,6 @@ static void RegisterTypes()
 	LuaType<ElementTabSet>::Register(L);
 	// proxy tables
 	LuaType<SelectOptionsProxy>::Register(L);
-}
-
-lua_State* LuaPlugin::GetLuaState()
-{
-	return g_L;
-}
-
-CoreInstance& LuaPlugin::GetCoreInstance()
-{
-	RMLUI_ASSERT(g_coreInstance);
-	return *g_coreInstance;
 }
 
 } // namespace Lua

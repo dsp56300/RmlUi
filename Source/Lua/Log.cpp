@@ -27,6 +27,7 @@
  */
 
 #include "Log.h"
+#include "LuaPlugin.h"
 #include <RmlUi/Core/Log.h>
 #include <RmlUi/Core/StringUtilities.h>
 
@@ -73,7 +74,7 @@ int LogMessage(lua_State* L)
 	Log::Type type = Log::Type((int)luaL_checkinteger(L, 1));
 	const char* str = luaL_checkstring(L, 2);
 
-	Log::Message(type, "%s", str);
+	Log::Message(GetCoreInstance(L), type, "%s", str);
 	return 0;
 }
 
