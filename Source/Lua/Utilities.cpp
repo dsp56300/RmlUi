@@ -26,6 +26,7 @@
  *
  */
 
+#include "LuaPlugin.h"
 #include <RmlUi/Core/Variant.h>
 #include <RmlUi/Lua/Utilities.h>
 
@@ -74,17 +75,17 @@ void PushVariant(lua_State* L, const Variant* var)
 
 	switch (var->GetType())
 	{
-	case Variant::BOOL: lua_pushboolean(L, var->Get<bool>()); break;
+	case Variant::BOOL: lua_pushboolean(L, var->Get<bool>(Rml::Lua::LuaPlugin::GetCoreInstance())); break;
 	case Variant::BYTE:
 	case Variant::CHAR:
-	case Variant::INT: lua_pushinteger(L, var->Get<int>()); break;
-	case Variant::INT64: lua_pushinteger(L, var->Get<int64_t>()); break;
-	case Variant::UINT: lua_pushinteger(L, var->Get<unsigned int>()); break;
-	case Variant::UINT64: lua_pushinteger(L, var->Get<uint64_t>()); break;
+	case Variant::INT: lua_pushinteger(L, var->Get<int>(Rml::Lua::LuaPlugin::GetCoreInstance())); break;
+	case Variant::INT64: lua_pushinteger(L, var->Get<int64_t>(Rml::Lua::LuaPlugin::GetCoreInstance())); break;
+	case Variant::UINT: lua_pushinteger(L, var->Get<unsigned int>(Rml::Lua::LuaPlugin::GetCoreInstance())); break;
+	case Variant::UINT64: lua_pushinteger(L, var->Get<uint64_t>(Rml::Lua::LuaPlugin::GetCoreInstance())); break;
 	case Variant::FLOAT:
-	case Variant::DOUBLE: lua_pushnumber(L, var->Get<double>()); break;
-	case Variant::COLOURB: LuaType<Colourb>::push(L, new Colourb(var->Get<Colourb>()), true); break;
-	case Variant::COLOURF: LuaType<Colourf>::push(L, new Colourf(var->Get<Colourf>()), true); break;
+	case Variant::DOUBLE: lua_pushnumber(L, var->Get<double>(Rml::Lua::LuaPlugin::GetCoreInstance())); break;
+	case Variant::COLOURB: LuaType<Colourb>::push(L, new Colourb(var->Get<Colourb>(Rml::Lua::LuaPlugin::GetCoreInstance())), true); break;
+	case Variant::COLOURF: LuaType<Colourf>::push(L, new Colourf(var->Get<Colourf>(Rml::Lua::LuaPlugin::GetCoreInstance())), true); break;
 	case Variant::STRING:
 	{
 		const String& s = var->GetReference<Rml::String>();
@@ -93,9 +94,9 @@ void PushVariant(lua_State* L, const Variant* var)
 	break;
 	case Variant::VECTOR2:
 		// according to Variant.inl, it is going to be a Vector2f
-		LuaType<Vector2f>::push(L, new Vector2f(var->Get<Vector2f>()), true);
+		LuaType<Vector2f>::push(L, new Vector2f(var->Get<Vector2f>(Rml::Lua::LuaPlugin::GetCoreInstance())), true);
 		break;
-	case Variant::VOIDPTR: lua_pushlightuserdata(L, var->Get<void*>()); break;
+	case Variant::VOIDPTR: lua_pushlightuserdata(L, var->Get<void*>(Rml::Lua::LuaPlugin::GetCoreInstance())); break;
 	default: lua_pushnil(L); break;
 	}
 }

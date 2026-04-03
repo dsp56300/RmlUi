@@ -26,6 +26,7 @@
  *
  */
 
+#include "LuaPlugin.h"
 #include "EventParametersProxy.h"
 #include "Pairs.h"
 #include <RmlUi/Core/Dictionary.h>
@@ -58,7 +59,7 @@ int EventParametersProxy__index(lua_State* L)
 		const Variant* param = (it == obj->owner->GetParameters().end() ? nullptr : &it->second);
 		if (obj->owner->GetId() == EventId::Tabchange && std::strcmp(key, "tab_index") == 0 && param && param->GetType() == Variant::Type::INT)
 		{
-			PushIndex(L, param->Get<int>());
+			PushIndex(L, param->Get<int>(Rml::Lua::LuaPlugin::GetCoreInstance()));
 		}
 		else
 			PushVariant(L, param);

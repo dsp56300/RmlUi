@@ -35,6 +35,9 @@
 typedef struct lua_State lua_State;
 
 namespace Rml {
+
+class CoreInstance;
+
 namespace Lua {
 
 class LuaDocumentElementInstancer;
@@ -48,9 +51,10 @@ class LuaEventListenerInstancer;
 */
 class RMLUILUA_API LuaPlugin : public Plugin {
 public:
-	LuaPlugin(lua_State* lua_state);
+	LuaPlugin(CoreInstance& core_instance, lua_State* lua_state);
 
 	static lua_State* GetLuaState();
+	static CoreInstance& GetCoreInstance();
 
 private:
 	int GetEventClasses() override;
@@ -59,6 +63,7 @@ private:
 
 	void OnShutdown() override;
 
+	CoreInstance& core_instance;
 	LuaDocumentElementInstancer* lua_document_element_instancer = nullptr;
 	LuaEventListenerInstancer* lua_event_listener_instancer = nullptr;
 	bool owns_lua_state = false;

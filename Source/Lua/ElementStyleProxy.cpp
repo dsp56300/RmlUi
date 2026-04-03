@@ -27,6 +27,8 @@
  */
 
 #include "ElementStyleProxy.h"
+#include "LuaPlugin.h"
+#include <RmlUi/Core/CoreInstance.h>
 #include <RmlUi/Core/Element.h>
 #include <RmlUi/Core/PropertiesIteratorView.h>
 #include <RmlUi/Core/Property.h>
@@ -59,7 +61,7 @@ int ElementStyleProxy__index(lua_State* L)
 		RMLUI_CHECK_OBJ(es);
 		const Property* prop = es->owner->GetProperty(lua_tostring(L, 2));
 		RMLUI_CHECK_OBJ(prop)
-		lua_pushstring(L, prop->ToString().c_str());
+		lua_pushstring(L, prop->ToString(Rml::Lua::LuaPlugin::GetCoreInstance()).c_str());
 		return 1;
 	}
 	else // if it wasn't trying to get a string
@@ -106,7 +108,7 @@ struct ElementStyleProxyPairs {
 		{
 			return 0;
 		}
-		const String& key = self->m_view.GetName();
+		const String& key = self->m_view.GetName(*Rml::Lua::LuaPlugin::GetCoreInstance().styleSheetSpecification);
 		const Property& property = self->m_view.GetProperty();
 		String val;
 		property.definition->GetValue(val, property);

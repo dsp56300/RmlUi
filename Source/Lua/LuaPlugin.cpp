@@ -33,6 +33,7 @@
 #include <RmlUi/Core/Factory.h>
 #include <RmlUi/Core/FileInterface.h>
 #include <RmlUi/Core/Log.h>
+#include <RmlUi/Core/CoreInstance.h>
 #include <RmlUi/Lua/Lua.h>
 #include <RmlUi/Lua/LuaType.h>
 #include <RmlUi/Lua/Utilities.h>
@@ -68,15 +69,18 @@ namespace Rml {
 namespace Lua {
 
 static lua_State* g_L = nullptr;
+static CoreInstance* g_coreInstance = nullptr;
 
 /** This will populate the global Lua table with all of the Lua core types by calling LuaType<T>::Register
 @remark This is called automatically by LuaPlugin::OnInitialise(). */
 static void RegisterTypes();
 
-LuaPlugin::LuaPlugin(lua_State* lua_state)
+LuaPlugin::LuaPlugin(CoreInstance& _core_instance, lua_State* lua_state)
+	: core_instance(_core_instance)
 {
 	RMLUI_ASSERT(g_L == nullptr);
 	g_L = lua_state;
+	g_coreInstance = &_core_instance;
 }
 
 int LuaPlugin::GetEventClasses()
@@ -102,8 +106,8 @@ void LuaPlugin::OnInitialise()
 
 	lua_document_element_instancer = new LuaDocumentElementInstancer();
 	lua_event_listener_instancer = new LuaEventListenerInstancer();
-	Factory::RegisterElementInstancer("body", lua_document_element_instancer);
-	Factory::RegisterEventListenerInstancer(lua_event_listener_instancer);
+	core_instance.factory->RegisterElementInstancer("body", lua_document_element_instancer);
+	core_instance.factory->RegisterEventListenerInstancer(lua_event_listener_instancer);
 }
 
 void LuaPlugin::OnShutdown()
@@ -117,6 +121,7 @@ void LuaPlugin::OnShutdown()
 		lua_close(g_L);
 
 	g_L = nullptr;
+	g_coreInstance = nullptr;
 
 	delete this;
 }
@@ -166,6 +171,12 @@ static void RegisterTypes()
 lua_State* LuaPlugin::GetLuaState()
 {
 	return g_L;
+}
+
+CoreInstance& LuaPlugin::GetCoreInstance()
+{
+	RMLUI_ASSERT(g_coreInstance);
+	return *g_coreInstance;
 }
 
 } // namespace Lua

@@ -26,6 +26,7 @@
  *
  */
 
+#include "LuaPlugin.h"
 #include "RmlUiContextsProxy.h"
 #include "Pairs.h"
 #include <RmlUi/Core/Context.h>
@@ -54,12 +55,12 @@ int RmlUiContextsProxy__index(lua_State* L)
 		if (keytype == LUA_TSTRING)
 		{
 			const char* key = lua_tostring(L, 2);
-			LuaType<Context>::push(L, GetContext(key));
+			LuaType<Context>::push(L, GetContext(Rml::Lua::LuaPlugin::GetCoreInstance(), key));
 		}
 		else
 		{
 			int key = (int)luaL_checkinteger(L, 2);
-			LuaType<Context>::push(L, GetContext(key - 1));
+			LuaType<Context>::push(L, GetContext(Rml::Lua::LuaPlugin::GetCoreInstance(), key - 1));
 		}
 		return 1;
 	}

@@ -26,6 +26,7 @@
  *
  */
 
+#include "LuaPlugin.h"
 #include "Element.h"
 #include "ElementAttributesProxy.h"
 #include "ElementChildNodesProxy.h"
@@ -57,7 +58,7 @@ void ExtraInit<Element>(lua_State* L, int metatable_index)
 int Elementnew(lua_State* L)
 {
 	const char* tag = luaL_checkstring(L, 1);
-	Element* ele = new Element(tag);
+	Element* ele = new Element(LuaPlugin::GetCoreInstance(), tag);
 	LuaType<Element>::push(L, ele, true);
 	return 1;
 }

@@ -48,7 +48,7 @@ LuaElementInstancer::LuaElementInstancer(lua_State* L) : ElementInstancer(), ref
 	lua_pop(L, 1);         // pop the ELEMENTINSTANCERFUNCTIONS table
 }
 
-ElementPtr LuaElementInstancer::InstanceElement(Element* /*parent*/, const String& tag, const XMLAttributes& /*attributes*/)
+ElementPtr LuaElementInstancer::InstanceElement(CoreInstance& instance, Element* /*parent*/, const String& tag, const XMLAttributes& /*attributes*/)
 {
 	lua_State* L = Interpreter::GetLuaState();
 	int top = lua_gettop(L);
@@ -69,7 +69,7 @@ ElementPtr LuaElementInstancer::InstanceElement(Element* /*parent*/, const Strin
 	return ret;
 }
 
-void LuaElementInstancer::ReleaseElement(Element* element)
+void LuaElementInstancer::ReleaseElement(CoreInstance& instance, Element* element)
 {
 	delete element;
 }

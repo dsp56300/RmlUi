@@ -77,7 +77,7 @@ bool Interpreter::LoadFile(const String& file)
 	lua_State* L = GetLuaState();
 
 	// use the file interface to get the contents of the script
-	FileInterface* file_interface = GetFileInterface();
+	FileInterface* file_interface = GetFileInterface(LuaPlugin::GetCoreInstance());
 	FileHandle handle = file_interface->Open(file);
 	if (handle == 0)
 	{

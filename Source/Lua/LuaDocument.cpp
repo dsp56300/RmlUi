@@ -34,7 +34,7 @@
 namespace Rml {
 namespace Lua {
 
-LuaDocument::LuaDocument(const String& tag) : ElementDocument(tag) {}
+LuaDocument::LuaDocument(CoreInstance& core_instance, const String& tag) : ElementDocument(core_instance, tag) {}
 
 void LuaDocument::LoadInlineScript(const String& context, const String& source_path, int source_line)
 {
@@ -42,7 +42,7 @@ void LuaDocument::LoadInlineScript(const String& context, const String& source_p
 	buffer += "--";
 	buffer += source_path;
 	buffer += ":";
-	buffer += Rml::ToString(source_line);
+	buffer += Rml::ToString(GetCoreInstance(), source_line);
 	buffer += "\n";
 	buffer += context;
 	Interpreter::DoString(buffer, buffer);

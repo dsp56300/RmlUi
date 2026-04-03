@@ -130,10 +130,10 @@ struct LuaDataModel {
 class LuaTableDef : public VariableDefinition {
 public:
 	LuaTableDef(const struct LuaDataModel* model);
-	bool Get(void* ptr, Variant& variant) override;
-	bool Set(void* ptr, const Variant& variant) override;
-	int Size(void* ptr) override;
-	DataVariable Child(void* ptr, const DataAddressEntry& address) override;
+	bool Get(CoreInstance& in_core_instance, void* ptr, Variant& variant) override;
+	bool Set(CoreInstance& in_core_instance, void* ptr, const Variant& variant) override;
+	int Size(CoreInstance& in_core_instance, void* ptr) override;
+	DataVariable Child(CoreInstance& in_core_instance, void* ptr, const DataAddressEntry& address) override;
 
 protected:
 	const struct LuaDataModel* model;
@@ -142,12 +142,12 @@ protected:
 class LuaScalarDef final : public LuaTableDef {
 public:
 	LuaScalarDef(const struct LuaDataModel* model);
-	DataVariable Child(void* ptr, const DataAddressEntry& address) override;
+	DataVariable Child(CoreInstance& in_core_instance, void* ptr, const DataAddressEntry& address) override;
 };
 
 LuaTableDef::LuaTableDef(const struct LuaDataModel* model) : VariableDefinition(DataVariableType::Scalar), model(model) {}
 
-bool LuaTableDef::Get(void* ptr, Variant& variant)
+bool LuaTableDef::Get(CoreInstance& in_core_instance, void* ptr, Variant& variant)
 {
 	lua_State* L = model->dataL;
 	if (!L)
@@ -157,7 +157,7 @@ bool LuaTableDef::Get(void* ptr, Variant& variant)
 	return true;
 }
 
-bool LuaTableDef::Set(void* ptr, const Variant& variant)
+bool LuaTableDef::Set(CoreInstance& in_core_instance, void* ptr, const Variant& variant)
 {
 	int id = (int)(intptr_t)ptr;
 	lua_State* L = model->dataL;
@@ -180,7 +180,7 @@ static int lLuaTableDefChild(lua_State* L)
 	return 1;
 }
 
-int LuaTableDef::Size(void* ptr)
+int LuaTableDef::Size(CoreInstance& in_core_instance, void* ptr)
 {
 	lua_State* L = model->dataL;
 	if (!L)
@@ -206,7 +206,7 @@ int LuaTableDef::Size(void* ptr)
 	return size;
 }
 
-DataVariable LuaTableDef::Child(void* ptr, const DataAddressEntry& address)
+DataVariable LuaTableDef::Child(CoreInstance& in_core_instance, void* ptr, const DataAddressEntry& address)
 {
 	lua_State* L = model->dataL;
 	if (!L)
@@ -240,13 +240,13 @@ DataVariable LuaTableDef::Child(void* ptr, const DataAddressEntry& address)
 
 LuaScalarDef::LuaScalarDef(const struct LuaDataModel* model) : LuaTableDef(model) {}
 
-DataVariable LuaScalarDef::Child(void* ptr, const DataAddressEntry& address)
+DataVariable LuaScalarDef::Child(CoreInstance& in_core_instance, void* ptr, const DataAddressEntry& address)
 {
 	lua_State* L = model->dataL;
 	if (!L)
 		return DataVariable{};
 	lua_settop(L, model->top);
-	return LuaTableDef::Child(ptr, address);
+	return LuaTableDef::Child(in_core_instance, ptr, address);
 }
 
 static void BindVariable(struct LuaDataModel* D, lua_State* L)

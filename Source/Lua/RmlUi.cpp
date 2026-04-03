@@ -26,6 +26,8 @@
  *
  */
 
+#include "LuaPlugin.h"
+#include <RmlUi/Core/CoreInstance.h>
 #include "RmlUi.h"
 #include "ElementInstancer.h"
 #include "LuaElementInstancer.h"
@@ -67,7 +69,7 @@ int LuaRmlUiCreateContext(lua_State* L, LuaRmlUi* /*obj*/)
 {
 	const char* name = luaL_checkstring(L, 1);
 	Vector2i* dimensions = LuaType<Vector2i>::check(L, 2);
-	Context* new_context = CreateContext(name, *dimensions);
+	Context* new_context = CreateContext(LuaPlugin::GetCoreInstance(), name, *dimensions);
 	if (new_context == nullptr || dimensions == nullptr)
 	{
 		lua_pushnil(L);
@@ -83,7 +85,7 @@ int LuaRmlUiLoadFontFace(lua_State* L, LuaRmlUi* /*obj*/)
 {
 	const char* file = luaL_checkstring(L, 1);
 	int face_index = lua_gettop(L) == 1 ? 0 : static_cast<int>(luaL_checkinteger(L, 2));
-	lua_pushboolean(L, LoadFontFace(file, face_index));
+	lua_pushboolean(L, LoadFontFace(LuaPlugin::GetCoreInstance(), file, face_index));
 	return 1;
 }
 
@@ -92,7 +94,7 @@ int LuaRmlUiRegisterTag(lua_State* L, LuaRmlUi* /*obj*/)
 	const char* tag = luaL_checkstring(L, 1);
 	LuaElementInstancer* lei = (LuaElementInstancer*)LuaType<ElementInstancer>::check(L, 2);
 	RMLUI_CHECK_OBJ(lei);
-	Factory::RegisterElementInstancer(tag, lei);
+	LuaPlugin::GetCoreInstance().factory->RegisterElementInstancer(tag, lei);
 	return 0;
 }
 
