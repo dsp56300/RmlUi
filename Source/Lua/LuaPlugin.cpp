@@ -34,6 +34,7 @@
 #include <RmlUi/Core/FileInterface.h>
 #include <RmlUi/Core/Log.h>
 #include <RmlUi/Core/CoreInstance.h>
+#include <RmlUi/Lua/IncludeLua.h>
 #include <RmlUi/Lua/Lua.h>
 #include <RmlUi/Lua/LuaType.h>
 #include <RmlUi/Lua/Utilities.h>
@@ -106,7 +107,25 @@ void LuaPlugin::OnInitialise()
 	{
 		Log::Message(Log::LT_INFO, "Loading Lua plugin using a new Lua state.");
 		core_instance.lua_state = luaL_newstate();
-		luaL_openlibs(core_instance.lua_state);
+
+		// Open only safe standard libraries. Deliberately exclude io, os, package, and debug
+		// as they would allow skin scripts to access the filesystem, run shell commands, or
+		// load arbitrary native code.
+		static const luaL_Reg safeLibs[] = {
+			{LUA_GNAME, luaopen_base},
+			{LUA_COLIBNAME, luaopen_coroutine},
+			{LUA_TABLIBNAME, luaopen_table},
+			{LUA_STRLIBNAME, luaopen_string},
+			{LUA_MATHLIBNAME, luaopen_math},
+			{LUA_UTF8LIBNAME, luaopen_utf8},
+			{nullptr, nullptr}
+		};
+		for (const luaL_Reg* lib = safeLibs; lib->func; lib++)
+		{
+			luaL_requiref(core_instance.lua_state, lib->name, lib->func, 1);
+			lua_pop(core_instance.lua_state, 1);
+		}
+
 		owns_lua_state = true;
 	}
 	else
