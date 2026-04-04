@@ -36,11 +36,20 @@
 #include <RmlUi/Lua/Interpreter.h>
 #include <RmlUi/Lua/LuaType.h>
 
+#include <chrono>
+
 namespace Rml {
 namespace Lua {
 
+static constexpr double SCRIPT_TIMEOUT_SECONDS = 3.0;
+static constexpr int HOOK_INSTRUCTION_COUNT = 10000;
+
 static int ErrorHandler(lua_State* L)
 {
+	// Remove the timeout hook before building the traceback, so the error handler itself
+	// does not trigger a spurious timeout
+	lua_sethook(L, nullptr, 0, 0);
+
 	const char* msg = lua_tostring(L, 1);
 	if (msg == NULL)
 	{
@@ -53,14 +62,39 @@ static int ErrorHandler(lua_State* L)
 	return 1;
 }
 
+static void TimeoutHook(lua_State* L, lua_Debug*)
+{
+	lua_getfield(L, LUA_REGISTRYINDEX, "RmlUi.ScriptStartTime");
+	const auto startMs = reinterpret_cast<intptr_t>(lua_touserdata(L, -1));
+	lua_pop(L, 1);
+
+	const auto nowMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+		std::chrono::steady_clock::now().time_since_epoch()).count();
+
+	if (static_cast<double>(nowMs - startMs) / 1000.0 > SCRIPT_TIMEOUT_SECONDS)
+		luaL_error(L, "script execution timeout (exceeded %d seconds)", static_cast<int>(SCRIPT_TIMEOUT_SECONDS));
+}
+
 static bool LuaCall(lua_State* L, int nargs, int nresults)
 {
+	// Install timeout hook
+	const auto startMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+		std::chrono::steady_clock::now().time_since_epoch()).count();
+	lua_pushlightuserdata(L, reinterpret_cast<void*>(static_cast<intptr_t>(startMs)));
+	lua_setfield(L, LUA_REGISTRYINDEX, "RmlUi.ScriptStartTime");
+	lua_sethook(L, TimeoutHook, LUA_MASKCOUNT, HOOK_INSTRUCTION_COUNT);
+
 	int errfunc = -2 - nargs;
 	lua_pushcfunction(L, ErrorHandler);
 	lua_insert(L, errfunc);
-	if (lua_pcall(L, nargs, nresults, errfunc) != LUA_OK)
+	const int result = lua_pcall(L, nargs, nresults, errfunc);
+
+	// Remove timeout hook
+	lua_sethook(L, nullptr, 0, 0);
+
+	if (result != LUA_OK)
 	{
-		Log::Message(Log::LT_WARNING, "%s", lua_tostring(L, -1));
+		Log::Message(GetCoreInstance(L), Log::LT_WARNING, "%s", lua_tostring(L, -1));
 		lua_pop(L, 2);
 		return false;
 	}
