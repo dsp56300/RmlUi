@@ -31,14 +31,26 @@
 #include <RmlUi/Core/CoreInstance.h>
 #include <RmlUi/Lua/IncludeLua.h>
 #include <RmlUi/Lua/Interpreter.h>
+#include <RmlUi/Lua/LuaType.h>
 
 namespace Rml {
 namespace Lua {
 
+typedef ElementDocument Document;
+
 LuaDocument::LuaDocument(CoreInstance& core_instance, const String& tag) : ElementDocument(core_instance, tag) {}
+
+void LuaDocument::SetDocumentGlobal()
+{
+	lua_State* L = GetCoreInstance().lua_state;
+	LuaType<Document>::push(L, this, false);
+	lua_setglobal(L, "document");
+}
 
 void LuaDocument::LoadInlineScript(const String& context, const String& source_path, int source_line)
 {
+	SetDocumentGlobal();
+
 	String buffer;
 	buffer += "--";
 	buffer += source_path;
@@ -51,6 +63,7 @@ void LuaDocument::LoadInlineScript(const String& context, const String& source_p
 
 void LuaDocument::LoadExternalScript(const String& source_path)
 {
+	SetDocumentGlobal();
 	Interpreter::LoadFile(GetCoreInstance(), source_path);
 }
 
