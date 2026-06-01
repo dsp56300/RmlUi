@@ -30,9 +30,12 @@
 #define RMLUI_SVG_SVG_PLUGIN_H
 
 namespace Rml {
+
+class CoreInstance;
+
 namespace SVG {
 
-	void Initialise();
+	void Initialise(CoreInstance& core_instance);
 
 }
 } // namespace Rml

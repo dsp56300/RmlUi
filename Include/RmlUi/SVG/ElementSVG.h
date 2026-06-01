@@ -44,7 +44,7 @@ class RMLUICORE_API ElementSVG : public Element {
 public:
 	RMLUI_RTTI_DefineWithParent(ElementSVG, Element)
 
-	ElementSVG(const String& tag);
+	ElementSVG(CoreInstance& core_instance, const String& tag);
 	virtual ~ElementSVG();
 
 	/// Returns the element's inherent size.
@@ -65,6 +65,10 @@ protected:
 	/// @param[in] changed_properties The properties changed on the element.
 	void OnPropertyChange(const PropertyIdSet& changed_properties) override;
 
+	void OnChildAdd(Element* child) override;
+	void OnChildRemove(Element* child) override;
+
+
 private:
 	// Generates the element's geometry.
 	void GenerateGeometry();
@@ -73,7 +77,7 @@ private:
 	// Update the texture when necessary.
 	void UpdateTexture();
 
-	bool source_dirty = false;
+	bool source_dirty = true;
 	bool geometry_dirty = false;
 	bool texture_dirty = false;
 

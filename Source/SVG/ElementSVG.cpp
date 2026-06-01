@@ -42,7 +42,7 @@
 
 namespace Rml {
 
-ElementSVG::ElementSVG(const String& tag) : Element(tag) {}
+ElementSVG::ElementSVG(CoreInstance& core_instance, const String& tag) : Element(core_instance, tag) {}
 
 ElementSVG::~ElementSVG() {}
 
@@ -100,6 +100,28 @@ void ElementSVG::OnAttributeChange(const ElementAttributes& changed_attributes)
 	{
 		DirtyLayout();
 	}
+
+	// For inline SVG, any other attribute change (e.g. a data-ts cache-buster written
+	// after updating inner_rml) triggers a re-rasterize.  OnChildAdd/Remove already set
+	// source_dirty; calling DirtyLayout() here is what actually schedules the re-render.
+	if (GetAttribute<String>("src", "").empty() && source_dirty)
+	{
+		DirtyLayout();
+	}
+}
+
+void ElementSVG::OnChildAdd(Element* child)
+{
+	Element::OnChildAdd(child);
+	if (GetAttribute<String>("src", "").empty())
+		source_dirty = true;
+}
+
+void ElementSVG::OnChildRemove(Element* child)
+{
+	Element::OnChildRemove(child);
+	if (GetAttribute<String>("src", "").empty())
+		source_dirty = true;
 }
 
 void ElementSVG::OnPropertyChange(const PropertyIdSet& changed_properties)
@@ -137,25 +159,43 @@ bool ElementSVG::LoadSource()
 
 	const String attribute_src = GetAttribute<String>("src", "");
 
-	if (attribute_src.empty())
-		return false;
-
-	String path = attribute_src;
-	String directory;
-
-	if (ElementDocument* document = GetOwnerDocument())
-	{
-		const String document_source_url = StringUtilities::Replace(document->GetSourceURL(), '|', ':');
-		GetSystemInterface()->JoinPath(path, document_source_url, attribute_src);
-		GetSystemInterface()->JoinPath(directory, document_source_url, "");
-	}
-
 	String svg_data;
 
-	if (path.empty() || !GetFileInterface()->LoadFile(path, svg_data))
+	if (attribute_src.empty())
 	{
-		Log::Message(Rml::Log::Type::LT_WARNING, "Could not load SVG file %s", path.c_str());
-		return false;
+		// Inline SVG: reconstruct the full <svg ...>...</svg> XML from this element.
+		String inner = GetInnerRML();
+		if (inner.empty())
+			return false;
+
+		svg_data = "<svg";
+		for (const auto& attr : GetAttributes())
+		{
+			svg_data += ' ';
+			svg_data += attr.first;
+			svg_data += "=\"";
+			svg_data += attr.second.Get<String>(GetCoreInstance());
+			svg_data += '"';
+		}
+		svg_data += '>';
+		svg_data += inner;
+		svg_data += "</svg>";
+	}
+	else
+	{
+		String path = attribute_src;
+
+		if (ElementDocument* document = GetOwnerDocument())
+		{
+			const String document_source_url = StringUtilities::Replace(document->GetSourceURL(), '|', ':');
+			GetSystemInterface(GetCoreInstance())->JoinPath(path, document_source_url, attribute_src);
+		}
+
+		if (path.empty() || !GetFileInterface(GetCoreInstance())->LoadFile(path, svg_data))
+		{
+			Log::Message(Rml::Log::Type::LT_WARNING, "Could not load SVG file %s", path.c_str());
+			return false;
+		}
 	}
 
 	// We use a reset-release approach here in case clients use a non-std unique_ptr (lunasvg uses std::unique_ptr)
@@ -163,7 +203,7 @@ bool ElementSVG::LoadSource()
 
 	if (!svg_document)
 	{
-		Log::Message(Rml::Log::Type::LT_WARNING, "Could not load SVG data from file %s", path.c_str());
+		Log::Message(Rml::Log::Type::LT_WARNING, "Could not load SVG data from %s", attribute_src.empty() ? "(inline)" : attribute_src.c_str());
 		return false;
 	}
 
@@ -172,6 +212,7 @@ bool ElementSVG::LoadSource()
 
 	return true;
 }
+
 
 void ElementSVG::UpdateTexture()
 {
