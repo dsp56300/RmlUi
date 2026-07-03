@@ -45,6 +45,7 @@
 #include "ScrollController.h"
 #include "StreamFile.h"
 #include <algorithm>
+#include <clocale>
 #include <iterator>
 #include <limits>
 
@@ -55,6 +56,30 @@ namespace Rml {
 static constexpr float DOUBLE_CLICK_TIME = 0.5f;    // [s]
 static constexpr float DOUBLE_CLICK_MAX_DIST = 3.f; // [dp]
 static constexpr float UNIT_SCROLL_LENGTH = 80.f;   // [dp]
+
+static void DebugVerifyLocaleSetting(CoreInstance& core_instance)
+{
+#ifdef RMLUI_DEBUG
+	constexpr float expected_value = 1000.5f;
+	const Rml::String expected_string = "1000.5";
+	const Rml::String formatted_string = Rml::ToString(core_instance, expected_value);
+	const float parsed_value = Rml::FromString<float>(core_instance, expected_string);
+
+	const char* description = "RmlUi expects the global locale to be set to the default minimal \"C\" locale, please see `std::setlocale`.";
+	if (formatted_string != expected_string)
+	{
+		Rml::Log::Message(Rml::Log::LT_ERROR,
+			"Incompatible locale setting detected while formatting %f. Formatted: \"%s\". Expected: \"%s\". Current locale: %s. %s", expected_value,
+			formatted_string.c_str(), expected_string.c_str(), std::setlocale(LC_ALL, nullptr), description);
+	}
+	if (parsed_value != expected_value)
+	{
+		Rml::Log::Message(Rml::Log::LT_ERROR,
+			"Incompatible locale setting detected while parsing \"%s\". Parsed: %f. Expected: %f. Current locale: %s. %s", expected_string.c_str(),
+			parsed_value, expected_value, std::setlocale(LC_ALL, nullptr), description);
+	}
+#endif
+}
 
 Context::Context(CoreInstance& core_instance, const String& name, RenderManager* render_manager, TextInputHandler* text_input_handler) :
 	core_instance(core_instance), name(name), render_manager(render_manager), text_input_handler(text_input_handler)
@@ -177,6 +202,7 @@ float Context::GetDensityIndependentPixelRatio() const
 bool Context::Update()
 {
 	RMLUI_ZoneScoped;
+	DebugVerifyLocaleSetting(core_instance);
 
 	next_update_timeout = std::numeric_limits<double>::infinity();
 
@@ -276,6 +302,7 @@ ElementDocument* Context::LoadDocument(const String& document_path)
 
 ElementDocument* Context::LoadDocument(Stream* stream)
 {
+	DebugVerifyLocaleSetting(core_instance);
 	PluginRegistry::NotifyDocumentOpen(this, stream->GetSourceURL().GetURL());
 
 	ElementPtr element = core_instance.factory->InstanceDocumentStream(this, stream, GetDocumentsBaseTag());

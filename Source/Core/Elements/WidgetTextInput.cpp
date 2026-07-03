@@ -595,7 +595,7 @@ void WidgetTextInput::ProcessEvent(Event& event)
 
 		case Input::KI_A:
 		{
-			if (ctrl)
+			if (ctrl && !alt)
 				Select();
 		}
 		break;
