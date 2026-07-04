@@ -70,11 +70,11 @@ namespace SVG {
 		data->handle->geometry.Render(element->GetAbsoluteOffset(data->paint_area), data->handle->texture);
 	}
 
-	DecoratorSVGInstancer::DecoratorSVGInstancer()
+	DecoratorSVGInstancer::DecoratorSVGInstancer(CoreInstance& core_instance) : core_instance(core_instance)
 	{
-		source_id = RegisterProperty("source", "").AddParser("string").GetId();
-		crop_id = RegisterProperty("crop", "crop-none").AddParser("keyword", "crop-none, crop-to-content").GetId();
-		RegisterShorthand("decorator", "source, crop", ShorthandType::FallThrough);
+		source_id = RegisterProperty(core_instance, "source", "").AddParser("string").GetId();
+		crop_id = RegisterProperty(core_instance, "crop", "crop-none").AddParser("keyword", "crop-none, crop-to-content").GetId();
+		RegisterShorthand(core_instance, "decorator", "source, crop", ShorthandType::FallThrough);
 	}
 
 	DecoratorSVGInstancer::~DecoratorSVGInstancer() {}
@@ -82,11 +82,11 @@ namespace SVG {
 	SharedPtr<Decorator> DecoratorSVGInstancer::InstanceDecorator(const String&, const PropertyDictionary& properties,
 		const DecoratorInstancerInterface&)
 	{
-		String source = properties.GetProperty(source_id)->Get<String>();
+		String source = properties.GetProperty(source_id)->Get<String>(core_instance);
 		if (source.empty())
 			return nullptr;
 
-		const bool crop_to_content = properties.GetProperty(crop_id)->Get<int>() != 0;
+		const bool crop_to_content = properties.GetProperty(crop_id)->Get<int>(core_instance) != 0;
 
 		return MakeShared<DecoratorSVG>(source, crop_to_content);
 	}

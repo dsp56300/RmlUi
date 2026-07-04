@@ -51,7 +51,7 @@ namespace SVG {
 			element_instancer = MakeUnique<ElementInstancerGeneric<ElementSVG>>();
 			core_instance.factory->RegisterElementInstancer("svg", element_instancer.get());
 
-			decorator_instancer = MakeUnique<DecoratorSVGInstancer>();
+			decorator_instancer = MakeUnique<DecoratorSVGInstancer>(core_instance);
 			core_instance.factory->RegisterDecoratorInstancer("svg", decorator_instancer.get());
 
 			Log::Message(Log::LT_INFO, "SVG plugin initialised.");

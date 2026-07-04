@@ -32,6 +32,9 @@
 #include "../../Include/RmlUi/Core/Decorator.h"
 
 namespace Rml {
+
+class CoreInstance;
+
 namespace SVG {
 
 	struct SVGData;
@@ -58,12 +61,13 @@ namespace SVG {
 
 	class DecoratorSVGInstancer : public DecoratorInstancer {
 	public:
-		DecoratorSVGInstancer();
+		DecoratorSVGInstancer(CoreInstance& core_instance);
 		~DecoratorSVGInstancer();
 
 		SharedPtr<Decorator> InstanceDecorator(const String&, const PropertyDictionary& properties, const DecoratorInstancerInterface&) override;
 
 	private:
+		CoreInstance& core_instance;
 		PropertyId source_id;
 		PropertyId crop_id;
 	};
