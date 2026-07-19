@@ -67,6 +67,12 @@ public:
 	/// Merge another style sheet container into this.
 	void MergeStyleSheetContainer(const StyleSheetContainer& container);
 
+	/// Returns the names of all themes referenced by the media queries of this container, in the order they
+	/// are declared and without duplicates. Themes are activated on the context via Context::ActivateTheme,
+	/// which only takes a name, so this is the way to discover which themes a style sheet actually offers,
+	/// for example to build a theme selection UI.
+	Vector<String> GetThemeNames() const;
+
 private:
 	CoreInstance& core_instance;
 	MediaBlockList media_blocks;
