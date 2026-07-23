@@ -42,7 +42,7 @@
 
 namespace Rml {
 
-ElementSVG::ElementSVG(const String& tag) : Element(tag) {}
+ElementSVG::ElementSVG(CoreInstance& core_instance, const String& tag) : Element(core_instance, tag) {}
 
 ElementSVG::~ElementSVG() {}
 
@@ -146,13 +146,13 @@ bool ElementSVG::LoadSource()
 	if (ElementDocument* document = GetOwnerDocument())
 	{
 		const String document_source_url = StringUtilities::Replace(document->GetSourceURL(), '|', ':');
-		GetSystemInterface()->JoinPath(path, document_source_url, attribute_src);
-		GetSystemInterface()->JoinPath(directory, document_source_url, "");
+		GetSystemInterface(GetCoreInstance())->JoinPath(path, document_source_url, attribute_src);
+		GetSystemInterface(GetCoreInstance())->JoinPath(directory, document_source_url, "");
 	}
 
 	String svg_data;
 
-	if (path.empty() || !GetFileInterface()->LoadFile(path, svg_data))
+	if (path.empty() || !GetFileInterface(GetCoreInstance())->LoadFile(path, svg_data))
 	{
 		Log::Message(Rml::Log::Type::LT_WARNING, "Could not load SVG file %s", path.c_str());
 		return false;

@@ -27,6 +27,7 @@
  */
 
 #include "../../Include/RmlUi/Core/Core.h"
+#include "../../Include/RmlUi/Core/CoreInstance.h"
 #include "../../Include/RmlUi/Core/ElementInstancer.h"
 #include "../../Include/RmlUi/Core/Factory.h"
 #include "../../Include/RmlUi/Core/Log.h"
@@ -38,13 +39,15 @@ namespace SVG {
 
 	class SVGPlugin : public Plugin {
 	public:
+		explicit SVGPlugin(CoreInstance& _core_instance) : core_instance(_core_instance) {}
+
 		void OnInitialise() override
 		{
 			instancer = MakeUnique<ElementInstancerGeneric<ElementSVG>>();
 
-			Factory::RegisterElementInstancer("svg", instancer.get());
+			core_instance.factory->RegisterElementInstancer("svg", instancer.get());
 
-			Log::Message(Log::LT_INFO, "SVG plugin initialised.");
+			Log::Message(core_instance, Log::LT_INFO, "SVG plugin initialised.");
 		}
 
 		void OnShutdown() override { delete this; }
@@ -52,12 +55,13 @@ namespace SVG {
 		int GetEventClasses() override { return Plugin::EVT_BASIC; }
 
 	private:
+		CoreInstance& core_instance;
 		UniquePtr<ElementInstancerGeneric<ElementSVG>> instancer;
 	};
 
-	void Initialise()
+	void Initialise(CoreInstance& core_instance)
 	{
-		RegisterPlugin(new SVGPlugin);
+		RegisterPlugin(core_instance, new SVGPlugin(core_instance));
 	}
 
 } // namespace SVG

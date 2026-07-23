@@ -44,7 +44,7 @@ class RMLUICORE_API ElementSVG : public Element {
 public:
 	RMLUI_RTTI_DefineWithParent(ElementSVG, Element)
 
-	ElementSVG(const String& tag);
+	ElementSVG(CoreInstance& core_instance, const String& tag);
 	virtual ~ElementSVG();
 
 	/// Returns the element's inherent size.

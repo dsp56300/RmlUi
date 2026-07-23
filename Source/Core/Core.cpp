@@ -163,7 +163,7 @@ bool Initialise(CoreInstance& in_core_instance)
 	Lottie::Initialise();
 #endif
 #ifdef RMLUI_SVG_PLUGIN
-	SVG::Initialise();
+	SVG::Initialise(in_core_instance);
 #endif
 
 	// Notify all plugins we're starting up.

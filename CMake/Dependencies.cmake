@@ -24,7 +24,10 @@ if(RMLUI_LOTTIE_PLUGIN)
 endif()
 
 if(RMLUI_SVG_PLUGIN)
-	find_package("lunasvg")
+	# The consuming project may provide lunasvg as a source target (add_subdirectory), skip find_package then
+	if(NOT TARGET lunasvg::lunasvg)
+		find_package("lunasvg")
+	endif()
 	report_dependency_found_or_error("LunaSVG" "lunasvg" lunasvg::lunasvg "SVG plugin enabled")
 endif()
 
