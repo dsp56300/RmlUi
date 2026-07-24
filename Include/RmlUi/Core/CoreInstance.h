@@ -45,6 +45,7 @@ namespace Rml
 	class SystemInterface;
 	class FileInterface;
 	class FontEngineInterface;
+	namespace SVG { struct SVGCacheData; }
 
 	class CoreInstance final : NonCopyMoveable
 	{
@@ -97,6 +98,8 @@ namespace Rml
 		ControlledLifetimeResource<PropertyParserDecoratorData> parser_decorator_data;
 
 		ControlledLifetimeResource<PropertyParserNumberData> parser_number_data;
+
+		ControlledLifetimeResource<SVG::SVGCacheData> svg_cache_data;
 
 		Factory* factory;
 

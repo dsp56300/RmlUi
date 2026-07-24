@@ -205,7 +205,7 @@ public:
 	void RegisterDataControllerInstancer(DataControllerInstancer* instancer, const String& type_name);
 
 	/// Instance the data view with the given type name.
-	DataViewPtr InstanceDataView(const String& type_name, Element* element, bool is_structural_view);
+	DataViewPtr InstanceDataView(const String& type_name, Element* element);
 
 	/// Instance the data controller with the given type name.
 	DataControllerPtr InstanceDataController(const String& type_name, Element* element);
@@ -214,7 +214,7 @@ public:
 	bool IsStructuralDataView(const String& type_name);
 
 	/// Returns the list of element attribute names with an associated structural data view instancer.
-	const StringList& GetStructuralDataViewAttributeNames();
+	const SmallUnorderedSet<String>& GetStructuralDataViewAttributeNames();
 
 	Factory(CoreInstance& core_instance);
 	~Factory();
