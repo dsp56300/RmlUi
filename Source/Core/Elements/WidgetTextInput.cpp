@@ -1419,7 +1419,9 @@ Vector2f WidgetTextInput::FormatText(float height_constraint)
 
 void WidgetTextInput::GenerateCursor()
 {
-	cursor_size.x = Math::Round(ElementUtilities::GetDensityIndependentPixelRatio(text_element));
+	// Small skin/content scales can make one dp less than half a render pixel.
+	// Keep the caret visible at every density instead of rounding its width to zero.
+	cursor_size.x = Math::Max(1.f, Math::Round(ElementUtilities::GetDensityIndependentPixelRatio(text_element)));
 	cursor_size.y = GetLineHeight();
 
 	Colourb color = parent->GetComputedValues().color();
