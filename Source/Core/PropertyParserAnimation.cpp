@@ -121,13 +121,9 @@ PropertyParserAnimation::PropertyParserAnimation(CoreInstance& core_instance, Ty
 bool PropertyParserAnimation::ParseValue(Property& property, const String& value, const ParameterMap& /*parameters*/) const
 {
 	StringList list_of_values;
-	{
-		auto lowercase_value = StringUtilities::ToLower(value);
-		StringUtilities::ExpandString(list_of_values, lowercase_value, ',');
-	}
+	StringUtilities::ExpandString(list_of_values, value, ',');
 
 	bool result = false;
-
 	if (type == ANIMATION_PARSER)
 	{
 		result = ParseAnimation(property, list_of_values);
@@ -161,7 +157,7 @@ bool PropertyParserAnimation::ParseAnimation(Property& property, const StringLis
 				continue;
 
 			// See if we have a <keyword> or <tween> specifier as defined in keywords
-			auto it = core_instance.parser_animation_data->keywords.find(argument);
+			auto it = core_instance.parser_animation_data->keywords.find(StringUtilities::ToLower(argument));
 			if (it != core_instance.parser_animation_data->keywords.end() && it->second.ValidAnimation())
 			{
 				switch (it->second.type)
