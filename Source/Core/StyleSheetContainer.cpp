@@ -207,6 +207,41 @@ SharedPtr<StyleSheetContainer> StyleSheetContainer::CombineStyleSheetContainer(c
 	return new_sheet;
 }
 
+Vector<String> StyleSheetContainer::GetThemeNames() const
+{
+	Vector<String> themes;
+
+	for (const MediaBlock& media_block : media_blocks)
+	{
+		for (const auto& property : media_block.properties.GetProperties())
+		{
+			if (static_cast<MediaQueryId>(property.first) != MediaQueryId::Theme)
+				continue;
+
+			String name = property.second.Get<String>(core_instance);
+
+			if (name.empty())
+				continue;
+
+			bool known = false;
+
+			for (const String& theme : themes)
+			{
+				if (theme == name)
+				{
+					known = true;
+					break;
+				}
+			}
+
+			if (!known)
+				themes.push_back(std::move(name));
+		}
+	}
+
+	return themes;
+}
+
 void StyleSheetContainer::MergeStyleSheetContainer(const StyleSheetContainer& other)
 {
 	RMLUI_ZoneScoped;
