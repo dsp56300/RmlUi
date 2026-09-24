@@ -925,10 +925,11 @@ void Context::OnElementDetach(Element* element)
 		element->DispatchEvent(EventId::Mouseout, parameters);
 
 		hover_chain.erase(it_hover);
-
-		if (hover == element)
-			hover = nullptr;
 	}
+
+	// Checked separately, as during a drag the hover element is not part of the (kept) hover chain.
+	if (hover == element)
+		hover = nullptr;
 
 	auto it_active = std::find(active_chain.begin(), active_chain.end(), element);
 	if (it_active != active_chain.end())
@@ -1121,9 +1122,12 @@ void Context::UpdateHoverChain(Vector2i old_mouse_position, int key_modifier_sta
 		}
 	}
 
-	// Build the new hover chain.
-	ElementSet new_hover_chain;
-	Element* element = hover;
+	// Build the new hover chain. A drag in progress keeps the chain it started with: the dragged element holds on to the
+	// mouse like a native control, so the elements the pointer crosses neither become :hover nor receive mouseover and
+	// mouseout. Drop targets still follow the pointer through the drag hover chain below; the release rebuilds this one.
+	const bool keep_hover_chain = (drag && drag_started && mouse_active);
+	ElementSet new_hover_chain = keep_hover_chain ? hover_chain : ElementSet();
+	Element* element = keep_hover_chain ? nullptr : hover;
 	while (element != nullptr)
 	{
 		new_hover_chain.insert(element);
