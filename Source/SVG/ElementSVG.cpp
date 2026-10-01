@@ -198,7 +198,15 @@ void ElementSVG::UpdateTexture()
 		for (size_t i = 0; i < bitmap_byte_size; i += 4)
 			std::swap(bitmap_data[i], bitmap_data[i + 2]);
 
-		if (!texture_interface.GenerateTexture({reinterpret_cast<const Rml::byte*>(bitmap.data()), bitmap_byte_size}, render_dimensions))
+		// The size the bitmap came back as, not the size it was asked for. LunaSVG keeps the
+		// document's aspect ratio, so a request that does not match it - or one with a zero side,
+		// which a laid-out element can briefly have - returns a bitmap of another size. Passing the
+		// requested size with that bitmap's bytes hands the render interface a span that is not a
+		// whole number of pixels per dimension, and there is no format for that: the backend drops
+		// the texture and the image silently does not appear.
+		const Vector2i bitmap_dimensions = Vector2i(bitmap.width(), bitmap.height());
+
+		if (!texture_interface.GenerateTexture({reinterpret_cast<const Rml::byte*>(bitmap.data()), bitmap_byte_size}, bitmap_dimensions))
 		{
 			Log::Message(Rml::Log::Type::LT_WARNING, "Could not generate texture for SVG: %s", GetAttribute<String>("src", "").c_str());
 			return false;
