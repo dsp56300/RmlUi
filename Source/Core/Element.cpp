@@ -1859,6 +1859,16 @@ void Element::OnPropertyChange(const PropertyIdSet& changed_properties)
 		}
 	}
 
+	// The paint order of an element follows from its position, float and display, so a change of one of them re-sorts the
+	// stacking context it is in. An element appended during an event gets its computed values only with the next update, a
+	// stacking context built before that, as a hit test does, sorted it as a static inline element.
+	if (changed_properties.Contains(PropertyId::Position) || changed_properties.Contains(PropertyId::Float) ||
+		changed_properties.Contains(PropertyId::Display))
+	{
+		if (parent != nullptr)
+			parent->DirtyStackingContext();
+	}
+
 	const bool border_radius_changed = (                                    //
 		changed_properties.Contains(PropertyId::BorderTopLeftRadius) ||     //
 		changed_properties.Contains(PropertyId::BorderTopRightRadius) ||    //
