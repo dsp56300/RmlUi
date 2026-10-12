@@ -49,6 +49,11 @@ void RenderInterface::EnableClipMask(bool /*enable*/) {}
 
 void RenderInterface::RenderToClipMask(ClipMaskOperation /*operation*/, CompiledGeometryHandle /*geometry*/, Vector2f /*translation*/) {}
 
+bool RenderInterface::UpdateTexture(TextureHandle /*texture*/, Span<const byte> /*source*/, Vector2i /*source_dimensions*/)
+{
+	return false;
+}
+
 void RenderInterface::SetTransform(const Matrix4f* /*transform*/) {}
 
 LayerHandle RenderInterface::PushLayer()

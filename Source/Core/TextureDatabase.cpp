@@ -71,6 +71,13 @@ TextureHandle CallbackTextureDatabase::GetHandle(RenderManager* render_manager, 
 	return EnsureLoaded(render_manager, render_interface, callback_index).texture_handle;
 }
 
+bool CallbackTextureDatabase::UpdateTexture(RenderInterface* render_interface, StableVectorIndex callback_index, Span<const byte> source,
+	Vector2i dimensions)
+{
+	const CallbackTextureEntry& data = texture_list[callback_index];
+	return data.texture_handle && data.dimensions == dimensions && render_interface->UpdateTexture(data.texture_handle, source, dimensions);
+}
+
 auto CallbackTextureDatabase::EnsureLoaded(RenderManager* render_manager, RenderInterface* render_interface, StableVectorIndex callback_index)
 	-> CallbackTextureEntry&
 {

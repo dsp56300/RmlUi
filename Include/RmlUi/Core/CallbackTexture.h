@@ -58,6 +58,13 @@ public:
 
 	operator Texture() const;
 
+	/// Replace the contents of the texture, keeping the texture itself.
+	/// @param[in] source Texture data in 8-bit RGBA (premultiplied) format.
+	/// @param[in] dimensions The width and height of the texture.
+	/// @return False if the texture is not generated yet, has other dimensions, or the render interface cannot update it.
+	/// Make a new callback texture then.
+	bool Update(Span<const byte> source, Vector2i dimensions);
+
 	void Release();
 
 private:

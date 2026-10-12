@@ -41,6 +41,11 @@ void CallbackTexture::Release()
 	}
 }
 
+bool CallbackTexture::Update(Span<const byte> source, Vector2i dimensions)
+{
+	return resource_handle != StableVectorIndex::Invalid && RenderManagerAccess::UpdateTexture(render_manager, resource_handle, source, dimensions);
+}
+
 Rml::CallbackTexture::operator Texture() const
 {
 	return Texture(render_manager, resource_handle);

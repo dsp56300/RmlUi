@@ -51,6 +51,7 @@ private:
 
 	static Vector2i GetDimensions(RenderManager* render_manager, TextureFileIndex texture);
 	static Vector2i GetDimensions(RenderManager* render_manager, StableVectorIndex callback_texture);
+	static bool UpdateTexture(RenderManager* render_manager, StableVectorIndex callback_texture, Span<const byte> source, Vector2i dimensions);
 
 	static void Render(RenderManager* render_manager, const Geometry& geometry, Vector2f translation, Texture texture, const CompiledShader& shader);
 

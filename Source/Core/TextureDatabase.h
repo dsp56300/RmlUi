@@ -47,6 +47,7 @@ public:
 
 	Vector2i GetDimensions(RenderManager* render_manager, RenderInterface* render_interface, StableVectorIndex callback_index);
 	TextureHandle GetHandle(RenderManager* render_manager, RenderInterface* render_interface, StableVectorIndex callback_index);
+	bool UpdateTexture(RenderInterface* render_interface, StableVectorIndex callback_index, Span<const byte> source, Vector2i dimensions);
 
 	size_t size() const;
 

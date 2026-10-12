@@ -116,6 +116,13 @@ public:
 	/// to the `CompositeLayers` function while rendering to its destination.
 	virtual void RenderToClipMask(ClipMaskOperation operation, CompiledGeometryHandle geometry, Vector2f translation);
 
+	/// Called by RmlUi when it wants to replace the contents of a generated texture without changing its dimensions.
+	/// @param[in] texture The texture handle, as returned by GenerateTexture().
+	/// @param[in] source The new texture data, in the same format as for GenerateTexture().
+	/// @param[in] source_dimensions The dimensions of the source data, equal to those the texture was generated with.
+	/// @return True if the texture was updated. False makes RmlUi generate a new texture instead.
+	virtual bool UpdateTexture(TextureHandle texture, Span<const byte> source, Vector2i source_dimensions);
+
 	/// Called by RmlUi when it wants the renderer to use a new transform matrix.
 	/// @param[in] transform The new transform to apply, or nullptr if no transform applies to the current element.
 	/// @note When nullptr is submitted, the renderer should use an identity transform matrix or otherwise omit the

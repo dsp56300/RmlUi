@@ -42,6 +42,11 @@ Vector2i RenderManagerAccess::GetDimensions(RenderManager* render_manager, Stabl
 	return render_manager->texture_database->callback_database.GetDimensions(render_manager, render_manager->render_interface, callback_texture);
 }
 
+bool RenderManagerAccess::UpdateTexture(RenderManager* render_manager, StableVectorIndex callback_texture, Span<const byte> source, Vector2i dimensions)
+{
+	return render_manager->texture_database->callback_database.UpdateTexture(render_manager->render_interface, callback_texture, source, dimensions);
+}
+
 void RenderManagerAccess::Render(RenderManager* render_manager, const Geometry& geometry, Vector2f translation, Texture texture,
 	const CompiledShader& shader)
 {
