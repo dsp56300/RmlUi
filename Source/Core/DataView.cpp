@@ -29,6 +29,7 @@
 #include "DataView.h"
 #include "../../Include/RmlUi/Core/Element.h"
 #include <algorithm>
+#include <unordered_set>
 
 namespace Rml {
 
@@ -74,17 +75,25 @@ void DataViews::Add(DataViewPtr view)
 
 void DataViews::OnElementRemove(Element* element)
 {
-	for (auto it = views.begin(); it != views.end();)
+	// SetInnerRML can replace an element more than once before Update. Pending views
+	// must be detached too; otherwise their expired observers survive in the model.
+	const auto remove = [&](auto& list)
 	{
-		auto& view = *it;
-		if (view && view->GetElement() == element)
+		for (auto it = list.begin(); it != list.end();)
 		{
-			views_to_remove.push_back(std::move(view));
-			it = views.erase(it);
+			auto& view = *it;
+			if (view && (!view->IsValid() || view->GetElement() == element))
+			{
+				// Destruction is deferred: Update may still hold pointers to these views.
+				views_to_remove.push_back(std::move(view));
+				it = list.erase(it);
+			}
+			else
+				++it;
 		}
-		else
-			++it;
-	}
+	};
+	remove(views);
+	remove(views_to_add);
 }
 
 bool DataViews::Update(DataModel& model, const DirtyVariables& dirty_variables)
@@ -142,18 +151,17 @@ bool DataViews::Update(DataModel& model, const DirtyVariables& dirty_variables)
 		}
 
 		// Destroy views marked for destruction
-		// @performance: Horrible...
 		if (!views_to_remove.empty())
 		{
+			std::unordered_set<DataView*> removed;
 			for (const auto& view : views_to_remove)
+				removed.insert(view.get());
+			for (auto it = name_view_map.begin(); it != name_view_map.end();)
 			{
-				for (auto it = name_view_map.begin(); it != name_view_map.end();)
-				{
-					if (it->second == view.get())
-						it = name_view_map.erase(it);
-					else
-						++it;
-				}
+				if (removed.count(it->second))
+					it = name_view_map.erase(it);
+				else
+					++it;
 			}
 
 			views_to_remove.clear();
