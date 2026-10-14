@@ -48,13 +48,19 @@ FontFaceHandleDefault* FontFamily::GetFaceHandle(Style::FontStyle style, Style::
 {
 	int best_dist = INT_MAX;
 	FontFace* matching_face = nullptr;
+
+	// Closest weight among the faces in another style. Used when the family has no face in the requested style, as browsers do before they
+	// synthesize the style, instead of returning no face and rendering no text at all.
+	int best_other_style_dist = INT_MAX;
+	FontFace* other_style_face = nullptr;
+
 	for (size_t i = 0; i < font_faces.size(); i++)
 	{
 		FontFace* face = font_faces[i].face.get();
+		const int dist = Math::Absolute((int)face->GetWeight() - (int)weight);
 
 		if (face->GetStyle() == style)
 		{
-			const int dist = Math::Absolute((int)face->GetWeight() - (int)weight);
 			if (dist == 0)
 			{
 				// Direct match for weight, break the loop early.
@@ -68,7 +74,15 @@ FontFaceHandleDefault* FontFamily::GetFaceHandle(Style::FontStyle style, Style::
 				best_dist = dist;
 			}
 		}
+		else if (dist < best_other_style_dist)
+		{
+			other_style_face = face;
+			best_other_style_dist = dist;
+		}
 	}
+
+	if (!matching_face)
+		matching_face = other_style_face;
 
 	if (!matching_face)
 		return nullptr;
